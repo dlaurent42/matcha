@@ -1,9 +1,8 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
-import Register from '@/components/Register'
+import Vue from 'vue';
+import Router from 'vue-router';
+import HelloWorld from '@/components/HelloWorld';
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
   routes: [
@@ -12,10 +11,5 @@ export default new Router({
       name: 'HelloWorld',
       component: HelloWorld,
     },
-    {
-      path: '/register',
-      name: 'register',
-      component: Register,
-    },
   ],
-})
+});
