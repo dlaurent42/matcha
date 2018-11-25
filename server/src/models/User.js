@@ -110,19 +110,17 @@ class User {
         ))
       })
       .then((rows) => {
-        
+        this.id = rows[0].id
+        this.firstname = rows[0].firstname
+        this.lastname = rows[0].lastname
+        this.username = rows[0].username
+        this.email = rows[0].email
+        this.isAuthenticated = true
       })
       .catch((err) => {
         console.log(err)
         database.close()
       })
-
-    this.id = rows[0].id
-    this.firstname = rows[0].firstname
-    this.lastname = rows[0].lastname
-    this.username = rows[0].username
-    this.email = rows[0].email
-    this.isAuthenticated = true
   }
 }
 
