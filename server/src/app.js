@@ -1,14 +1,26 @@
+// NPM installed modules
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
-const config = require('./config')
 
+// Developed modules
+const config = require('./config')
+const indexRouter = require('./routes/index')
+const loginRouter = require('./routes/login')
+const postsRouter = require('./routes/posts')
+const registerRouter = require('./routes/register')
+
+// Initialise application
 const app = express()
 app.use(morgan('combined'))
 app.use(bodyParser.json())
 app.use(cors())
 
-require('./routes')(app)
+// Set routes
+app.use('/', indexRouter)
+app.use('/login', loginRouter)
+app.use('/register', registerRouter)
+app.use('/posts', postsRouter)
 
-app.listen(config.port)
+app.listen(config.port, () => console.log(`Server started and listening on port ${config.port}`))

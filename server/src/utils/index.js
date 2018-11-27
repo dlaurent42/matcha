@@ -11,6 +11,7 @@ const toCapitalize = require('./toCapitalize')
 const toLowercase = require('./toLowercase')
 const toUppercase = require('./toUppercase')
 const hash = require('./hash')
+const verifyToken = require('./verifyToken')
 
 module.exports = {
   hash,
@@ -27,4 +28,5 @@ module.exports = {
   toCapitalize,
   toLowercase,
   toUppercase,
+  verifyToken,
 }
