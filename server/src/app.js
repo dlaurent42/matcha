@@ -18,9 +18,7 @@ app.use(bodyParser.json())
 app.use(cors())
 
 // Set routes
-app.use('/', indexRouter)
-app.use('/login', loginRouter)
-app.use('/register', registerRouter)
+app.use('/', indexRouter, loginRouter, registerRouter)
 app.use('/posts', postsRouter)
 
 app.listen(config.port, () => console.log(`Server started and listening on port ${config.port}`))
