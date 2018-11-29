@@ -1,14 +1,13 @@
 <template>
   <div class="index">
-    <h1>Message is: {{ message }}</h1>
+    Hello world
   </div>
 </template>
-
 <script>
 export default {
-  name: 'Index',
-  props: {
-    message: String,
-  },
+  name: 'index'
 }
 </script>
+<style type="text/css">
+
+</style>

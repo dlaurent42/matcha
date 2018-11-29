@@ -1,7 +1,7 @@
 import Api from './Api'
 
 export default {
-  fetch () {
+  fetch() {
     return Api().get('')
-  }
+  },
 }

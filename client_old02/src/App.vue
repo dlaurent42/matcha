@@ -1,10 +1,10 @@
 <template>
   <div id="app">
-    <div v-if="userLogged" id="nav">
+    <div v-if="isLogged" id="nav">
       <router-link to="/">Home - logged</router-link> |
       <router-link to="/about">About - logged</router-link>
     </div>
-    <div v-else-if="!userLogged" id="nav">
+    <div v-else-if="!isLogged" id="nav">
       <router-link to="/">Home - not logged</router-link> |
       <router-link to="/about">About - not logged</router-link>
     </div>
@@ -16,21 +16,21 @@
 import Main from '@/services/Main'
 export default {
   name: 'App',
-  data () {
+  data() {
     return {
-      userLogged: false
-    }
+      isLogged: false,
+    };
   },
-  mounted () {
+  mounted() {
     this.isLogged()
   },
   methods: {
-    async isLogged () {
+    async isLogged() {
       const response = await Main.fetch()
-      this.userLogged = response.isLogged
+      this.isLogged = response.isLogged
     }
   }
-}
+};
 </script>
 
 <style>
@@ -40,6 +40,17 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+#nav {
+  padding: 30px;
+}
+
+#nav a {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+#nav a.router-link-exact-active {
+  color: #42b983;
 }
 </style>
