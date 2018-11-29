@@ -4,7 +4,6 @@
   </div>
 </template>
 <script>
-import Index from '@/services/Index'
 export default {
   name: 'index'
 }
