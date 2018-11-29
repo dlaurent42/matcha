@@ -10,6 +10,8 @@ const indexRouter = require('./routes/index')
 const loginRouter = require('./routes/login')
 const postsRouter = require('./routes/posts')
 const registerRouter = require('./routes/register')
+const userCount = require('./routes/user/count')
+const userAuthenticated = require('./routes/user/authenticated')
 
 // Initialise application
 const app = express()
@@ -19,6 +21,7 @@ app.use(cors())
 
 // Set routes
 app.use('/', indexRouter, loginRouter, registerRouter)
+app.use('/user', userCount, userAuthenticated)
 app.use('/posts', postsRouter)
 
 app.listen(config.port, () => console.log(`Server started and listening on port ${config.port}`))

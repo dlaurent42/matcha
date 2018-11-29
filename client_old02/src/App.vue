@@ -1,14 +1,19 @@
 <template>
-  <div id="app">
-    <div v-if="isLogged" id="nav">
-      <router-link to="/">Home - logged</router-link> |
-      <router-link to="/about">About - logged</router-link>
-    </div>
-    <div v-else-if="!isLogged" id="nav">
-      <router-link to="/">Home - not logged</router-link> |
-      <router-link to="/about">About - not logged</router-link>
-    </div>
+  <div id="wrapper">
+    <header>
+      <div v-if="isLogged" id="nav">
+        <router-link to="/">Home - logged</router-link> |
+        <router-link to="/about">About - logged</router-link>
+      </div>
+      <div v-else-if="!isLogged" id="nav">
+        <router-link to="/">Home - not logged</router-link> |
+        <router-link to="/about">About - not logged</router-link>
+      </div>
+    </header>
     <router-view/>
+    <footer>
+      Copyright {{ year }}
+    </footer>
   </div>
 </template>
 
@@ -17,7 +22,9 @@ import Main from '@/services/Main'
 export default {
   name: 'App',
   data() {
+    const d = new Date();
     return {
+      year: d.getFullYear(),
       isLogged: false,
     };
   },
