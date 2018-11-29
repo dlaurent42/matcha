@@ -7,11 +7,14 @@ router.get('/', (req, res) => {
   jwtRefreshToken(req)
     .then((authData) => {
       res.json({
-        message: 'Post created...',
+        isLogged: true,
         authData,
       })
     })
-    .catch(err => res.json({ err }))
+    .catch(err => res.json({
+      isLogged: false,
+      err,
+    }))
 })
 
 module.exports = router
