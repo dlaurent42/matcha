@@ -59,7 +59,7 @@ const usersTable = new Promise((resolve, reject) =>
   )
 )
 
-Promise.all([usersTable, totoTable]).then(() => {
+Promise.all([usersTable]).then(() => {
   console.log('[mysql] Database is now up-to-date')
   process.exit()
 })
