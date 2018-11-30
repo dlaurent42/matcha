@@ -1,0 +1,3 @@
+
+"CREATE USER 'root'@'%' IDENTIFIED BY 'password'; GRANT ALL ON *.* TO 'root'@'%';"
+'CREATE TABLE `matcha`.`users` ( `id` INT NOT NULL AUTO_INCREMENT , `username` VARCHAR(255) NOT NULL , `firstname` VARCHAR(255) NOT NULL , `lastname` VARCHAR(255) NOT NULL , `password` VARCHAR(255) NOT NULL , `salt` VARCHAR(255) NOT NULL , `registrationToken` VARCHAR(255) NOT NULL , `registrationDate` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `age` INT NOT NULL , `gender` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;'

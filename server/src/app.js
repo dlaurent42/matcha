@@ -6,12 +6,10 @@ const morgan = require('morgan')
 
 // Developed modules
 const config = require('./config')
-const indexRouter = require('./routes/index')
-const loginRouter = require('./routes/login')
-const postsRouter = require('./routes/posts')
-const registerRouter = require('./routes/register')
-const userCount = require('./routes/user/count')
+const userAdd = require('./routes/user/add')
+const userAuthenticate = require('./routes/user/authenticate')
 const userAuthenticated = require('./routes/user/authenticated')
+const userCount = require('./routes/user/count')
 
 // Initialise application
 const app = express()
@@ -20,8 +18,6 @@ app.use(bodyParser.json())
 app.use(cors())
 
 // Set routes
-app.use('/', indexRouter, loginRouter, registerRouter)
-app.use('/user', userCount, userAuthenticated)
-app.use('/posts', postsRouter)
+app.use('/user', userAdd, userAuthenticate, userAuthenticated, userCount)
 
 app.listen(config.port, () => console.log(`Server started and listening on port ${config.port}`))
