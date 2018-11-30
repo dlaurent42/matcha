@@ -11,8 +11,6 @@ const {
   hasLowercase,
   hasUppercase,
   hasSpecial,
-  toCapitalize,
-  toUppercase,
 } = require('../../utils')
 
 const router = express.Router()
@@ -58,35 +56,31 @@ router.post('/add', (req, res) => {
   if (user.password !== user.cpassword) return res.json({ err: 'Confirmed password is different from entered password' })
 
   // Query database to know if user already exists (based on username and email)
-  'SELECT * FROM `users` WHERE `username` = ? AND `password` = ? LIMIT 1;'
-  // database.query('SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;', { username: user.username, email: user.email })
   database.query('SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;', [ user.username, user.email ])
     .then((rows) => {
-      console.log('registration_01: rows is : ', JSON.stringify(rows))
-      if (!isEmpty(rows)) return res.json({ err: 'An account with entered email/username already exists' })
+      if (rows.count > 0) return res.json({ err: 'An account with entered email/username already exists' })
       const salt = hash.genRandomString(255)
       const registrationToken = hash.genRandomString(255)
       const hashedPassword = hash.sha512(user.password, salt)
-      const formattedFirstname = toCapitalize(user.firstname)
-      const formattedLastname = toUppercase(user.lastname)
+      const formattedFirstname = user.firstname.charAt(0).toUpperCase() + user.firstname.slice(1)
+      const formattedLastname = user.lastname.toUpperCase()
       return (database.query(
         'INSERT INTO `users` (`username`, `firstname`, `lastname`, `email`, `password`, `salt`, `registrationToken`) VALUES (?, ?, ?, ?, ?, ?, ?);',
-        {
-          username: user.username,
-          firstname: formattedFirstname,
-          lastname: formattedLastname,
-          email: email,
-          password: hashedPassword,
+        [
+          user.username,
+          formattedFirstname,
+          formattedLastname,
+          user.email,
+          hashedPassword,
           salt,
           registrationToken,
-        }
+        ]
       ))
     })
     .then((rows) => {
-      console.log('registration_02: rows is : ', JSON.stringify(rows))
       if (isEmpty(rows)) return res.json({ err: 'An error occured.' })
       database.close()
-      return jwtNewToken(rows[0].id)
+      return jwtNewToken(rows.insertId)
     })
     .then(token => res.json({ token }))
     .catch((err) => {

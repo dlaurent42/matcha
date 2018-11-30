@@ -23,11 +23,11 @@ router.post('/authenticate', (req, res) => {
   if (isEmpty(user.password)) return res.json({ err: 'Please enter your password' })
 
   // Get salt string from username
-  database.query('SELECT `salt` FROM `users` WHERE `username` = ? LIMIT 1;', { username: user.username })
+  database.query('SELECT `salt` FROM `users` WHERE `username` = ? LIMIT 1;', [user.username])
     .then((rows) => {
       if (isEmpty(rows)) return res.json({ err: 'Wrong username or password' })
       const hashedPassword = hash.sha512(user.password, rows[0].salt)
-      return database.query('SELECT * FROM `users` WHERE `username` = ? AND `password` = ? LIMIT 1;', { username: user.username, hashedPassword })
+      return database.query('SELECT * FROM `users` WHERE `username` = ? AND `password` = ? LIMIT 1;', [user.username, hashedPassword])
     })
     .then((rows) => {
       if (isEmpty(rows)) return res.json({ err: 'Wrong username or password' })
