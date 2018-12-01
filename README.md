@@ -1,4 +1,4 @@
-# matcha
+# MATCHA
 
 Matcha is a dating-site using Vue-JS, Node-JS v10.9.0 as RESTful API and MySQL.
 
