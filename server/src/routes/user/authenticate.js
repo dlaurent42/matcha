@@ -1,6 +1,6 @@
 const express = require('express')
-const { jwtNewToken } = require('../../models/auth/jwt')
 const Database = require('../../models/Database')
+const JsonWebToken = require('../../models/JsonWebToken')
 const {
   hash,
   isEmpty,
@@ -14,6 +14,7 @@ router.post('/authenticate', (req, res) => {
 
   const [user] = req.body.user
   const database = new Database()
+  const jwt = new JsonWebToken()
 
   // Check if username has been filled in
   if (isEmpty(user.username)) return res.json({ err: 'Please enter your username' })
@@ -31,7 +32,7 @@ router.post('/authenticate', (req, res) => {
     .then((rows) => {
       if (isEmpty(rows)) return res.json({ err: 'Wrong username or password' })
       database.close()
-      return jwtNewToken(rows[0].id)
+      return jwt.create(rows[0].id)
     })
     .then(token => res.json({ token }))
     .catch(() => res.json({ err: 'Wrong username or password' }))

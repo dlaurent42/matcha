@@ -7,7 +7,7 @@ const router = express.Router()
 router.get('/count', (req, res) => {
   const database = new Database()
 
-  database.query('SELECT COUNT(*) AS count FROM `users`;')
+  return database.query('SELECT COUNT(*) AS count FROM `users`;')
     .then((rows) => {
       if (isEmpty(rows)) res.json({ userCount: 0 })
       else res.json({ userCount: rows[0].count })

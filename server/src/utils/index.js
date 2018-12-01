@@ -8,6 +8,7 @@ const { isNumeric, isFloat } = require('./isNumeric')
 const isEmail = require('./isEmail')
 const isEmpty = require('./isEmpty')
 const hash = require('./hash')
+const template = require('./stringInterpolation')
 
 module.exports = {
   hash,
@@ -21,4 +22,5 @@ module.exports = {
   isFloat,
   isEmail,
   isEmpty,
+  template,
 }

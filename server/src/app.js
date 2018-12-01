@@ -8,8 +8,10 @@ const morgan = require('morgan')
 const config = require('./config')
 const userAdd = require('./routes/user/add')
 const userAuthenticate = require('./routes/user/authenticate')
-const userAuthenticated = require('./routes/user/authenticated')
 const userCount = require('./routes/user/count')
+const userCredentials = require('./routes/user/credentials')
+const userGetById = require('./routes/user/id')
+const userLogout = require('./routes/user/logout')
 
 // Initialise application
 const app = express()
@@ -22,8 +24,10 @@ app.use(
   '/user',
   userAdd,
   userAuthenticate,
-  userAuthenticated,
-  userCount
+  userCount,
+  userCredentials,
+  userGetById,
+  userLogout
 )
 
 app.listen(config.port, () => console.log(`Server started and listening on port ${config.port}`))
