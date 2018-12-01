@@ -18,6 +18,9 @@ Matcha is a dating-site using Vue-JS, Node-JS as RESTful API and MySQL.
 
 ***
 ## Installation
+##### Node JS v10.9.0
+##### npm v6.4.1
+
 #### Clone the repository
 ``` git clone https://www.github.com/dlaurent42/matcha```
 
