@@ -44,12 +44,29 @@ database.query(`USE ${db.database};`, (err, res) => {
   if (err) console.log('[mysql] Cannot select database: ', err.message)
 })
 
-// Create users table
-const usersTable = new Promise((resolve, reject) =>
+// Create table containing user information
+const usersTable = new Promise((resolve, reject) => 
   resolve(
     tableExists(database, 'users')
       .then((res) => {
-        if (res === false) return dbQuery(database, 'CREATE TABLE `users` ( `id` INT NOT NULL AUTO_INCREMENT , `username` VARCHAR(255) NOT NULL , `firstname` VARCHAR(255) NOT NULL , `lastname` VARCHAR(255) NOT NULL , `email` VARCHAR(255) NOT NULL , `password` VARCHAR(255) NOT NULL , `salt` VARCHAR(255) NOT NULL , `registrationToken` VARCHAR(255) NOT NULL , `registrationDate` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `age` INT NOT NULL , `gender` INT NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;')
+        if (res === false) return dbQuery(
+          database,
+          'CREATE TABLE `users` ' + 
+          '( ' +
+          '  `id` INT NOT NULL AUTO_INCREMENT , ' +
+          '  `username` VARCHAR(255) NOT NULL , ' +
+          '  `firstname` VARCHAR(255) NOT NULL , ' +
+          '  `lastname` VARCHAR(255) NOT NULL , ' +
+          '  `email` VARCHAR(255) NOT NULL , ' +
+          '  `password` VARCHAR(255) NOT NULL , ' +
+          '  `salt` VARCHAR(255) NOT NULL , ' +
+          '  `creation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , ' +
+          '  `age` INT NOT NULL , ' +
+          '  `id_gender` INT NOT NULL , ' + 
+          '  `id_orientation` INT NOT NULL , ' + 
+          '   PRIMARY KEY (`id`)' +
+          ') ' +
+          'ENGINE = InnoDB;')
         else console.log('[mysql] Users table already exists')
       })
       .then((res) => {
@@ -59,7 +76,125 @@ const usersTable = new Promise((resolve, reject) =>
   )
 )
 
-Promise.all([usersTable]).then(() => {
+// Create table containing genders
+const genderTable = new Promise((resolve, reject) =>
+  resolve(
+    tableExists(database, 'users_gender')
+      .then((res) => { 
+        if (res == false) return dbQuery(
+          database,
+          'CREATE TABLE `users_gender` ' +
+          '( ' + 
+          '  `id` INT NOT NULL AUTO_INCREMENT , ' + 
+          '  `gender` VARCHAR(30) NOT NULL , ' +
+          '  PRIMARY KEY (`id`)' + 
+          ') ' +
+          'ENGINE = InnoDB;')
+        else console.log('[mysql] Gender table already exists')
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Gender table has been created')
+      })
+      .catch((err) => console.log(err))      
+  )
+)
+
+// Create table containing sexual orientations
+const orientationTable = new Promise((resolve, reject) =>
+  resolve(
+    tableExists(database, 'users_sexual_orientation')
+      .then((res) => { 
+        if (res == false) return dbQuery(
+          database,
+          'CREATE TABLE `users_sexual_orientation` ' +
+          '( ' + 
+          '  `id` INT NOT NULL AUTO_INCREMENT , ' + 
+          '  `orientation` VARCHAR(30) NOT NULL , ' +
+          '  PRIMARY KEY (`id`)' + 
+          ') ' +
+          'ENGINE = InnoDB;')
+        else console.log('[mysql] Sexual orientation table already exists')
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Sexual orientation table has been created')
+      })
+      .catch((err) => console.log(err))      
+  )
+)
+
+// Create table containing interest (tag format)
+const interestsTable = new Promise((resolve, reject) =>
+  resolve(
+    tableExists(database, 'users_interests')
+      .then((res) => { 
+        if (res == false) return dbQuery(
+          database,
+          'CREATE TABLE `users_interests` ' +
+          '( ' + 
+          '  `id` INT NOT NULL AUTO_INCREMENT , ' + 
+          '  `user_id` INT NOT NULL , ' +
+          '  `tag` VARCHAR(30) NOT NULL , ' +
+          '  PRIMARY KEY (`id`)' + 
+          ') ' +
+          'ENGINE = InnoDB;')
+        else console.log('[mysql] Interests table already exists')
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Interests table has been created')
+      })
+      .catch((err) => console.log(err))      
+  )
+)
+
+// Create table containing registration tokens sent by mail
+const registrationTable = new Promise((resolve, reject) =>
+  resolve(
+    tableExists(database, 'users_registration')
+      .then((res) => { 
+        if (res == false) return dbQuery(
+          database,
+          'CREATE TABLE `users_registration` ' +
+          '( ' + 
+          '  `id` INT NOT NULL AUTO_INCREMENT , ' + 
+          '  `user_id` INT NOT NULL , ' +
+          '  `token` TEXT NOT NULL , ' +
+          '  `expirationDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , ' + 
+          '  PRIMARY KEY (`id`)' + 
+          ') ' +
+          'ENGINE = InnoDB;')
+        else console.log('[mysql] Registration table already exists')
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Registration table has been created')
+      })
+      .catch((err) => console.log(err))      
+  )
+)
+
+// Create table containing expired json web tokens (= user logout)
+const blacklistTable = new Promise((resolve, reject) =>
+  resolve(
+    tableExists(database, 'tokens_blacklist')
+      .then((res) => { 
+        if (res == false) return dbQuery(
+          database,
+          'CREATE TABLE `tokens_blacklist` ' +
+          '( ' + 
+          '  `id` INT NOT NULL AUTO_INCREMENT , ' + 
+          '  `token` TEXT NOT NULL , ' +
+          '  PRIMARY KEY (`id`)' + 
+          ') ' +
+          'ENGINE = InnoDB;')
+        else console.log('[mysql] Blacklist table already exists')
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Blacklist table has been created')
+      })
+      .catch((err) => console.log(err))      
+  )
+)
+
+Promise.all([usersTable, genderTable, orientationTable, interestsTable, registrationTable, blacklistTable]).then(() => {
   console.log('[mysql] Database is now up-to-date')
   process.exit()
 })
