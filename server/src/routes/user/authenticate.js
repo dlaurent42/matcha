@@ -12,7 +12,7 @@ router.post('/authenticate', (req, res) => {
   // Check input
   if (isEmpty(req.body.user)) return res.json({ err: 'Please fill the form' })
 
-  const [user] = req.body.user
+  const user = Object.assign(req.body.user)
   const database = new Database()
   const jwt = new JsonWebToken()
 

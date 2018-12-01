@@ -19,7 +19,8 @@ router.post('/add', (req, res) => {
   // Check if user is not undefined
   if (isEmpty(req.body.user)) return res.json({ err: 'Please fill the form' })
 
-  const [user] = req.body.user
+  let userId
+  const user = Object.assign(req.body.user)
   const database = new Database()
   const jwt = new JsonWebToken()
 
@@ -58,14 +59,13 @@ router.post('/add', (req, res) => {
   // Query database to know if user already exists (based on username and email)
   return database.query('SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;', [user.username, user.email])
     .then((rows) => {
-      if (rows.count > 0) return res.json({ err: 'An account with entered email/username already exists' })
+      if (rows[0].count > 0) throw new Error('An account with entered email/username already exists')
       const salt = hash.genRandomString(255)
-      const registrationToken = hash.genRandomString(255)
       const hashedPassword = hash.sha512(user.password, salt)
       const formattedFirstname = user.firstname.charAt(0).toUpperCase() + user.firstname.slice(1)
       const formattedLastname = user.lastname.toUpperCase()
       return (database.query(
-        'INSERT INTO `users` (`username`, `firstname`, `lastname`, `email`, `password`, `salt`, `registrationToken`) VALUES (?, ?, ?, ?, ?, ?, ?);',
+        'INSERT INTO `users` (`username`, `firstname`, `lastname`, `email`, `password`, `salt`) VALUES (?, ?, ?, ?, ?, ?);',
         [
           user.username,
           formattedFirstname,
@@ -73,19 +73,30 @@ router.post('/add', (req, res) => {
           user.email,
           hashedPassword,
           salt,
-          registrationToken,
         ]
       ))
     })
     .then((rows) => {
+      console.log('Before adding token to db', JSON.stringify(rows))
+      if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+      const registrationToken = hash.genRandomString(255)
+      userId = rows.insertId
+      return (database.query(
+        'INSERT INTO `users_registration` (`token`, `user_id`, `expiration_date`) VALUES (?, ?, NOW() + INTERVAL 1 DAY);',
+        [
+          registrationToken,
+          rows.insertId,
+        ]
+      ))
+    })
+    .then((rows) => {
+      console.log('Before creating token', JSON.stringify(rows))
       if (isEmpty(rows)) return res.json({ err: 'An error occured.' })
       database.close()
-      return jwt.create(rows.insertId)
+      return jwt.create(userId)
     })
     .then(token => res.json({ token }))
-    .catch((err) => {
-      res.json({ err: err.message })
-    })
+    .catch(err => res.json({ err: err.message }))
 })
 
 module.exports = router

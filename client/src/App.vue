@@ -6,8 +6,8 @@
         <router-link to="/about">About - logged</router-link>
       </div>
       <div v-else id="nav">
-        <router-link to="/">Home - not logged</router-link> |
-        <router-link to="/about">About - not logged</router-link>
+        <router-link to="/login">Login</router-link> |
+        <router-link to="/register">Register</router-link>
       </div>
     </div>
     <div id="wrapper-content">
