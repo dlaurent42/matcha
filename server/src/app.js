@@ -18,6 +18,12 @@ app.use(bodyParser.json())
 app.use(cors())
 
 // Set routes
-app.use('/user', userAdd, userAuthenticate, userAuthenticated, userCount)
+app.use(
+  '/user',
+  userAdd,
+  userAuthenticate,
+  userAuthenticated,
+  userCount
+)
 
 app.listen(config.port, () => console.log(`Server started and listening on port ${config.port}`))

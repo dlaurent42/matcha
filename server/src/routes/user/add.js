@@ -1,5 +1,5 @@
 const express = require('express')
-const { jwtNewToken, jwtRefreshToken } = require('../../models/auth/jwt')
+const { jwtNewToken } = require('../../models/auth/jwt')
 const Database = require('../../models/Database')
 const {
   hash,
@@ -16,11 +16,10 @@ const {
 const router = express.Router()
 
 router.post('/add', (req, res) => {
-
   // Check if user is not undefined
   if (isEmpty(req.body.user)) return res.json({ err: 'Please fill the form' })
 
-  const user = req.body.user
+  const [user] = req.body.user
   const database = new Database()
 
   // Check username
@@ -56,7 +55,7 @@ router.post('/add', (req, res) => {
   if (user.password !== user.cpassword) return res.json({ err: 'Confirmed password is different from entered password' })
 
   // Query database to know if user already exists (based on username and email)
-  database.query('SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;', [ user.username, user.email ])
+  return database.query('SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;', [user.username, user.email])
     .then((rows) => {
       if (rows.count > 0) return res.json({ err: 'An account with entered email/username already exists' })
       const salt = hash.genRandomString(255)

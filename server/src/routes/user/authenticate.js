@@ -9,11 +9,10 @@ const {
 const router = express.Router()
 
 router.post('/authenticate', (req, res) => {
- 
   // Check input
   if (isEmpty(req.body.user)) return res.json({ err: 'Please fill the form' })
-  
-  const user = req.body.user
+
+  const [user] = req.body.user
   const database = new Database()
 
   // Check if username has been filled in
@@ -23,7 +22,7 @@ router.post('/authenticate', (req, res) => {
   if (isEmpty(user.password)) return res.json({ err: 'Please enter your password' })
 
   // Get salt string from username
-  database.query('SELECT `salt` FROM `users` WHERE `username` = ? LIMIT 1;', [user.username])
+  return database.query('SELECT `salt` FROM `users` WHERE `username` = ? LIMIT 1;', [user.username])
     .then((rows) => {
       if (isEmpty(rows)) return res.json({ err: 'Wrong username or password' })
       const hashedPassword = hash.sha512(user.password, rows[0].salt)
@@ -35,7 +34,7 @@ router.post('/authenticate', (req, res) => {
       return jwtNewToken(rows[0].id)
     })
     .then(token => res.json({ token }))
-    .catch(err => res.json({ err: 'Wrong username or password' }))
+    .catch(() => res.json({ err: 'Wrong username or password' }))
 })
 
 module.exports = router
