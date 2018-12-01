@@ -3,7 +3,8 @@
     <div id="wrapper-header" :style="{ 'backgroundImage':'url(\'' + bgHeaderImage + '\')' }">
       <div v-if="userLogged === true" id="nav">
         <router-link to="/">Home - logged</router-link> |
-        <router-link to="/about">About - logged</router-link>
+        <router-link to="/about">About - logged</router-link> |
+        <div v-on:click="logout()">Logout</div>
       </div>
       <div v-else id="nav">
         <router-link to="/login">Login</router-link> |
@@ -20,7 +21,7 @@
 </template>
 
 <script>
-import Main from '@/services/Main'
+import User from '@/services/User'
 export default {
   name: 'App',
   data () {
@@ -36,7 +37,11 @@ export default {
   },
   methods: {
     async isLogged () {
-      const response = await Main.fetch()
+      const response = await User.isLogged()
+      this.userLogged = response.data.isLogged
+    },
+    async logout () {
+      const response = await User.logout()
       this.userLogged = response.data.isLogged
     }
   }

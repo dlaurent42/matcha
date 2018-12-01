@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import Login from '@/services/Login'
+import User from '@/services/User'
 export default {
   name: 'Login',
   data () {
@@ -21,13 +21,18 @@ export default {
   },
   methods: {
     async login () {
-      const response = await Login.login({
+      const response = await User.login({
         user: {
           username: this.input.username,
           password: this.input.password
         }
       })
       console.log(`Response from server is: ${JSON.stringify(response.data)}`)
+      if (response.data.token !== 'undefined') {
+        this.isLogged = true
+      } else {
+        this.isLogged = false
+      }
       // if (this.input.username !== '' && this.input.password !== '') {
       //   if (this.input.username === this.$parent.mockAccount.username && this.input.password === this.$parent.mockAccount.password) {
       //     this.$emit('authenticated', true)
