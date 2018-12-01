@@ -8,8 +8,8 @@ router.get('/credentials', (req, res) => {
 
   console.log('Authentication ongoing...')
   jwt.refresh(req)
-    .then(() => res.json({ isLogged: true }))
-    .catch(() => res.json({ isLogged: false }))
+    .then(token => res.json({ token, isLogged: true }))
+    .catch(err => res.json({ err, isLogged: false }))
 })
 
 module.exports = router

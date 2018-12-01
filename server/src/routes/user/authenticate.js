@@ -25,17 +25,25 @@ router.post('/authenticate', (req, res) => {
   // Get salt string from username
   return database.query('SELECT `salt` FROM `users` WHERE `username` = ? LIMIT 1;', [user.username])
     .then((rows) => {
+      console.log('Get salt : ', JSON.stringify(rows[0]))
       if (isEmpty(rows)) return res.json({ err: 'Wrong username or password' })
       const hashedPassword = hash.sha512(user.password, rows[0].salt)
       return database.query('SELECT * FROM `users` WHERE `username` = ? AND `password` = ? LIMIT 1;', [user.username, hashedPassword])
     })
     .then((rows) => {
+      console.log('Get uid : ', JSON.stringify(rows[0]))
       if (isEmpty(rows)) return res.json({ err: 'Wrong username or password' })
       database.close()
       return jwt.create(rows[0].id)
     })
-    .then(token => res.json({ token }))
-    .catch(() => res.json({ err: 'Wrong username or password' }))
+    .then((token) => {
+      console.log('Authentication token : ', token)
+      return res.json({ token })
+    })
+    .catch((err) => {
+      console.log('Authentication error : ', err)
+      res.json({ err: 'Wrong username or password' })
+    })
 })
 
 module.exports = router
