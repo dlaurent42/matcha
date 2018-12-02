@@ -1,6 +1,7 @@
 const express = require('express')
 const Database = require('../../models/Database')
 const JsonWebToken = require('../../models/JsonWebToken')
+const Mail = require('../../models/Mail')
 const {
   hash,
   isEmpty,
@@ -19,10 +20,10 @@ router.post('/add', (req, res) => {
   // Check if user is not undefined
   if (isEmpty(req.body.user)) return res.json({ err: 'Please fill the form' })
 
-  let userId
   const user = Object.assign(req.body.user)
   const database = new Database()
   const jwt = new JsonWebToken()
+  const mail = new Mail()
 
   // Check username
   if (isEmpty(user.username)) return res.json({ err: 'Please enter a username' })
@@ -60,42 +61,43 @@ router.post('/add', (req, res) => {
   return database.query('SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;', [user.username, user.email])
     .then((rows) => {
       if (rows[0].count > 0) throw new Error('An account with entered email/username already exists')
-      const salt = hash.genRandomString(255)
-      const hashedPassword = hash.sha512(user.password, salt)
-      const formattedFirstname = user.firstname.charAt(0).toUpperCase() + user.firstname.slice(1)
-      const formattedLastname = user.lastname.toUpperCase()
+      Object.assign(user, { salt: hash.genRandomString(255) })
+      user.password = hash.sha512(user.password, user.salt)
+      user.firstname = user.firstname.charAt(0).toUpperCase() + user.firstname.slice(1)
+      user.lastname = user.lastname.toUpperCase()
       return (database.query(
         'INSERT INTO `users` (`username`, `firstname`, `lastname`, `email`, `password`, `salt`) VALUES (?, ?, ?, ?, ?, ?);',
         [
           user.username,
-          formattedFirstname,
-          formattedLastname,
+          user.firstname,
+          user.lastname,
           user.email,
-          hashedPassword,
-          salt,
+          user.password,
+          user.salt,
         ]
       ))
     })
     .then((rows) => {
-      console.log('Before adding token to db', JSON.stringify(rows))
       if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
-      const registrationToken = hash.genRandomString(255)
-      userId = rows.insertId
+      Object.assign(user, { regToken: hash.genRandomString(255), id: rows.insertId })
       return (database.query(
         'INSERT INTO `users_registration` (`token`, `user_id`, `expiration_date`) VALUES (?, ?, NOW() + INTERVAL 1 DAY);',
         [
-          registrationToken,
-          rows.insertId,
+          user.regToken,
+          user.id,
         ]
       ))
     })
     .then((rows) => {
-      console.log('Before creating token', JSON.stringify(rows))
       if (isEmpty(rows)) return res.json({ err: 'An error occured.' })
       database.close()
-      return jwt.create(userId)
+      return jwt.create(user.id)
     })
-    .then(token => res.json({ token, isLogged: true }))
+    .then((token) => {
+      Object.assign(user, { logToken: token })
+      return mail.registration(user)
+    })
+    .then(() => res.json({ token: user.logToken, isLogged: true }))
     .catch(err => res.json({ err: err.message }))
 })
 
