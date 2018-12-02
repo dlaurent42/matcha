@@ -39,10 +39,12 @@ export default {
     async isLogged () {
       const response = await User.isLogged()
       this.userLogged = response.data.isLogged
+      console.log(`isLogged():\n\tuser.userLogged = ${this.userLogged},\n\tresponse = ${JSON.stringify(response.data)}`)
     },
     async logout () {
       const response = await User.logout()
       this.userLogged = response.data.isLogged
+      console.log(`logout():\n\tuser.userLogged = ${this.userLogged},\n\tresponse = ${JSON.stringify(response.data)}`)
     }
   }
 }

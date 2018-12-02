@@ -38,7 +38,7 @@ router.post('/authenticate', (req, res) => {
     })
     .then((token) => {
       console.log('Authentication token : ', token)
-      return res.json({ token })
+      return res.json({ token, isLogged: true })
     })
     .catch((err) => {
       console.log('Authentication error : ', err)

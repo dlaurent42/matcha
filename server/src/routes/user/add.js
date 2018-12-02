@@ -95,7 +95,7 @@ router.post('/add', (req, res) => {
       database.close()
       return jwt.create(userId)
     })
-    .then(token => res.json({ token }))
+    .then(token => res.json({ token, isLogged: true }))
     .catch(err => res.json({ err: err.message }))
 })
 
