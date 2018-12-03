@@ -1,5 +1,6 @@
 <template>
   <div id="wrapper">
+    <slot name="ErrorMessage"></slot>
     <div id="wrapper-header" :style="{ 'backgroundImage':'url(\'' + bgHeaderImage + '\')' }">
       <div v-if="userLogged === true" id="nav">
         <router-link to="/">Home - logged</router-link> |
@@ -28,8 +29,8 @@ export default {
     const d = new Date()
     return {
       year: d.getFullYear(),
-      userLogged: false,
-      bgHeaderImage: require('./assets/backgrouds/headerbg.jpg')
+      bgHeaderImage: require('../assets/backgrouds/headerbg.jpg'),
+      userLogged: false
     }
   },
   mounted () {
@@ -39,11 +40,13 @@ export default {
     async isLogged () {
       const response = await User.isLogged()
       this.userLogged = response.data.isLogged
+      this.err = response.data.err
       console.log(`isLogged():\n\tuser.userLogged = ${this.userLogged},\n\tresponse = ${JSON.stringify(response.data)}`)
     },
     async logout () {
       const response = await User.logout()
       this.userLogged = response.data.isLogged
+      this.err = response.data.err
       console.log(`logout():\n\tuser.userLogged = ${this.userLogged},\n\tresponse = ${JSON.stringify(response.data)}`)
     }
   }

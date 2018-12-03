@@ -1,5 +1,6 @@
 import Vue from 'vue'
-import App from './App'
+import App from './components/App'
+import ErrorMessage from './components/ErrorMessage'
 import router from './router'
 
 Vue.config.productionTip = false
@@ -8,6 +9,9 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
-  components: { App },
+  components: {
+    App,
+    ErrorMessage
+  },
   template: '<App/>'
 })
