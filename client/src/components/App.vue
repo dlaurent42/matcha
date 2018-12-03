@@ -1,13 +1,15 @@
 <template>
   <div id="wrapper">
+    <slot name="ErrorMessage"></slot>
     <div id="wrapper-header" :style="{ 'backgroundImage':'url(\'' + bgHeaderImage + '\')' }">
       <div v-if="userLogged === true" id="nav">
         <router-link to="/">Home - logged</router-link> |
-        <router-link to="/about">About - logged</router-link>
+        <router-link to="/about">About - logged</router-link> |
+        <div v-on:click="logout()">Logout</div>
       </div>
       <div v-else id="nav">
-        <router-link to="/">Home - not logged</router-link> |
-        <router-link to="/about">About - not logged</router-link>
+        <router-link to="/login">Login</router-link> |
+        <router-link to="/register">Register</router-link>
       </div>
     </div>
     <div id="wrapper-content">
@@ -20,15 +22,15 @@
 </template>
 
 <script>
-import Main from '@/services/Main'
+import User from '@/services/User'
 export default {
   name: 'App',
   data () {
     const d = new Date()
     return {
       year: d.getFullYear(),
-      userLogged: false,
-      bgHeaderImage: require('./assets/backgrouds/headerbg.jpg')
+      bgHeaderImage: require('../assets/backgrouds/headerbg.jpg'),
+      userLogged: false
     }
   },
   mounted () {
@@ -36,8 +38,16 @@ export default {
   },
   methods: {
     async isLogged () {
-      const response = await Main.fetch()
+      const response = await User.isLogged()
       this.userLogged = response.data.isLogged
+      this.err = response.data.err
+      console.log(`isLogged():\n\tuser.userLogged = ${this.userLogged},\n\tresponse = ${JSON.stringify(response.data)}`)
+    },
+    async logout () {
+      const response = await User.logout()
+      this.userLogged = response.data.isLogged
+      this.err = response.data.err
+      console.log(`logout():\n\tuser.userLogged = ${this.userLogged},\n\tresponse = ${JSON.stringify(response.data)}`)
     }
   }
 }

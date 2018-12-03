@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import Register from '@/services/Register'
+import User from '@/services/User'
 export default {
   name: 'Register',
   data () {
@@ -29,7 +29,7 @@ export default {
   },
   methods: {
     async register () {
-      const response = await Register.register({
+      const response = await User.register({
         user: {
           username: this.input.username,
           firstname: this.input.firstname,

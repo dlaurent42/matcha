@@ -7,11 +7,8 @@ const isAlphaNumeric = require('./isAlphaNumeric')
 const { isNumeric, isFloat } = require('./isNumeric')
 const isEmail = require('./isEmail')
 const isEmpty = require('./isEmpty')
-const toCapitalize = require('./toCapitalize')
-const toLowercase = require('./toLowercase')
-const toUppercase = require('./toUppercase')
 const hash = require('./hash')
-const verifyToken = require('./verifyToken')
+const template = require('./stringInterpolation')
 
 module.exports = {
   hash,
@@ -25,8 +22,5 @@ module.exports = {
   isFloat,
   isEmail,
   isEmpty,
-  toCapitalize,
-  toLowercase,
-  toUppercase,
-  verifyToken,
+  template,
 }

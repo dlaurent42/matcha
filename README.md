@@ -1,13 +1,35 @@
-# matcha
+# MATCHA
 
-### Run client
-`cd client && npm install && npm start`
+Matcha is a dating-site using Vue-JS, Node-JS v10.9.0 as RESTful API and MySQL.
 
-### Run server
-`cd server && npm install && npm start`
+#### Objectives
+- Micro-framework 
+- Advanced user accounts 
+- Sockets 
+- Geo-tracking 
+- Security 
+- Data validation
 
-### Node JS
-version v10.9.0
+#### Skills
+- Security 
+- Databases
+- Web 
+- Group & interpersonal 
 
-### npm
-version v6.4.11
+***
+## Installation
+
+#### Clone the repository
+``` git clone https://www.github.com/dlaurent42/matcha```
+
+#### Change MySQL credentials
+``` vim server/src/config.js ```
+
+#### Install packages and create database
+``` sh install.sh ```
+
+#### Run server
+``` cd server && npm start ```
+
+#### Run client
+``` cd client && npm start ```

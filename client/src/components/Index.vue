@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-import Index from '@/services/Index'
+import User from '@/services/User'
 export default {
   name: 'index',
   data () {
@@ -17,7 +17,7 @@ export default {
   },
   methods: {
     async countUsers () {
-      const response = await Index.fetch()
+      const response = await User.count()
       this.userCount = response.data.userCount
     }
   }

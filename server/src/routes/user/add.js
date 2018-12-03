@@ -1,6 +1,7 @@
 const express = require('express')
-const { jwtNewToken, jwtRefreshToken } = require('../../models/auth/jwt')
 const Database = require('../../models/Database')
+const JsonWebToken = require('../../models/JsonWebToken')
+const Mail = require('../../models/Mail')
 const {
   hash,
   isEmpty,
@@ -11,19 +12,18 @@ const {
   hasLowercase,
   hasUppercase,
   hasSpecial,
-  toCapitalize,
-  toUppercase,
 } = require('../../utils')
 
 const router = express.Router()
 
 router.post('/add', (req, res) => {
-
   // Check if user is not undefined
   if (isEmpty(req.body.user)) return res.json({ err: 'Please fill the form' })
 
-  const user = req.body.user
+  const user = Object.assign(req.body.user)
   const database = new Database()
+  const jwt = new JsonWebToken()
+  const mail = new Mail()
 
   // Check username
   if (isEmpty(user.username)) return res.json({ err: 'Please enter a username' })
@@ -58,40 +58,47 @@ router.post('/add', (req, res) => {
   if (user.password !== user.cpassword) return res.json({ err: 'Confirmed password is different from entered password' })
 
   // Query database to know if user already exists (based on username and email)
-  'SELECT * FROM `users` WHERE `username` = ? AND `password` = ? LIMIT 1;'
-  // database.query('SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;', { username: user.username, email: user.email })
-  database.query('SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;', [ user.username, user.email ])
+  return database.query('SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;', [user.username, user.email])
     .then((rows) => {
-      console.log('registration_01: rows is : ', JSON.stringify(rows))
-      if (!isEmpty(rows)) return res.json({ err: 'An account with entered email/username already exists' })
-      const salt = hash.genRandomString(255)
-      const registrationToken = hash.genRandomString(255)
-      const hashedPassword = hash.sha512(user.password, salt)
-      const formattedFirstname = toCapitalize(user.firstname)
-      const formattedLastname = toUppercase(user.lastname)
+      if (rows[0].count > 0) throw new Error('An account with entered email/username already exists')
+      Object.assign(user, { salt: hash.genRandomString(255) })
+      user.password = hash.sha512(user.password, user.salt)
+      user.firstname = user.firstname.charAt(0).toUpperCase() + user.firstname.slice(1)
+      user.lastname = user.lastname.toUpperCase()
       return (database.query(
-        'INSERT INTO `users` (`username`, `firstname`, `lastname`, `email`, `password`, `salt`, `registrationToken`) VALUES (?, ?, ?, ?, ?, ?, ?);',
-        {
-          username: user.username,
-          firstname: formattedFirstname,
-          lastname: formattedLastname,
-          email: email,
-          password: hashedPassword,
-          salt,
-          registrationToken,
-        }
+        'INSERT INTO `users` (`username`, `firstname`, `lastname`, `email`, `password`, `salt`) VALUES (?, ?, ?, ?, ?, ?);',
+        [
+          user.username,
+          user.firstname,
+          user.lastname,
+          user.email,
+          user.password,
+          user.salt,
+        ]
       ))
     })
     .then((rows) => {
-      console.log('registration_02: rows is : ', JSON.stringify(rows))
+      if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+      Object.assign(user, { regToken: hash.genRandomString(255), id: rows.insertId })
+      return (database.query(
+        'INSERT INTO `users_registration` (`token`, `user_id`, `expiration_date`) VALUES (?, ?, NOW() + INTERVAL 1 DAY);',
+        [
+          user.regToken,
+          user.id,
+        ]
+      ))
+    })
+    .then((rows) => {
       if (isEmpty(rows)) return res.json({ err: 'An error occured.' })
       database.close()
-      return jwtNewToken(rows[0].id)
+      return jwt.create(user.id)
     })
-    .then(token => res.json({ token }))
-    .catch((err) => {
-      res.json({ err: err.message })
+    .then((token) => {
+      Object.assign(user, { logToken: token })
+      return mail.registration(user)
     })
+    .then(() => res.json({ token: user.logToken, isLogged: true }))
+    .catch(err => res.json({ err: err.message }))
 })
 
 module.exports = router
