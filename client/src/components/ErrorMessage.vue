@@ -1,4 +1,4 @@
-<template v-if="err != ''">
+<template v-if="err !== null">
    <b-alert show variant="warning">{{err}}</b-alert>
 </template>
 
@@ -7,7 +7,7 @@ export default {
   name: 'ErrorMessage',
   data () {
     return {
-      err: ''
+      err: null
     }
   }
 }

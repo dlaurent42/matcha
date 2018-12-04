@@ -1,19 +1,9 @@
 <template>
   <div id="wrapper">
     <v-header></v-header>
-    <v-error></v-error>
-    <div id="wrapper-header" :style="{ 'backgroundImage':'url(\'' + bgHeaderImage + '\')' }">
-      <div v-if="userLogged === true" id="nav">
-        <router-link to="/">Home - logged</router-link> |
-        <router-link to="/about">About - logged</router-link> |
-        <div v-on:click="logout()">Logout</div>
-      </div>
-      <div v-else id="nav">
-        <router-link to="/login">Login</router-link> |
-        <router-link to="/register">Register</router-link>
-      </div>
+    <div id="wrapper-header">
     </div>
-    <div id="wrapper-content">
+    <div id="wrapper-content" :style="{ 'backgroundImage':'url(\'' + bgHeaderImage + '\')' }">
       <router-view/>
     </div>
     <div id="wrapper-footer">

@@ -1,15 +1,11 @@
 import axios from 'axios'
 
 export default() => {
+  const data = { baseURL: `http://localhost:8081` }
   if (localStorage.getItem('jwt') !== 'undefined') {
-    return axios.create({
-      baseURL: `http://localhost:8081`,
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-      }
-    })
+    Object.assign(data, { headers: {
+      'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+    }})
   }
-  return axios.create({
-    baseURL: `http://localhost:8081`
-  })
+  return axios.create({ data })
 }

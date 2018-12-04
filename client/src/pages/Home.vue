@@ -1,12 +1,18 @@
 <template>
-  <div class="index">
+  <div class="Home">
     Hello world, there are currently {{ userCount }} users
+    <v-carousel></v-carousel>
   </div>
 </template>
 <script>
 import User from '@/services/User'
+import Carousel from '@/components/Carousel'
+
 export default {
-  name: 'index',
+  name: 'Home',
+  components: {
+    'v-carousel': Carousel
+  },
   data () {
     return {
       userCount: 0
