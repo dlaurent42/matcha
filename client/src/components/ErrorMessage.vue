@@ -1,7 +1,5 @@
-<template>
-  <div v-if="err !== '' && err !== 'undefined'" id="alert-box">
-    {{ err }}
-  </div>
+<template v-if="err != ''">
+   <b-alert show variant="warning">{{err}}</b-alert>
 </template>
 
 <script>

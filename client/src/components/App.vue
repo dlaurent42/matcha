@@ -1,6 +1,7 @@
 <template>
   <div id="wrapper">
-    <slot name="ErrorMessage"></slot>
+    <v-header></v-header>
+    <v-error></v-error>
     <div id="wrapper-header" :style="{ 'backgroundImage':'url(\'' + bgHeaderImage + '\')' }">
       <div v-if="userLogged === true" id="nav">
         <router-link to="/">Home - logged</router-link> |
@@ -23,8 +24,15 @@
 
 <script>
 import User from '@/services/User'
+import ErrorMessage from './ErrorMessage.vue'
+import Menu from './Menu.vue'
+
 export default {
   name: 'App',
+  components: {
+    'v-header': Menu,
+    'v-error': ErrorMessage
+  },
   data () {
     const d = new Date()
     return {

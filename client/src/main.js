@@ -2,7 +2,6 @@
 import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
 import App from './components/App'
-import ErrorMessage from './components/ErrorMessage'
 import router from './router'
 
 // Css import
@@ -19,8 +18,7 @@ new Vue({
   el: '#app',
   router,
   components: {
-    App,
-    ErrorMessage
+    App
   },
   template: '<App/>'
 })
