@@ -1,35 +1,7 @@
-# MATCHA
+# MATCHA API
 
-Matcha is a dating-site using Vue-JS, Node-JS v10.9.0 as RESTful API and MySQL.
+#### /user
 
-#### Objectives
-- Micro-framework 
-- Advanced user accounts 
-- Sockets 
-- Geo-tracking 
-- Security 
-- Data validation
-
-#### Skills
-- Security 
-- Databases
-- Web 
-- Group & interpersonal 
-
-***
-## Installation
-
-#### Clone the repository
-``` git clone https://www.github.com/dlaurent42/matcha```
-
-#### Change MySQL credentials
-``` vim server/src/config.js ```
-
-#### Install packages and create database
-``` sh install.sh ```
-
-#### Run server
-``` cd server && npm start ```
-
-#### Run client
-``` cd client && npm start ```
+|Type|URL|Parameters|Return value|Description|
+|----------|----------|----------|----------|----------|
+|GET|{id}|N/A| user = {}| return all information relative to user id|
