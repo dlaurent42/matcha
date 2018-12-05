@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ajv-keywords": "^3.2.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
     "eslint-plugin-node": "^8.0.0",
