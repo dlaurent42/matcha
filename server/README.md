@@ -10,5 +10,6 @@
 |GET|/credentials|-|{ user }|Check if an identification token exists and refresh it with most up-to-date user information.<br> A new identification token is generated and contained in returned object. <br>Old identification token is added to blacklist|
 |POST|/credentials|username<br>password|{ user }|Return user information and an identification token if credentials are correct.|
 |POST|/logout|-|-|Add identification token to blacklist|
+
 \* if specified, parameters are contained in an object named `user`<br>
 \** in case of error, `err` is returned
