@@ -7,7 +7,7 @@ const router = express.Router()
 
 router.post('/', (req, res) => {
   // Check input
-  if (isEmpty(req.body.clientId) || isEmpty(req.body.clientSecret)) return res.json({ err: 'wrong credentials' })
+  if (isEmpty(req.body.clientId) || isEmpty(req.body.clientSecret)) return res.sendStatus(401)
 
   // Instanciate objects
   const credentials = [req.body.clientId, req.body.clientSecret]
@@ -17,7 +17,7 @@ router.post('/', (req, res) => {
   // Check in the database if credentials are correct
   return database.query('SELECT COUNT(*) as count FROM `auth` WHERE `clientId` = ? AND `clientSecret` = ?;', credentials)
     .then((rows) => {
-      if (isEmpty(rows)) return res.json({ err: 'wrong credentials' })
+      if (isEmpty(rows)) return res.sendStatus(401)
       return jwt.create(credentials)
     })
     .then(token => res.json({ token }))

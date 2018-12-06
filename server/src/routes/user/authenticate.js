@@ -4,46 +4,105 @@ const JsonWebToken = require('../../models/JsonWebToken')
 const {
   hash,
   isEmpty,
+  userIsUsername,
+  userIsPassword,
 } = require('../../utils')
 
 const router = express.Router()
 
+const dataCheck = user => (
+  userIsUsername(user.username)
+  && userIsPassword(user.password)
+)
+
 router.post('/authenticate', (req, res) => {
   // Check input
-  if (isEmpty(req.body.user)) return res.json({ err: 'Please fill the form' })
+  if (isEmpty(req.body.user)) return res.sendStatus(401)
 
-  const user = Object.assign(req.body.user)
+  let user = Object.assign(req.body.user)
   const database = new Database()
   const jwt = new JsonWebToken()
 
-  // Check if username has been filled in
-  if (isEmpty(user.username)) return res.json({ err: 'Please enter your username' })
+  // Check user data
+  if (!dataCheck(user)) return res.sendStatus(401)
 
   // Check if password has been filled in
-  if (isEmpty(user.password)) return res.json({ err: 'Please enter your password' })
+  if (isEmpty(user.password)) return res.sendStatus(401)
 
-  // Get salt string from username
   return database.query('SELECT `salt` FROM `users` WHERE `username` = ? LIMIT 1;', [user.username])
     .then((rows) => {
-      console.log('Get salt : ', JSON.stringify(rows[0]))
-      if (isEmpty(rows)) return res.json({ err: 'Wrong username or password' })
-      const hashedPassword = hash.sha512(user.password, rows[0].salt)
-      return database.query('SELECT * FROM `users` WHERE `username` = ? AND `password` = ? LIMIT 1;', [user.username, hashedPassword])
+      if (isEmpty(rows)) return res.sendStatus(401)
+      const hashedPassword = hash(user.password, rows[0].salt)
+      return database.query(
+        '   SELECT '
+        + '   `users`.`id`, '
+        + '   `users`.`firstname`, '
+        + '   `users`.`lastname`, '
+        + '   `users`.`username`, '
+        + '   `users`.`email`, '
+        + '   `users`.`age`, '
+        + '   `users`.`creation`, '
+        + '   `users_gender`.`gender`, '
+        + '   `users_sexual_orientation`.`orientation`'
+        + ' FROM `users` '
+        + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
+        + ' LEFT JOIN `users_sexual_orientation` ON `users_gender`.`id` = `users`.`id_orientation`'
+        + ' WHERE `users`.`username` = ? AND `users`.`password` = ?'
+        + ' LIMIT 1;',
+        [user.username, hashedPassword]
+      )
     })
     .then((rows) => {
-      console.log('Get uid : ', JSON.stringify(rows[0]))
-      if (isEmpty(rows)) return res.json({ err: 'Wrong username or password' })
+      if (isEmpty(rows)) return res.sendStatus(401)
+      user = Object.assign(rows[0])
       database.close()
-      return jwt.create(rows[0].id)
+      return jwt.create(rows[0])
     })
     .then((token) => {
-      console.log('Authentication token : ', token)
-      return res.json({ token, isLogged: true })
+      Object.assign(user, { token })
+      return res.json({ user })
     })
-    .catch((err) => {
-      console.log('Authentication error : ', err)
-      res.json({ err: 'Wrong username or password' })
+    .catch(err => res.status(401).send({ err: err.message }))
+})
+
+router.get('/authenticate', (req, res) => {
+  const user = {}
+  const jwt = new JsonWebToken()
+  const database = new Database()
+
+  if (isEmpty(req.body.token)) return res.sendStatus(403)
+  return jwt.check(req.body.token)
+    .then((data) => {
+      if (isEmpty(data)) return res.sendStatus(403)
+      return database.query(
+        '   SELECT '
+        + '   `users`.`id`, '
+        + '   `users`.`firstname`, '
+        + '   `users`.`lastname`, '
+        + '   `users`.`username`, '
+        + '   `users`.`email`, '
+        + '   `users`.`age`, '
+        + '   `users`.`creation`, '
+        + '   `users_gender`.`gender`, '
+        + '   `users_sexual_orientation`.`orientation`'
+        + ' FROM `users` '
+        + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
+        + ' LEFT JOIN `users_sexual_orientation` ON `users_gender`.`id` = `users`.`id_orientation`'
+        + ' WHERE `users`.`id` = ?'
+        + ' LIMIT 1;',
+        [data.id]
+      )
     })
+    .then((rows) => {
+      if (isEmpty(rows)) return res.sendStatus(403)
+      Object(user, rows[0])
+      return jwt.refresh(rows[0])
+    })
+    .then((token) => {
+      Object.assign(user, { token })
+      return res.json({ user })
+    })
+    .catch(err => res.status(403).send({ err: err.message }))
 })
 
 module.exports = router

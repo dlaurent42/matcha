@@ -11,7 +11,6 @@ const authCredentials = require('./middlewares/auth')
 const userAdd = require('./routes/user/add')
 const userAuthenticate = require('./routes/user/authenticate')
 const userCount = require('./routes/user/count')
-const userCredentials = require('./routes/user/credentials')
 const userGetById = require('./routes/user/id')
 const userLogout = require('./routes/user/logout')
 
@@ -32,7 +31,6 @@ app.use(
   userAdd,
   userAuthenticate,
   userCount,
-  userCredentials,
   userGetById,
   userLogout
 )

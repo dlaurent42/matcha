@@ -1,14 +1,26 @@
-const hasDigit = require('./hasDigit')
-const hasLowercase = require('./hasLowercase')
-const hasUppercase = require('./hasUppercase')
-const hasSpecial = require('./hasSpecial')
-const isAlpha = require('./isAlpha')
-const isAlphaNumeric = require('./isAlphaNumeric')
-const { isNumeric, isFloat } = require('./isNumeric')
-const isEmail = require('./isEmail')
-const isEmpty = require('./isEmpty')
-const hash = require('./hash')
-const template = require('./stringInterpolation')
+// Obj
+const isEmpty = require('./obj.isEmpty')
+
+// String
+const hasDigit = require('./string.hasDigit')
+const hash = require('./string.hash')
+const hasLowercase = require('./string.hasLowercase')
+const hasSpecial = require('./string.hasSpecial')
+const hasUppercase = require('./string.hasUppercase')
+const template = require('./string.interpolation')
+const isAlpha = require('./string.isAlpha')
+const isAlphaNumeric = require('./string.isAlphaNumeric')
+const isFloat = require('./string.isFloat')
+const isNumeric = require('./string.isNumeric')
+const random = require('./string.random')
+
+// User
+const userIsEmail = require('./user.isEmail')
+const userIsFirstname = require('./user.isFirstname')
+const userIsLastname = require('./user.isLastname')
+const userIsPassword = require('./user.isPassword')
+const userIsUsername = require('./user.isUsername')
+
 
 module.exports = {
   hash,
@@ -20,7 +32,12 @@ module.exports = {
   isAlphaNumeric,
   isNumeric,
   isFloat,
-  isEmail,
   isEmpty,
+  random,
   template,
+  userIsEmail,
+  userIsFirstname,
+  userIsLastname,
+  userIsPassword,
+  userIsUsername,
 }

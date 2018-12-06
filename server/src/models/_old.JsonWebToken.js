@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 const Database = require('./Database')
-const { isEmpty, hash } = require('../utils')
+const { isEmpty, random } = require('../utils')
 
 class JsonWebToken {
   constructor() {
@@ -23,7 +23,7 @@ class JsonWebToken {
         .then((authData, err) => {
           if (err) return reject(err)
           this.token = bearerToken
-          Object.assign(authData, { randomKey: hash.genRandomString(255) })
+          Object.assign(authData, { randomKey: random(255) })
           return jwt.sign({ data: authData.user }, 'secretkey', { expiresIn: '15m' })
         })
         .then((token, err) => {
@@ -41,7 +41,7 @@ class JsonWebToken {
       database.query('SELECT * FROM `users` WHERE `id` = ? LIMIT 1;', [uid])
         .then((rows) => {
           if (!isEmpty(rows)) {
-            const data = Object.assign(rows[0], { randomKey: hash.genRandomString(255) })
+            const data = Object.assign(rows[0], { randomKey: random(255) })
             return jwt.sign({ data }, 'secretkey', { expiresIn: '15m' })
           }
           return reject()

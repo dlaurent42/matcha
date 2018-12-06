@@ -6,10 +6,4 @@ const sha512 = (password, salt) => {
   return hash.digest('hex')
 }
 
-const genRandomString = length => (
-  crypto.randomBytes(Math.ceil(length / 2))
-    .toString('hex')
-    .slice(0, length)
-)
-
-module.exports = { sha512, genRandomString }
+module.exports = sha512
