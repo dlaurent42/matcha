@@ -44,6 +44,40 @@ database.query(`USE ${db.database};`, (err) => {
   if (err) console.log('[mysql] Cannot select database: ', err.message)
 })
 
+// Create table containing auth information
+const authTable = new Promise(resolve => (
+  resolve(
+    tableExists(database, 'auth')
+      .then((res) => {
+        if (res === false) {
+          return dbQuery(
+            database,
+            'CREATE TABLE `auth` '
+            + '( '
+            + '  `id` INT NOT NULL AUTO_INCREMENT , '
+            + '  `clientId` VARCHAR(255) NOT NULL , '
+            + '  `secretId` VARCHAR(255) NOT NULL , '
+            + '  PRIMARY KEY (`id`)'
+            + ') '
+            + 'ENGINE = InnoDB;'
+          )
+        }
+        return console.log('[mysql] Auth table already exists')
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Auth table has been created')
+        return dbQuery(
+          database,
+          'INSERT INTO `auth` (`clientId`, `secretId`) VALUES (\'A968DCBAE348712A843CB15423E49953D7A0883F0D74E6E18044773F07393D0D\', \'D1BE2ECDFDC4850CF5AEAE16A6F9481EB97FD6988CCF7A9195002BF577F292EA\');'
+        )
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Auth table has been filled')
+      })
+      .catch(err => console.log(err))
+  )
+))
+
 // Create table containing user information
 const usersTable = new Promise(resolve => (
   resolve(
@@ -227,6 +261,7 @@ const blacklistTable = new Promise(resolve => (
 ))
 
 Promise.all([
+  authTable,
   usersTable,
   genderTable,
   orientationTable,
