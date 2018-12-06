@@ -56,7 +56,7 @@ const authTable = new Promise(resolve => (
             + '( '
             + '  `id` INT NOT NULL AUTO_INCREMENT , '
             + '  `clientId` VARCHAR(255) NOT NULL , '
-            + '  `secretId` VARCHAR(255) NOT NULL , '
+            + '  `clientSecret` VARCHAR(255) NOT NULL , '
             + '  PRIMARY KEY (`id`)'
             + ') '
             + 'ENGINE = InnoDB;'
@@ -68,7 +68,7 @@ const authTable = new Promise(resolve => (
         if (!isEmpty(res)) console.log('[mysql] Auth table has been created')
         return dbQuery(
           database,
-          'INSERT INTO `auth` (`clientId`, `secretId`) VALUES (\'A968DCBAE348712A843CB15423E49953D7A0883F0D74E6E18044773F07393D0D\', \'D1BE2ECDFDC4850CF5AEAE16A6F9481EB97FD6988CCF7A9195002BF577F292EA\');'
+          'INSERT INTO `auth` (`clientId`, `clientSecret`) VALUES (\'A968DCBAE348712A843CB15423E49953D7A0883F0D74E6E18044773F07393D0D\', \'D1BE2ECDFDC4850CF5AEAE16A6F9481EB97FD6988CCF7A9195002BF577F292EA\');'
         )
       })
       .then((res) => {
