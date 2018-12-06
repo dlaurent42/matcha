@@ -135,7 +135,7 @@ const orientationTable = new Promise(resolve => (
         if (!isEmpty(res)) console.log('[mysql] Sexual orientation table has been created')
         return dbQuery(
           database,
-          'INSERT INTO `users_sexual_orientation` (`gender`) VALUES (male), (female);'
+          'INSERT INTO `users_sexual_orientation` (`orientation`) VALUES (\'male\'), (\'female\');'
         )
       })
       .then((res) => {
