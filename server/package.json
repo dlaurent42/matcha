@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prestart": "node scripts/database.js",
     "start": "nodemon src/app.js",
     "lint": "eslint \"**/*.js\""
   },

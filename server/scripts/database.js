@@ -100,6 +100,13 @@ const genderTable = new Promise(resolve => (
       })
       .then((res) => {
         if (!isEmpty(res)) console.log('[mysql] Gender table has been created')
+        return dbQuery(
+          database,
+          'INSERT INTO `users_gender` (`gender`) VALUES (\'male\'), (\'female\');'
+        )
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Gender table has been filled')
       })
       .catch(err => console.log(err))
   )
@@ -126,6 +133,13 @@ const orientationTable = new Promise(resolve => (
       })
       .then((res) => {
         if (!isEmpty(res)) console.log('[mysql] Sexual orientation table has been created')
+        return dbQuery(
+          database,
+          'INSERT INTO `users_sexual_orientation` (`gender`) VALUES (male), (female);'
+        )
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Sexual orientation table has been filled')
       })
       .catch(err => console.log(err))
   )
