@@ -4,7 +4,7 @@
 
 |TYPE|URL|PARAMETERS |RETURN |DESCRIPTION|
 |:----:|:--------:|:--------:|:--------:|:--------------------------------------------------------------:|
-|GET| /|clientID<br>secretID| token | Identify client on API |
+|POST| /|clientID<br>secretID| token | Identify client on API |
 
 
 ## /user
