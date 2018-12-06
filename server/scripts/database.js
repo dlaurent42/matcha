@@ -96,7 +96,7 @@ const usersTable = new Promise(resolve => (
             + '  `password` VARCHAR(255) NOT NULL , '
             + '  `salt` VARCHAR(255) NOT NULL , '
             + '  `creation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , '
-            + '  `age` INT , '
+            + '  `birthday` DATE , '
             + '  `id_gender` INT , '
             + '  `id_orientation` INT , '
             + '   PRIMARY KEY (`id`)'
@@ -108,6 +108,34 @@ const usersTable = new Promise(resolve => (
       })
       .then((res) => {
         if (!isEmpty(res)) console.log('[mysql] Users table has been created')
+      })
+      .catch(err => console.log(err))
+  )
+))
+
+// Create table containing user information
+const picturesTable = new Promise(resolve => (
+  resolve(
+    tableExists(database, 'users_pictures')
+      .then((res) => {
+        if (res === false) {
+          return dbQuery(
+            database,
+            'CREATE TABLE `users_pictures` '
+            + '( '
+            + '  `id` INT NOT NULL AUTO_INCREMENT , '
+            + '  `user_id` INT NOT NULL , '
+            + '  `picture` VARCHAR(255) NOT NULL , '
+            + '  `is_profile_pic` TINY(1) NOT NULL DEFAULT 0, '
+            + '   PRIMARY KEY (`id`)'
+            + ') '
+            + 'ENGINE = InnoDB;'
+          )
+        }
+        return console.log('[mysql] Profile pictures table already exists')
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Profile pictures table has been created')
       })
       .catch(err => console.log(err))
   )
@@ -263,6 +291,7 @@ const blacklistTable = new Promise(resolve => (
 Promise.all([
   authTable,
   usersTable,
+  picturesTable,
   genderTable,
   orientationTable,
   interestsTable,
