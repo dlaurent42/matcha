@@ -302,6 +302,32 @@ const passwordRecoveryTable = new Promise(resolve => (
   )
 ))
 
+// Create table containing likes
+const likesTable = new Promise(resolve => (
+  resolve(
+    tableExists(database, 'users_likes')
+      .then((res) => {
+        if (res === false) {
+          return dbQuery(
+            database,
+            'CREATE TABLE `users_likes` '
+            + '( '
+            + '  `liker_id` INT NOT NULL , '
+            + '  `liked_id` INT NOT NULL , '
+            + '  `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP'
+            + ') '
+            + 'ENGINE = InnoDB;'
+          )
+        }
+        return console.log('[mysql] Likes table already exists')
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Likes table has been created')
+      })
+      .catch(err => console.log(err))
+  )
+))
+
 // Create table containing expired json web tokens (= user logout)
 const blacklistTable = new Promise(resolve => (
   resolve(
@@ -337,6 +363,7 @@ Promise.all([
   interestsTable,
   registrationTable,
   passwordRecoveryTable,
+  likesTable,
   blacklistTable,
 ]).then(() => {
   console.log('[mysql] Database is now up-to-date')
