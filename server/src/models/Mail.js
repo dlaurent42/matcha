@@ -28,7 +28,7 @@ class Mail {
       from: this.user,
       to: user.email,
       subject: 'Registration',
-      text: `Please click here: http://localhost:8082/account?token=${user.regToken}`,
+      text: `Please click here: http://localhost:8082/account?token=${user.registrationToken}`,
     }
     return this.send(mailOptions)
   }
