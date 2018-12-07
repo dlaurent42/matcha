@@ -97,8 +97,15 @@ const usersTable = new Promise(resolve => (
             + '  `salt` VARCHAR(255) NOT NULL , '
             + '  `creation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , '
             + '  `birthday` DATE , '
+            + '  `popularity` INT NOT NULL DEFAULT 0, '
+            + '  `biography` TEXT, '
+            + '  `is_account_confirmed` BOOLEAN NOT NULL DEFAULT false, '
+            + '  `is_geolocation_allowed` BOOLEAN NOT NULL DEFAULT false, '
+            + '  `location` VARCHAR(255) , '
             + '  `id_gender` INT , '
             + '  `id_orientation` INT , '
+            + '   UNIQUE (`username`),'
+            + '   UNIQUE (`email`),'
             + '   PRIMARY KEY (`id`)'
             + ') '
             + 'ENGINE = InnoDB;'
@@ -126,7 +133,8 @@ const picturesTable = new Promise(resolve => (
             + '  `id` INT NOT NULL AUTO_INCREMENT , '
             + '  `user_id` INT NOT NULL , '
             + '  `picture` VARCHAR(255) NOT NULL , '
-            + '  `is_profile_pic` TINY(1) NOT NULL DEFAULT 0, '
+            + '  `is_profile_pic` BOOLEAN NOT NULL DEFAULT false, '
+            + '   UNIQUE(picture),'
             + '   PRIMARY KEY (`id`)'
             + ') '
             + 'ENGINE = InnoDB;'
@@ -153,6 +161,7 @@ const genderTable = new Promise(resolve => (
             + '( '
             + '  `id` INT NOT NULL AUTO_INCREMENT , '
             + '  `gender` VARCHAR(30) NOT NULL , '
+            + '  UNIQUE (gender),'
             + '  PRIMARY KEY (`id`)'
             + ') '
             + 'ENGINE = InnoDB;'
@@ -186,6 +195,7 @@ const orientationTable = new Promise(resolve => (
             + '( '
             + '  `id` INT NOT NULL AUTO_INCREMENT , '
             + '  `orientation` VARCHAR(30) NOT NULL , '
+            + '  UNIQUE (orientation),'
             + '  PRIMARY KEY (`id`)'
             + ') '
             + 'ENGINE = InnoDB;'
@@ -246,8 +256,9 @@ const registrationTable = new Promise(resolve => (
             + '( '
             + '  `id` INT NOT NULL AUTO_INCREMENT , '
             + '  `user_id` INT NOT NULL , '
-            + '  `token` TEXT NOT NULL , '
+            + '  `token` VARCHAR(255) NOT NULL , '
             + '  `expiration_date` TIMESTAMP NOT NULL , '
+            + '  UNIQUE (token),'
             + '  PRIMARY KEY (`id`)'
             + ') '
             + 'ENGINE = InnoDB;'
@@ -257,6 +268,35 @@ const registrationTable = new Promise(resolve => (
       })
       .then((res) => {
         if (!isEmpty(res)) console.log('[mysql] Registration table has been created')
+      })
+      .catch(err => console.log(err))
+  )
+))
+
+// Create table containing password recovery tokens sent by mail
+const passwordRecoveryTable = new Promise(resolve => (
+  resolve(
+    tableExists(database, 'users_password_recovery')
+      .then((res) => {
+        if (res === false) {
+          return dbQuery(
+            database,
+            'CREATE TABLE `users_password_recovery` '
+            + '( '
+            + '  `id` INT NOT NULL AUTO_INCREMENT , '
+            + '  `user_id` INT NOT NULL , '
+            + '  `token` VARCHAR(255) NOT NULL , '
+            + '  `expiration_date` TIMESTAMP NOT NULL , '
+            + '  UNIQUE (token),'
+            + '  PRIMARY KEY (`id`)'
+            + ') '
+            + 'ENGINE = InnoDB;'
+          )
+        }
+        return console.log('[mysql] Password recovery table already exists')
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] Password recovery table has been created')
       })
       .catch(err => console.log(err))
   )
@@ -273,7 +313,7 @@ const blacklistTable = new Promise(resolve => (
             'CREATE TABLE `tokens_blacklist` '
             + '( '
             + '  `id` INT NOT NULL AUTO_INCREMENT , '
-            + '  `token` TEXT NOT NULL , '
+            + '  `token` VARCHAR(255) NOT NULL , '
             + '  PRIMARY KEY (`id`)'
             + ') '
             + 'ENGINE = InnoDB;'
@@ -296,6 +336,7 @@ Promise.all([
   orientationTable,
   interestsTable,
   registrationTable,
+  passwordRecoveryTable,
   blacklistTable,
 ]).then(() => {
   console.log('[mysql] Database is now up-to-date')
