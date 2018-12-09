@@ -1,11 +1,13 @@
 const express = require('express')
 const User = require('../../models/User')
+const { isEmpty } = require('../../utils')
 
 const router = express.Router()
 
-router.get('/:id', (req, res) => {
+router.post('/verify', (req, res) => {
   const user = new User()
-  return user.fetchInformationById(req.params.id)
+  if (isEmpty(req.body.token)) return res.sendStatus(403)
+  return user.verifyToken(req.body.token)
     .then(userData => res.json({ user: userData }))
     .catch(err => res.json({ err: err.message }))
 })

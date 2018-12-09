@@ -1,5 +1,6 @@
 const Database = require('./Database')
 const Mail = require('./Mail')
+const JsonWebToken = require('./JsonWebToken')
 const {
   hash,
   random,
@@ -8,6 +9,7 @@ const {
 
 class User {
   constructor() {
+    this.jwt = new JsonWebToken()
     this.database = new Database()
     this.mail = new Mail()
     this.user = {
@@ -17,8 +19,6 @@ class User {
       firstname: null,
       fullname: null,
       email: null,
-      password: null,
-      salt: null,
       age: null,
       birthday: null,
       creation: null,
@@ -34,13 +34,14 @@ class User {
       profilePic: null,
       likes: [],
       liked: [],
+      identificationToken: null,
       registrationToken: null,
       isAccountConfirmed: false,
       isAccountComplete: false,
     }
   }
 
-  fetchUserInformationById(id) {
+  fetchInformationById(id) {
     return new Promise((resolve, reject) => (
       this.database.query(
         '   SELECT '
@@ -85,11 +86,11 @@ class User {
           this.user.location = rows[0].location
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
           this.user.isAccountConfirmed = rows[0].is_account_confirmed
-          return this.fetchUserPictures(id)
+          return this.fetchPictures(id)
         })
         .then((user) => {
           if (isEmpty(user)) return reject()
-          return this.fetchUserLikes(id)
+          return this.fetchLikes(id)
         })
         .then((user) => {
           if (isEmpty(user)) return reject()
@@ -99,7 +100,7 @@ class User {
     ))
   }
 
-  fetchUserInformationByUsernameAndPassword(username, password) {
+  fetchInformationByUsernameAndPassword(username, password) {
     return new Promise((resolve, reject) => (
       this.database.query(
         '   SELECT '
@@ -108,6 +109,8 @@ class User {
         + '   `users`.`firstname`, '
         + '   `users`.`lastname`, '
         + '   `users`.`email`, '
+        + '   `users`.`salt`, '
+        + '   `users`.`password`, '
         + '   `users`.`creation`, '
         + '   `users`.`birthday`, '
         + '   `users`.`popularity`, '
@@ -120,12 +123,13 @@ class User {
         + ' FROM `users` '
         + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
         + ' LEFT JOIN `users_sexual_orientation` ON `users_gender`.`id` = `users`.`id_orientation`'
-        + ' WHERE `users`.`username` = ? AND `users`.`password` = ?'
+        + ' WHERE `users`.`username` = ?'
         + ' LIMIT 1;',
-        [username, password]
+        [username]
       )
         .then((rows) => {
           if (isEmpty(rows)) return reject()
+          if (hash(password, rows[0].salt) !== rows[0].password) return reject()
           this.user.id = rows[0].id
           this.user.username = rows[0].username
           this.user.lastname = rows[0].lastname
@@ -144,11 +148,11 @@ class User {
           this.user.location = rows[0].location
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
           this.user.isAccountConfirmed = rows[0].is_account_confirmed
-          return this.fetchUserPictures(this.user.id)
+          return this.fetchPictures(this.user.id)
         })
         .then((user) => {
           if (isEmpty(user)) return reject()
-          return this.fetchUserLikes(this.user.id)
+          return this.fetchLikes(this.user.id)
         })
         .then((user) => {
           if (isEmpty(user)) return reject()
@@ -158,7 +162,7 @@ class User {
     ))
   }
 
-  fetchUserLikes(id) {
+  fetchLikes(id) {
     return new Promise((resolve, reject) => (
       this.database.query(
         '   SELECT '
@@ -201,7 +205,7 @@ class User {
     ))
   }
 
-  fetchUserPictures(id) {
+  fetchPictures(id) {
     return new Promise((resolve, reject) => (
       this.database.query(
         '   SELECT '
@@ -223,7 +227,7 @@ class User {
     ))
   }
 
-  fetchUserRegistrationToken(id) {
+  fetchRegistrationToken(id) {
     return new Promise((resolve, reject) => (
       this.database.query('SELECT `token` FROM `users_registration` WHERE `user_id` = ? ORDER BY `expiration_date` DESC LIMIT 1;', [id])
         .then((rows) => {
@@ -242,8 +246,8 @@ class User {
       )
         .then((rows) => {
           if (rows[0].count > 0) throw new Error('An account with entered email/username already exists')
-          this.user.salt = random(255)
-          this.user.password = hash(user.password, this.user.salt)
+          const salt = random(255)
+          const password = hash(user.password, salt)
           this.user.username = user.username
           this.user.firstname = user.firstname.charAt(0).toUpperCase() + user.firstname.slice(1)
           this.user.lastname = user.lastname.toUpperCase()
@@ -256,8 +260,8 @@ class User {
               this.user.firstname,
               this.user.lastname,
               this.user.email,
-              this.user.password,
-              this.user.salt,
+              password,
+              salt,
             ]
           ))
         })
@@ -277,9 +281,34 @@ class User {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return this.mail.registration(this.user)
         })
-        .then(() => resolve(this.user))
+        .then(() => this.jwt.create(this.user))
+        .then((token) => {
+          this.user.identificationToken = token
+          resolve(this.user)
+        })
         .catch(err => reject(err))
     ))
+  }
+
+  verifyToken(token) {
+    return new Promise((resolve, reject) => {
+      return this.jwt.check(token)
+        .then((data) => {
+          if (isEmpty(data)) throw new Error('Token not recognized.')
+          return this.fetchInformationById(data.id)
+        })
+        .then((user) => {
+          if (isEmpty(user)) throw new Error('User not found.')
+          return this.jwt.delete(token)
+        })
+        .then(() => this.jwt.create(this.user))
+        .then((newToken) => {
+          if (isEmpty(token)) throw new Error('Token cannot be created.')
+          this.user.identificationToken = newToken
+          return resolve(this.user)
+        })
+        .catch(err => reject(err))
+    })
   }
 }
 

@@ -1,5 +1,5 @@
 const express = require('express')
-const Database = require('./../../models/Database')
+const Database = require('../../models/Database')
 const { isEmpty } = require('../../utils')
 
 const router = express.Router()

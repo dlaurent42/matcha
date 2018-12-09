@@ -1,8 +1,6 @@
 const express = require('express')
-const Database = require('../../models/Database')
-const JsonWebToken = require('../../models/JsonWebToken')
+const User = require('../../models/User')
 const {
-  hash,
   isEmpty,
   userIsUsername,
   userIsPassword,
@@ -19,90 +17,15 @@ router.post('/authenticate', (req, res) => {
   // Check input
   if (isEmpty(req.body.user)) return res.sendStatus(401)
 
-  let user = Object.assign(req.body.user)
-  const database = new Database()
-  const jwt = new JsonWebToken()
+  const userInput = Object.assign(req.body.user)
+  const user = new User()
 
   // Check user data
-  if (!dataCheck(user)) return res.sendStatus(401)
+  if (!dataCheck(userInput)) return res.sendStatus(401)
 
-  // Check if password has been filled in
-  if (isEmpty(user.password)) return res.sendStatus(401)
-
-  return database.query('SELECT `salt` FROM `users` WHERE `username` = ? LIMIT 1;', [user.username])
-    .then((rows) => {
-      if (isEmpty(rows)) return res.sendStatus(401)
-      const hashedPassword = hash(user.password, rows[0].salt)
-      return database.query(
-        '   SELECT '
-        + '   `users`.`id`, '
-        + '   `users`.`firstname`, '
-        + '   `users`.`lastname`, '
-        + '   `users`.`username`, '
-        + '   `users`.`email`, '
-        + '   `users`.`age`, '
-        + '   `users`.`creation`, '
-        + '   `users_gender`.`gender`, '
-        + '   `users_sexual_orientation`.`orientation`'
-        + ' FROM `users` '
-        + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
-        + ' LEFT JOIN `users_sexual_orientation` ON `users_gender`.`id` = `users`.`id_orientation`'
-        + ' WHERE `users`.`username` = ? AND `users`.`password` = ?'
-        + ' LIMIT 1;',
-        [user.username, hashedPassword]
-      )
-    })
-    .then((rows) => {
-      if (isEmpty(rows)) return res.sendStatus(401)
-      user = Object.assign(rows[0])
-      database.close()
-      return jwt.create(rows[0])
-    })
-    .then((token) => {
-      Object.assign(user, { token })
-      return res.json({ user })
-    })
+  return user.fetchInformationByUsernameAndPassword(userInput.username, userInput.password)
+    .then(userData => res.json({ user: userData }))
     .catch(err => res.status(401).send({ err: err.message }))
-})
-
-router.get('/authenticate', (req, res) => {
-  const user = {}
-  const jwt = new JsonWebToken()
-  const database = new Database()
-
-  if (isEmpty(req.body.token)) return res.sendStatus(403)
-  return jwt.check(req.body.token)
-    .then((data) => {
-      if (isEmpty(data)) return res.sendStatus(403)
-      return database.query(
-        '   SELECT '
-        + '   `users`.`id`, '
-        + '   `users`.`firstname`, '
-        + '   `users`.`lastname`, '
-        + '   `users`.`username`, '
-        + '   `users`.`email`, '
-        + '   `users`.`age`, '
-        + '   `users`.`creation`, '
-        + '   `users_gender`.`gender`, '
-        + '   `users_sexual_orientation`.`orientation`'
-        + ' FROM `users` '
-        + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
-        + ' LEFT JOIN `users_sexual_orientation` ON `users_gender`.`id` = `users`.`id_orientation`'
-        + ' WHERE `users`.`id` = ?'
-        + ' LIMIT 1;',
-        [data.id]
-      )
-    })
-    .then((rows) => {
-      if (isEmpty(rows)) return res.sendStatus(403)
-      Object(user, rows[0])
-      return jwt.refresh(rows[0])
-    })
-    .then((token) => {
-      Object.assign(user, { token })
-      return res.json({ user })
-    })
-    .catch(err => res.status(403).send({ err: err.message }))
 })
 
 module.exports = router
