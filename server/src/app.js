@@ -10,9 +10,9 @@ const authToken = require('./routes/auth/token')
 const authCredentials = require('./middlewares/auth')
 const userAdd = require('./routes/user/add')
 const userAuthenticate = require('./routes/user/authenticate')
-const userCount = require('./routes/user/count')
 const userGetById = require('./routes/user/id')
-const userLogout = require('./routes/user/logout')
+const userTokenVerify = require('./routes/user.token/verify')
+const userTokenBan = require('./routes/user.token/ban')
 
 // Initialise application
 const app = express()
@@ -30,9 +30,14 @@ app.use(
   '/user',
   userAdd,
   userAuthenticate,
-  userCount,
-  userGetById,
-  userLogout
+  userGetById
+)
+
+// Set user token route(s)
+app.use(
+  '/user/token',
+  userTokenVerify,
+  userTokenBan
 )
 
 app.listen(config.port, () => console.log(`Server started and listening on port ${config.port}`))
