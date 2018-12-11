@@ -1,7 +1,5 @@
-const {
-  isEmpty,
-  isAlpha,
-} = require('.')
+const isEmpty = require('./obj.isEmpty')
+const isAlpha = require('./string.isAlpha')
 
 const isLastname = (lastname) => {
   if (isEmpty(lastname)) return false

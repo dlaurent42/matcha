@@ -18,7 +18,7 @@ router.post('/', (req, res) => {
   return database.query('SELECT COUNT(*) as count FROM `auth` WHERE `clientId` = ? AND `clientSecret` = ?;', credentials)
     .then((rows) => {
       if (isEmpty(rows)) return res.sendStatus(401)
-      return jwt.create(credentials)
+      return jwt.create({ data: credentials })
     })
     .then(token => res.json({ token }))
     .catch(err => res.json({ err: err.message }))

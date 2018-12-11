@@ -1,5 +1,6 @@
 const express = require('express')
 const User = require('../../models/User')
+const JsonWebToken = require('../../models/JsonWebToken')
 const {
   isEmpty,
   userIsUsername,
@@ -19,12 +20,21 @@ router.post('/authenticate', (req, res) => {
 
   const userInput = Object.assign(req.body.user)
   const user = new User()
+  let userOutput = {}
 
   // Check user data
   if (!dataCheck(userInput)) return res.sendStatus(401)
 
   return user.fetchInformationByUsernameAndPassword(userInput.username, userInput.password)
-    .then(userData => res.json({ user: userData }))
+    .then((userData) => {
+      userOutput = Object.assign(userData)
+      const jwt = new JsonWebToken()
+      return jwt.create(userOutput)
+    })
+    .then((identificationToken) => {
+      userOutput = Object.assign(userOutput, { identificationToken })
+      return res.json({ user: userOutput })
+    })
     .catch(err => res.status(401).send({ err: err.message }))
 })
 

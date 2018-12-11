@@ -37,7 +37,7 @@ class JsonWebToken {
 
   create(data) {
     return new Promise((resolve, reject) => {
-      jwt.sign({ data }, 'secretkey', { expiresIn: '15m' }, (err, token) => {
+      jwt.sign(data, 'secretkey', { expiresIn: '15m' }, (err, token) => {
         if (!isEmpty(err)) return reject(err)
         this.token = token
         return resolve(token)

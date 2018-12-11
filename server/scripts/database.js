@@ -339,7 +339,7 @@ const blacklistTable = new Promise(resolve => (
             'CREATE TABLE `tokens_blacklist` '
             + '( '
             + '  `id` INT NOT NULL AUTO_INCREMENT , '
-            + '  `token` VARCHAR(255) NOT NULL , '
+            + '  `token` TEXT , '
             + '  PRIMARY KEY (`id`)'
             + ') '
             + 'ENGINE = InnoDB;'
