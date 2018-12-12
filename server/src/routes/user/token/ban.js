@@ -1,6 +1,6 @@
 const express = require('express')
-const JsonWebToken = require('../../models/JsonWebToken')
-const { isEmpty } = require('../../utils')
+const JsonWebToken = require('../../../models/JsonWebToken')
+const { isEmpty } = require('../../../utils')
 
 const router = express.Router()
 

@@ -7,7 +7,7 @@ const router = express.Router()
 
 router.get('/confirm-account', (req, res) => {
   // Check if token is defined
-  if (isEmpty(req.query.token)) return res.sendStatus(403)
+  if (isEmpty(req.query.token)) return res.status(400).send({ err: 'Missing argument.' })
 
   const user = new User()
   return user.verifyAccount(req.query.token)

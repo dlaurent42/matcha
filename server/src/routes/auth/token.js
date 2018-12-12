@@ -7,7 +7,7 @@ const router = express.Router()
 
 router.post('/', (req, res) => {
   // Check input
-  if (isEmpty(req.body.clientId) || isEmpty(req.body.clientSecret)) return res.sendStatus(401)
+  if (isEmpty(req.body.clientId) || isEmpty(req.body.clientSecret)) return res.sendStatus(400)
 
   // Instanciate objects
   const credentials = [req.body.clientId, req.body.clientSecret]

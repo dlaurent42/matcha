@@ -1,6 +1,6 @@
 const express = require('express')
-const User = require('../../models/User')
-const { isEmpty } = require('../../utils')
+const User = require('../../../models/User')
+const { isEmpty } = require('../../../utils')
 
 const router = express.Router()
 

@@ -21,12 +21,12 @@ const dataCheck = user => (
 
 router.post('/add', (req, res) => {
   // Check if user is not undefined
-  if (isEmpty(req.body.user)) return res.json({ err: 'Please fill the form.' })
+  if (isEmpty(req.body.user)) return res.status(400).send({ err: 'Missing argument.' })
 
   const userInput = Object.assign(req.body.user)
 
   // Check user data
-  if (!dataCheck(userInput)) return res.json({ err: 'Data validation failed.' })
+  if (!dataCheck(userInput)) return res.status(401).send({ err: 'Wrong input.' })
 
   const user = new User()
   return user.add(userInput)

@@ -15,7 +15,7 @@ const dataCheck = user => (
 
 router.post('/authenticate', (req, res) => {
   // Check input
-  if (isEmpty(req.body.user)) return res.sendStatus(401)
+  if (isEmpty(req.body.user)) return res.status(400).send({ err: 'Missing argument.' })
 
   const userInput = Object.assign(req.body.user)
   const user = new User()
