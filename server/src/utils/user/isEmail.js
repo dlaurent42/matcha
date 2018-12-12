@@ -1,4 +1,4 @@
-const isEmpty = require('./obj.isEmpty')
+const isEmpty = require('../obj/isEmpty')
 
 const isEmail = (email) => {
   if (isEmpty(email)) return false

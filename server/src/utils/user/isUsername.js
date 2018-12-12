@@ -1,5 +1,5 @@
-const isEmpty = require('./obj.isEmpty')
-const isAlphaNumeric = require('./string.isAlphaNumeric')
+const isEmpty = require('../obj/isEmpty')
+const isAlphaNumeric = require('../string/isAlphaNumeric')
 
 const isUsername = (username) => {
   if (isEmpty(username)) return false

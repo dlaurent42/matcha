@@ -1,8 +1,8 @@
-const isEmpty = require('./obj.isEmpty')
-const hasDigit = require('./string.hasDigit')
-const hasSpecial = require('./string.hasSpecial')
-const hasLowercase = require('./string.hasLowercase')
-const hasUppercase = require('./string.hasUppercase')
+const isEmpty = require('../obj/isEmpty')
+const hasDigit = require('../string/hasDigit')
+const hasSpecial = require('../string/hasSpecial')
+const hasLowercase = require('../string/hasLowercase')
+const hasUppercase = require('../string/hasUppercase')
 
 const isPassword = (password, cpassword) => {
   if (isEmpty(password)) return false
