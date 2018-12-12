@@ -14,7 +14,7 @@ class JsonWebToken {
       database.query('SELECT COUNT(*) AS count FROM `tokens_blacklist` WHERE `token` = ?;', [token])
         .then((res) => {
           if (res[0].count === 0) return jwt.verify(token, 'secretkey')
-          return reject()
+          return reject(new Error('Token has been blacklisted.'))
         })
         .then(data => resolve(data))
         .catch(err => reject(err))

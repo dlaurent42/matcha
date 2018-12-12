@@ -72,7 +72,7 @@ class User {
         [id]
       )
         .then((rows) => {
-          if (isEmpty(rows)) return reject()
+          if (isEmpty(rows)) return reject(new Error('No user found.'))
           this.user.id = id
           this.user.username = rows[0].username
           this.user.lastname = rows[0].lastname
@@ -95,11 +95,11 @@ class User {
           return this.fetchPictures(id)
         })
         .then((user) => {
-          if (isEmpty(user)) return reject()
+          if (isEmpty(user)) return reject(new Error('Cannot fetch user pictures.'))
           return this.fetchLikes(id)
         })
         .then((user) => {
-          if (isEmpty(user)) return reject()
+          if (isEmpty(user)) return reject(new Error('Cannot fetch user likes.'))
           return resolve(this.user)
         })
         .catch(err => reject(err))
@@ -283,32 +283,38 @@ class User {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return this.mail.registration(this.user)
         })
-        .then(() => this.jwt.create(this.user))
-        .then((token) => {
-          this.user.identificationToken = token
-          resolve(this.user)
-        })
+        .then(() => this.createToken())
+        .then(() => resolve(this.user))
         .catch(err => reject(err))
     ))
+  }
+
+  createToken() {
+    return new Promise((resolve, reject) => {
+      const user = Object.assign(this.user, { date: Date.now() })
+      return this.jwt.create(user)
+        .then((newToken) => {
+          if (isEmpty(newToken)) return reject(new Error('Cannot create new token.'))
+          this.user.identificationToken = newToken
+          return resolve(this.user)
+        })
+        .catch(err => reject(err))
+    })
   }
 
   verifyToken(token) {
     return new Promise((resolve, reject) => (
       this.jwt.check(token)
         .then((data) => {
-          if (isEmpty(data)) return reject()
+          if (isEmpty(data)) return reject(new Error('Cannot check user token.'))
           return this.fetchInformationById(data.id)
         })
         .then((user) => {
-          if (isEmpty(user)) return reject()
+          if (isEmpty(user)) return reject(new Error('Cannot fetch user information.'))
           return this.jwt.delete(token)
         })
-        .then(() => this.jwt.create(this.user))
-        .then((newToken) => {
-          if (isEmpty(token)) return reject()
-          this.user.identificationToken = newToken
-          return resolve(this.user)
-        })
+        .then(() => this.createToken())
+        .then(() => resolve(this.user))
         .catch(err => reject(err))
     ))
   }

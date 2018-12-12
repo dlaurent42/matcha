@@ -17,8 +17,8 @@ class Mail {
   send(mailOptions) {
     return new Promise((resolve, reject) => {
       this.transporter.sendMail(mailOptions, (err, res) => {
-        if (!isEmpty(err)) reject(err)
-        resolve(res)
+        if (!isEmpty(err)) return reject(err)
+        return resolve(res)
       })
     })
   }

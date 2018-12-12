@@ -8,8 +8,8 @@ router.post('/verify', (req, res) => {
   const user = new User()
   if (isEmpty(req.body.token)) return res.sendStatus(403)
   return user.verifyToken(req.body.token)
-    .then(userData => res.json({ user: userData }))
-    .catch(err => res.json({ err: err.message }))
+    .then(userData => res.json({ userData }))
+    .catch(err => res.json({ err }))
 })
 
 module.exports = router

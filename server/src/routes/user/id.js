@@ -7,7 +7,7 @@ router.get('/:id', (req, res) => {
   const user = new User()
   return user.fetchInformationById(req.params.id)
     .then(userData => res.json({ user: userData }))
-    .catch(err => res.json({ err: err.message }))
+    .catch(err => res.json({ err }))
 })
 
 module.exports = router
