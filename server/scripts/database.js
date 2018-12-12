@@ -16,7 +16,7 @@ const tableExists = (database, tableName) => (
 const dbQuery = (database, sql, args) => (
   new Promise((resolve, reject) => {
     database.query(sql, args, (err, rows) => {
-      if (err) return reject(err)
+      if (err) return reject(err.message)
       return resolve(rows)
     })
   })
@@ -62,17 +62,17 @@ const authTable = new Promise(resolve => (
             + 'ENGINE = InnoDB;'
           )
         }
-        return console.log('[mysql] Auth table already exists')
+        return console.log('[mysql] auth table already exists')
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Auth table has been created')
+        if (!isEmpty(res)) console.log('[mysql] auth table has been created')
         return dbQuery(
           database,
           'INSERT INTO `auth` (`clientId`, `clientSecret`) VALUES (\'A968DCBAE348712A843CB15423E49953D7A0883F0D74E6E18044773F07393D0D\', \'D1BE2ECDFDC4850CF5AEAE16A6F9481EB97FD6988CCF7A9195002BF577F292EA\');'
         )
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Auth table has been filled')
+        if (!isEmpty(res)) console.log('[mysql] auth table has been filled')
       })
       .catch(err => console.log(err))
   )
@@ -111,10 +111,40 @@ const usersTable = new Promise(resolve => (
             + 'ENGINE = InnoDB;'
           )
         }
-        return console.log('[mysql] Users table already exists')
+        return console.log('[mysql] users table already exists')
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Users table has been created')
+        if (!isEmpty(res)) console.log('[mysql] users table has been created')
+      })
+      .catch(err => console.log(err))
+  )
+))
+
+// Create table containing user notifications
+const notficationsTable = new Promise(resolve => (
+  resolve(
+    tableExists(database, 'users_notifications')
+      .then((res) => {
+        if (res === false) {
+          return dbQuery(
+            database,
+            'CREATE TABLE `users_notifications` '
+            + '( '
+            + '  `id` INT NOT NULL AUTO_INCREMENT , '
+            + '  `emitter_id` INT NOT NULL , '
+            + '  `receiver_id` INT NOT NULL , '
+            + '  `type` ENUM (\'like\', \'unlike\', \'message\', \'match\', \'view\') NOT NULL , '
+            + '  `content` TEXT , '
+            + '  `creation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, '
+            + '   PRIMARY KEY (`id`)'
+            + ') '
+            + 'ENGINE = InnoDB;'
+          )
+        }
+        return console.log('[mysql] users_notifications table already exists')
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] users_notifications table has been created')
       })
       .catch(err => console.log(err))
   )
@@ -140,10 +170,10 @@ const picturesTable = new Promise(resolve => (
             + 'ENGINE = InnoDB;'
           )
         }
-        return console.log('[mysql] Profile pictures table already exists')
+        return console.log('[mysql] users_pictures table already exists')
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Profile pictures table has been created')
+        if (!isEmpty(res)) console.log('[mysql] users_pictures table has been created')
       })
       .catch(err => console.log(err))
   )
@@ -167,17 +197,17 @@ const genderTable = new Promise(resolve => (
             + 'ENGINE = InnoDB;'
           )
         }
-        return console.log('[mysql] Gender table already exists')
+        return console.log('[mysql] users_gender table already exists')
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Gender table has been created')
+        if (!isEmpty(res)) console.log('[mysql] users_gender table has been created')
         return dbQuery(
           database,
           'INSERT INTO `users_gender` (`gender`) VALUES (\'male\'), (\'female\');'
         )
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Gender table has been filled')
+        if (!isEmpty(res)) console.log('[mysql] users_gender table has been filled')
       })
       .catch(err => console.log(err))
   )
@@ -201,17 +231,17 @@ const orientationTable = new Promise(resolve => (
             + 'ENGINE = InnoDB;'
           )
         }
-        return console.log('[mysql] Sexual orientation table already exists')
+        return console.log('[mysql] users_sexual_orientation table already exists')
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Sexual orientation table has been created')
+        if (!isEmpty(res)) console.log('[mysql] users_sexual_orientation table has been created')
         return dbQuery(
           database,
           'INSERT INTO `users_sexual_orientation` (`orientation`) VALUES (\'male\'), (\'female\');'
         )
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Sexual orientation table has been filled')
+        if (!isEmpty(res)) console.log('[mysql] users_sexual_orientation table has been filled')
       })
       .catch(err => console.log(err))
   )
@@ -235,10 +265,10 @@ const interestsTable = new Promise(resolve => (
             + 'ENGINE = InnoDB;'
           )
         }
-        return console.log('[mysql] Interests table already exists')
+        return console.log('[mysql] users_interests table already exists')
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Interests table has been created')
+        if (!isEmpty(res)) console.log('[mysql] users_interests table has been created')
       })
       .catch(err => console.log(err))
   )
@@ -264,10 +294,10 @@ const registrationTable = new Promise(resolve => (
             + 'ENGINE = InnoDB;'
           )
         }
-        return console.log('[mysql] Registration table already exists')
+        return console.log('[mysql] users_registration table already exists')
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Registration table has been created')
+        if (!isEmpty(res)) console.log('[mysql] users_registration table has been created')
       })
       .catch(err => console.log(err))
   )
@@ -293,10 +323,10 @@ const passwordRecoveryTable = new Promise(resolve => (
             + 'ENGINE = InnoDB;'
           )
         }
-        return console.log('[mysql] Password recovery table already exists')
+        return console.log('[mysql] users_password_recovery table already exists')
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Password recovery table has been created')
+        if (!isEmpty(res)) console.log('[mysql] users_password_recovery table has been created')
       })
       .catch(err => console.log(err))
   )
@@ -319,10 +349,10 @@ const likesTable = new Promise(resolve => (
             + 'ENGINE = InnoDB;'
           )
         }
-        return console.log('[mysql] Likes table already exists')
+        return console.log('[mysql] users_likes table already exists')
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Likes table has been created')
+        if (!isEmpty(res)) console.log('[mysql] users_likes table has been created')
       })
       .catch(err => console.log(err))
   )
@@ -345,10 +375,10 @@ const blacklistTable = new Promise(resolve => (
             + 'ENGINE = InnoDB;'
           )
         }
-        return console.log('[mysql] Blacklist table already exists')
+        return console.log('[mysql] tokens_blacklist table already exists')
       })
       .then((res) => {
-        if (!isEmpty(res)) console.log('[mysql] Blacklist table has been created')
+        if (!isEmpty(res)) console.log('[mysql] tokens_blacklist table has been created')
       })
       .catch(err => console.log(err))
   )
@@ -357,6 +387,7 @@ const blacklistTable = new Promise(resolve => (
 Promise.all([
   authTable,
   usersTable,
+  notficationsTable,
   picturesTable,
   genderTable,
   orientationTable,
