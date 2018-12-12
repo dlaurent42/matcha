@@ -31,7 +31,7 @@ router.post('/add', (req, res) => {
   const user = new User()
   return user.add(userInput)
     .then(userData => res.json({ user: userData }))
-    .catch(err => res.json({ err }))
+    .catch(err => res.json({ err: err.message }))
 })
 
 module.exports = router

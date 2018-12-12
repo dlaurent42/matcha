@@ -9,7 +9,7 @@ router.post('/verify', (req, res) => {
   if (isEmpty(req.body.token)) return res.sendStatus(403)
   return user.verifyToken(req.body.token)
     .then(userData => res.json({ userData }))
-    .catch(err => res.json({ err }))
+    .catch(err => res.json({ err: err.message }))
 })
 
 module.exports = router

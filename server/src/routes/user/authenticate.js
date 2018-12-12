@@ -26,7 +26,7 @@ router.post('/authenticate', (req, res) => {
   return user.fetchInformationByUsernameAndPassword(userInput.username, userInput.password)
     .then(() => user.createToken())
     .then(userData => res.json({ user: userData }))
-    .catch(err => res.status(401).send({ err }))
+    .catch(err => res.status(401).send({ err: err.message }))
 })
 
 module.exports = router

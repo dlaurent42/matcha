@@ -11,6 +11,7 @@ const authCredentials = require('./middlewares/auth')
 const userAdd = require('./routes/user/add')
 const userAuthenticate = require('./routes/user/authenticate')
 const userGetById = require('./routes/user/id')
+const userConfirmAccount = require('./routes/user/confirmAccount')
 const userTokenVerify = require('./routes/user.token/verify')
 const userTokenBan = require('./routes/user.token/ban')
 
@@ -30,6 +31,7 @@ app.use(
   '/user',
   userAdd,
   userAuthenticate,
+  userConfirmAccount,
   userGetById
 )
 
