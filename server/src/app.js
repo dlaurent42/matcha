@@ -12,10 +12,14 @@ const userAdd = require('./routes/user/add')
 const userAuthenticate = require('./routes/user/authenticate')
 const userGetById = require('./routes/user/id')
 const userConfirmAccount = require('./routes/user/confirmAccount')
-const userNotifLike = require('./routes/user/notifications/like')
-const userNotifMessage = require('./routes/user/notifications/message')
-const userNotifProfileView = require('./routes/user/notifications/profileView')
-const userNotifUnlike = require('./routes/user/notifications/unlike')
+const userNotifDelete = require('./routes/notification/delete')
+const userNotifDeleteAll = require('./routes/notification/deleteAll')
+const userNotifLike = require('./routes/notification/like')
+const userNotifList = require('./routes/notification/list')
+const userNotifMessage = require('./routes/notification/message')
+const userNotifOpened = require('./routes/notification/open')
+const userNotifProfileView = require('./routes/notification/profileView')
+const userNotifUnlike = require('./routes/notification/unlike')
 const userTokenVerify = require('./routes/user/token/verify')
 const userTokenBan = require('./routes/user/token/ban')
 
@@ -48,9 +52,13 @@ app.use(
 
 // Set user notification route(s)
 app.use(
-  '/user/notification',
+  '/notification',
+  userNotifDelete,
+  userNotifDeleteAll,
   userNotifLike,
+  userNotifList,
   userNotifMessage,
+  userNotifOpened,
   userNotifProfileView,
   userNotifUnlike
 )

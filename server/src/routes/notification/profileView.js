@@ -1,13 +1,13 @@
 const express = require('express')
-const User = require('../../../models/User')
-const { isEmpty } = require('../../../utils')
+const Notification = require('../../models/Notification')
+const { isEmpty } = require('../../utils')
 
 const router = express.Router()
 
-router.post('/unlike', (req, res) => {
+router.post('/see-profile', (req, res) => {
   if (isEmpty(req.body.emitter) || isEmpty(req.body.receiver)) res.status(400).send({ err: 'Missing argument.' })
-  const user = new User()
-  return user.notifyUnlike(req.body.emitter, req.body.receiver)
+  const notification = new Notification()
+  return notification.profileView(req.body.emitter, req.body.receiver)
     .then(() => res.sendStatus(200))
     .catch(err => res.json({ err: err.message }))
 })

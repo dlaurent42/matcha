@@ -1,13 +1,16 @@
 const express = require('express')
-const User = require('../../../models/User')
-const { isEmpty } = require('../../../utils')
+const User = require('../../models/User')
+const Notification = require('../../models/Notification')
+const { isEmpty } = require('../../utils')
 
 const router = express.Router()
 
 router.post('/like', (req, res) => {
   if (isEmpty(req.body.emitter) || isEmpty(req.body.receiver)) res.status(400).send({ err: 'Missing argument.' })
   const user = new User()
-  return user.notifyLike(req.body.emitter, req.body.receiver)
+  const notification = new Notification()
+  return user.addLike(req.body.emitter, req.body.receiver)
+    .then(() => notification.like(req.body.emitter, req.body.receiver))
     .then(() => res.sendStatus(200))
     .catch(err => res.json({ err: err.message }))
 })

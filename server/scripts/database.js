@@ -134,7 +134,7 @@ const notficationsTable = new Promise(resolve => (
             + '  `emitter_id` INT NOT NULL , '
             + '  `receiver_id` INT NOT NULL , '
             + '  `type` ENUM (\'like\', \'unlike\', \'message\', \'match\', \'view\') NOT NULL , '
-            + '  `content` TEXT , '
+            + '  `is_opened` BOOLEAN NOT NULL DEFAULT false, '
             + '  `creation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, '
             + '   PRIMARY KEY (`id`)'
             + ') '
@@ -149,6 +149,36 @@ const notficationsTable = new Promise(resolve => (
       .catch(err => console.log(err))
   )
 ))
+
+// Create table containing user messages from chat
+const chatTable = new Promise(resolve => (
+  resolve(
+    tableExists(database, 'users_messages')
+      .then((res) => {
+        if (res === false) {
+          return dbQuery(
+            database,
+            'CREATE TABLE `users_messages` '
+            + '( '
+            + '  `id` INT NOT NULL AUTO_INCREMENT , '
+            + '  `emitter_id` INT NOT NULL , '
+            + '  `receiver_id` INT NOT NULL , '
+            + '  `content` TEXT , '
+            + '  `creation` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, '
+            + '   PRIMARY KEY (`id`)'
+            + ') '
+            + 'ENGINE = InnoDB;'
+          )
+        }
+        return console.log('[mysql] users_messages table already exists')
+      })
+      .then((res) => {
+        if (!isEmpty(res)) console.log('[mysql] users_messages table has been created')
+      })
+      .catch(err => console.log(err))
+  )
+))
+
 
 // Create table containing user information
 const picturesTable = new Promise(resolve => (
@@ -387,6 +417,7 @@ const blacklistTable = new Promise(resolve => (
 Promise.all([
   authTable,
   usersTable,
+  chatTable,
   notficationsTable,
   picturesTable,
   genderTable,
