@@ -4,24 +4,36 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
 
-// Developed modules
 const config = require('./config')
+
+// ******** Developed modules ********
+// auth
 const authToken = require('./routes/auth/token')
 const authCredentials = require('./middlewares/auth')
+
+// user
 const userAdd = require('./routes/user/add')
 const userAuthenticate = require('./routes/user/authenticate')
 const userGetById = require('./routes/user/id')
 const userConfirmAccount = require('./routes/user/confirmAccount')
-const userNotifDelete = require('./routes/notification/delete')
-const userNotifDeleteAll = require('./routes/notification/deleteAll')
-const userNotifLike = require('./routes/notification/like')
-const userNotifList = require('./routes/notification/list')
-const userNotifMessage = require('./routes/notification/message')
-const userNotifOpened = require('./routes/notification/open')
-const userNotifProfileView = require('./routes/notification/profileView')
-const userNotifUnlike = require('./routes/notification/unlike')
 const userTokenVerify = require('./routes/user/token/verify')
 const userTokenBan = require('./routes/user/token/ban')
+
+// chat
+const chatAddMessage = require('./routes/chat/add')
+const chatDeleteAllConversations = require('./routes/chat/deleteAllConversations')
+const chatDeleteConversation = require('./routes/chat/deleteConversation')
+const chatListConversations = require('./routes/chat/listConversations')
+const chatListMessages = require('./routes/chat/listMessages')
+
+// notifications
+const notifDelete = require('./routes/notification/delete')
+const notifDeleteAll = require('./routes/notification/deleteAll')
+const notifLike = require('./routes/notification/like')
+const notifList = require('./routes/notification/list')
+const notifOpened = require('./routes/notification/open')
+const notifProfileView = require('./routes/notification/profileView')
+const notifUnlike = require('./routes/notification/unlike')
 
 // Initialise application
 const app = express()
@@ -50,17 +62,26 @@ app.use(
   userTokenBan
 )
 
+// Set chat route(s)
+app.use(
+  '/chat',
+  chatAddMessage,
+  chatDeleteAllConversations,
+  chatDeleteConversation,
+  chatListConversations,
+  chatListMessages
+)
+
 // Set user notification route(s)
 app.use(
   '/notification',
-  userNotifDelete,
-  userNotifDeleteAll,
-  userNotifLike,
-  userNotifList,
-  userNotifMessage,
-  userNotifOpened,
-  userNotifProfileView,
-  userNotifUnlike
+  notifDelete,
+  notifDeleteAll,
+  notifLike,
+  notifList,
+  notifOpened,
+  notifProfileView,
+  notifUnlike
 )
 
 app.listen(config.port, () => console.log(`Server started and listening on port ${config.port}`))

@@ -61,7 +61,6 @@ class Notification {
         + '  `users_notifications`.`type`, '
         + '  `users_notifications`.`content`, '
         + '  `users_notifications`.`is_opened`, '
-        + '  `users_notifications`.`creation`, '
         + '  `users_notifications`.`creation` '
         + ' FROM `users_notifications`'
         + ' LEFT JOIN `users` ON `users`.`id` = `users_notifications`.`emitter_id` '
