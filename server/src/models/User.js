@@ -112,17 +112,6 @@ class User {
     ))
   }
 
-  deleteLike(emitter, receiver) {
-    return new Promise((resolve, reject) => (
-      this.database('DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;', [emitter, receiver])
-        .then((rows) => {
-          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
-          return resolve()
-        })
-        .catch(err => reject(err))
-    ))
-  }
-
   createToken() {
     return new Promise((resolve, reject) => {
       const user = Object.assign(this.user, { date: Date.now() })
@@ -134,6 +123,17 @@ class User {
         })
         .catch(err => reject(err))
     })
+  }
+
+  deleteLike(emitter, receiver) {
+    return new Promise((resolve, reject) => (
+      this.database('DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;', [emitter, receiver])
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          return resolve()
+        })
+        .catch(err => reject(err))
+    ))
   }
 
   fetchInformationById(id) {
