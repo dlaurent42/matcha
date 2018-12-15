@@ -32,6 +32,7 @@ const notifDeleteAll = require('./routes/notification/deleteAll')
 const notifLike = require('./routes/notification/like')
 const notifList = require('./routes/notification/list')
 const notifOpened = require('./routes/notification/open')
+const notifOpenedAll = require('./routes/notification/openAll')
 const notifProfileView = require('./routes/notification/profileView')
 const notifUnlike = require('./routes/notification/unlike')
 
@@ -80,6 +81,7 @@ app.use(
   notifLike,
   notifList,
   notifOpened,
+  notifOpenedAll,
   notifProfileView,
   notifUnlike
 )

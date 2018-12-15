@@ -92,7 +92,7 @@ class User {
 
   addLike(emitter, receiver) {
     return new Promise((resolve, reject) => (
-      this.database('INSERT INTO `users_likes` (`liker_id`, `liked_id`) VALUES (?, ?);', [emitter, receiver])
+      this.database.query('INSERT INTO `users_likes` (`liker_id`, `liked_id`) VALUES (?, ?);', [emitter, receiver])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return resolve()
@@ -116,7 +116,7 @@ class User {
 
   deleteLike(emitter, receiver) {
     return new Promise((resolve, reject) => (
-      this.database('DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;', [emitter, receiver])
+      this.database.query('DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;', [emitter, receiver])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return resolve()

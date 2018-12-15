@@ -4,11 +4,11 @@ const { isEmpty } = require('../../utils')
 
 const router = express.Router()
 
-router.get('/list', (req, res) => {
-  if (isEmpty(req.query.user_id)) return res.status(400).send({ err: 'Missing argument.' })
+router.put('/viewed-all', (req, res) => {
+  if (isEmpty(req.body.userId)) res.status(400).send({ err: 'Missing argument.' })
   const notification = new Notification()
-  return notification.list(req.query.user_id)
-    .then(notifications => res.json({ notifications }))
+  return notification.viewedAll(req.body.userId)
+    .then(() => res.sendStatus(200))
     .catch(err => res.json({ err: err.message }))
 })
 

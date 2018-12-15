@@ -12,7 +12,10 @@ router.post('/like', (req, res) => {
   return user.addLike(req.body.emitter, req.body.receiver)
     .then(() => notification.like(req.body.emitter, req.body.receiver))
     .then(() => res.sendStatus(200))
-    .catch(err => res.json({ err: err.message }))
+    .catch((err) => {
+      console.log(err)
+      return res.json({ err: err.message })
+    })
 })
 
 module.exports = router

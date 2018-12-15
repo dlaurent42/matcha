@@ -24,18 +24,22 @@ class Notification {
   }
 
   like(emitter, receiver) {
+    let isMatch = false
     return new Promise((resolve, reject) => (
       this.database.query('SELECT COUNT(*) AS count FROM `users_likes` WHERE `liker_id` = ? AND `liked_id` = ?;', [receiver, emitter])
         .then((rows) => {
           const type = (rows[0].count === 0)
             ? 'like'
             : 'match'
+          if (type === 'match') isMatch = true
           return this.database.query('INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, ?);', [emitter, receiver, type])
         })
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          if (isMatch === true) return this.database.query('INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, \'match\');', [receiver, emitter])
           return resolve()
         })
+        .then(() => resolve())
         .catch(err => reject(err))
     ))
   }
@@ -59,7 +63,6 @@ class Notification {
         + '  `users`.`username`, '
         + '  `users_notifications`.`emitter_id`, '
         + '  `users_notifications`.`type`, '
-        + '  `users_notifications`.`content`, '
         + '  `users_notifications`.`is_opened`, '
         + '  `users_notifications`.`creation` '
         + ' FROM `users_notifications`'
@@ -69,7 +72,15 @@ class Notification {
         [uid]
       )
         .then((rows) => {
-          console.log(JSON.stringify(rows))
+          rows.forEach((notification) => {
+            this.notifications.push({
+              emitter_id: notification.emitter_id,
+              username: notification.username,
+              type: notification.type,
+              viewed: notification.is_opened,
+              date: notification.creation,
+            })
+          })
           resolve(this.notifications)
         })
         .catch(err => reject(err))
@@ -101,6 +112,17 @@ class Notification {
   viewed(id) {
     return new Promise((resolve, reject) => (
       this.database.query('UPDATE `users_notifications` SET `is_opened` = 1 WHERE `id` = ?;', [id])
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          return resolve()
+        })
+        .catch(err => reject(err))
+    ))
+  }
+
+  viewedAll(id) {
+    return new Promise((resolve, reject) => (
+      this.database.query('UPDATE `users_notifications` SET `is_opened` = 1 WHERE `receiver_id` = ?;', [id])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return resolve()
