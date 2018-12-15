@@ -4,7 +4,7 @@ const { isEmpty } = require('../../utils')
 
 const router = express.Router()
 
-router.delete('/deleteConversation', (req, res) => {
+router.delete('/delete-conversation', (req, res) => {
   if (isEmpty(req.body.emitter) || isEmpty(req.body.receiver)) res.status(400).send({ err: 'Missing argument.' })
   const chat = new Chat()
   return chat.deleteConversation(req.body.emitter, req.body.receiver)

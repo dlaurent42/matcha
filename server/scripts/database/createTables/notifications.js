@@ -12,8 +12,6 @@ const notifications = database => (
             'CREATE TABLE `users_notifications` '
             + '( '
             + '  `id` INT NOT NULL AUTO_INCREMENT , '
-            + '  `owner_id` INT NOT NULL , '
-            + '  `with_id` INT NOT NULL , '
             + '  `emitter_id` INT NOT NULL , '
             + '  `receiver_id` INT NOT NULL , '
             + '  `type` ENUM (\'like\', \'unlike\', \'message\', \'match\', \'view\') NOT NULL , '

@@ -8,9 +8,9 @@ class Chat {
     this.messages = []
   }
 
-  addMesssage(emitter, receiver, content) {
+  addMessage(emitter, receiver, content) {
     return new Promise((resolve, reject) => (
-      this.database.query('INSERT INTO `users_messages` (`owner_id`, `with_id`, `emitter_id`, `receiver_id`, `content`) VALUES (?, ?, ?, ?), (?, ?, ?, ?);', [emitter, receiver, emitter, receiver, content, receiver, emitter, emitter, receiver, content])
+      this.database.query('INSERT INTO `users_messages` (`owner_id`, `with_id`, `emitter_id`, `receiver_id`, `content`) VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?);', [emitter, receiver, emitter, receiver, content, receiver, emitter, emitter, receiver, content])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return resolve()
@@ -84,11 +84,17 @@ class Chat {
       this.database.query(
         '  SELECT '
         + '  `users_messages`.`id`, '
+        + '  `users_messages`.`emitter_id`, '
+        + '  `a`.`username` AS \'emitter\', '
+        + '  `users_messages`.`receiver_id`, '
+        + '  `b`.`username` AS \'receiver\', '
         + '  `users_messages`.`content`, '
         + '  `users_messages`.`creation` '
         + 'FROM `users_messages` '
+        + 'LEFT JOIN `users` a ON `users_messages`.`emitter_id` = a.`id`'
+        + 'LEFT JOIN `users` b ON `users_messages`.`receiver_id` = b.`id`'
         + 'WHERE `owner_id` = ? AND `with_id` = ? '
-        + 'ORDER BY `b`.`creation` DESC;',
+        + 'ORDER BY `creation` DESC;',
         [emitter, receiver]
       )
         .then((rows) => {
@@ -96,6 +102,10 @@ class Chat {
           rows.forEach((message) => {
             this.messages.push({
               id: message.id,
+              emitter_id: message.emitter_id,
+              emitter: message.emitter,
+              receiver_id: message.receiver_id,
+              receiver: message.receiver,
               content: message.content,
               date: message.creation,
             })

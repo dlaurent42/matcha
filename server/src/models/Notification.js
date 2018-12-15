@@ -9,7 +9,7 @@ class Notification {
 
   delete(id) {
     return new Promise((resolve, reject) => (
-      this.database.query('DELETE FROM `users_notifications WHERE `id` = ?;`', [id])
+      this.database.query('DELETE FROM `users_notifications` WHERE `id` = ?;', [id])
         .then(() => resolve())
         .catch(err => reject(err))
     ))
@@ -17,7 +17,7 @@ class Notification {
 
   deleteAll(uid) {
     return new Promise((resolve, reject) => (
-      this.database.query('DELETE FROM `users_notifications WHERE `receiver_id` = ?;`', [uid])
+      this.database.query('DELETE FROM `users_notifications` WHERE `receiver_id` = ?;', [uid])
         .then(() => resolve())
         .catch(err => reject(err))
     ))
@@ -30,7 +30,7 @@ class Notification {
           const type = (rows[0].count === 0)
             ? 'like'
             : 'match'
-          return this.database.query('INSERT INTO `users_notifications (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, ?);`', [emitter, receiver, type])
+          return this.database.query('INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, ?);', [emitter, receiver, type])
         })
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
@@ -43,7 +43,7 @@ class Notification {
   unlike(emitter, receiver) {
     return new Promise((resolve, reject) => (
       this.database.query('DELETE FROM `users_notifications` WHERE `emitter_id` = ? AND `receiver_id` = ? AND (`type` = \'like\' OR `type` = \'match\');', [emitter, receiver])
-        .then(() => this.database.query('INSERT INTO `users_notifications (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, \'unlike\');`', [emitter, receiver]))
+        .then(() => this.database.query('INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, \'unlike\');', [emitter, receiver]))
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return resolve()
@@ -78,7 +78,7 @@ class Notification {
 
   message(emitter, receiver) {
     return new Promise((resolve, reject) => (
-      this.database.query('INSERT INTO `users_notifications (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, \'message\');`', [emitter, receiver])
+      this.database.query('INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, \'message\');', [emitter, receiver])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return resolve()
@@ -89,7 +89,7 @@ class Notification {
 
   profileView(emitter, receiver) {
     return new Promise((resolve, reject) => (
-      this.database.query('INSERT INTO `users_notifications (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, \'view\');`', [emitter, receiver])
+      this.database.query('INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, \'view\');', [emitter, receiver])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return resolve()
