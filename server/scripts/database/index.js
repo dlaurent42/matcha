@@ -1,14 +1,23 @@
-const mysql = require('mysql')
-const { db } = require('../../src/config')
-const { isEmpty } = require('../../src/utils')
+const createDatabase = require('./createDatabase')
+const createTables = require('./createTables')
+const feedTables = require('./feedTables')
 
-const database = mysql.createConnection({
-  host: db.host,
-  user: db.user,
-  password: db.password,
-})
+const migrateDatabase = () => {
+  let database
+  createDatabase()
+    .then((db) => {
+      database = db
+      return createTables(database)
+    })
+    .then(() => feedTables(database))
+    .then(() => {
+      console.log('[mysql] Database has been succesfully updated')
+      process.exit() // eslint-disable-line 
+    })
+    .catch((err) => {
+      console.error(err)
+      process.exit() // eslint-disable-line 
+    })
+}
 
-// Try connection to mysql
-database.connect((err) => {
-  if (err) console.log('[mysql] Cannot connect to mysql : ', err.message)
-})
+migrateDatabase()
