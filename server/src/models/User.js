@@ -41,7 +41,7 @@ class User {
     }
   }
 
-  add(user) {
+  add(user, redirectUri) {
     return new Promise((resolve, reject) => (
       this.database.query(
         'SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;',
@@ -82,7 +82,7 @@ class User {
         })
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
-          return this.mail.registration(this.user)
+          return this.mail.registration(this.user, redirectUri)
         })
         .then(() => this.createToken())
         .then(() => resolve(this.user))
@@ -324,12 +324,34 @@ class User {
     ))
   }
 
+  setConnected(id) {
+    return new Promise((resolve, reject) => (
+      this.database.query('UPDATE `users` SET `is_connected` = 1 WHERE `id` = ?;', [id])
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('Cannot found user.')
+          return resolve()
+        })
+        .catch(err => reject(err))
+    ))
+  }
+
+  setDisconnected(id) {
+    return new Promise((resolve, reject) => (
+      this.database.query('UPDATE `users` SET `is_connected` = 0, `last_connection` = NOW() WHERE `id` = ?;', [id])
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('Cannot found user.')
+          return resolve()
+        })
+        .catch(err => reject(err))
+    ))
+  }
+
   verifyAccount(token) {
     return new Promise((resolve, reject) => (
       this.database.query(
         '  SELECT `user_id`, `expiration_date` '
         + 'FROM `users_registration` '
-        + 'WHERE `token` = ? AND `expiration_date` > CURDATE();',
+        + 'WHERE `token` = ? AND `expiration_date` > NOW();',
         [token]
       )
         .then((rows) => {

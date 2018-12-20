@@ -1,8 +1,6 @@
-const express = require('express')
+const router = require('express').Router()
 const JsonWebToken = require('../../../models/JsonWebToken')
 const { isEmpty } = require('../../../utils')
-
-const router = express.Router()
 
 router.post('/ban', (req, res) => {
   if (isEmpty(req.body.token)) return res.sendStatus(403)

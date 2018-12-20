@@ -1,7 +1,5 @@
-const express = require('express')
+const router = require('express').Router()
 const { isEmpty } = require('../../../utils')
-
-const router = express.Router()
 
 router.post('/import', (req, res) => {
   if (isEmpty(req.body.img) || isEmpty(req.body.userId)) return res.status(400).send({ err: 'Wrong arguments' })

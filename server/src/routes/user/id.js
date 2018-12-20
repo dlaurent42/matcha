@@ -1,7 +1,5 @@
-const express = require('express')
+const router = require('express').Router()
 const User = require('../../models/User')
-
-const router = express.Router()
 
 router.get('/:id', (req, res) => {
   const user = new User()

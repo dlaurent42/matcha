@@ -1,6 +1,4 @@
-const express = require('express')
-
-const router = express.Router()
+const router = require('express').Router()
 
 router.delete('/delete', (req, res) => {
   res.sendStatus(200)

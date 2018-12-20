@@ -1,4 +1,4 @@
-const express = require('express')
+const router = require('express').Router()
 const User = require('../../models/User')
 const {
   isEmpty,
@@ -8,8 +8,6 @@ const {
   userIsEmail,
   userIsPassword,
 } = require('../../utils')
-
-const router = express.Router()
 
 const dataCheck = user => (
   userIsFirstname(user.firstname)
@@ -21,7 +19,7 @@ const dataCheck = user => (
 
 router.post('/add', (req, res) => {
   // Check if user is not undefined
-  if (isEmpty(req.body.user)) return res.status(400).send({ err: 'Missing argument.' })
+  if (isEmpty(req.body.user) || isEmpty(req.body.redirect_uri)) return res.status(400).send({ err: 'Missing argument.' })
 
   const userInput = Object.assign(req.body.user)
 
@@ -29,7 +27,7 @@ router.post('/add', (req, res) => {
   if (!dataCheck(userInput)) return res.status(401).send({ err: 'Wrong input.' })
 
   const user = new User()
-  return user.add(userInput)
+  return user.add(userInput, req.body.redirect_uri)
     .then(userData => res.json({ user: userData }))
     .catch(err => res.json({ err: err.message }))
 })

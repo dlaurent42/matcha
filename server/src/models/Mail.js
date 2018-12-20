@@ -23,12 +23,12 @@ class Mail {
     })
   }
 
-  registration(user) {
+  registration(user, redirectUri) {
     const mailOptions = {
       from: this.user,
       to: user.email,
       subject: 'Registration',
-      text: `Please click here: http://localhost:8082/account?token=${user.registrationToken}`,
+      text: `Please click here: ${redirectUri}?token=${user.registrationToken}`,
     }
     return this.send(mailOptions)
   }

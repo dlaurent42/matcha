@@ -22,6 +22,8 @@ const users = database => (
             + '  `birthday` DATE , '
             + '  `popularity` INT NOT NULL DEFAULT 0, '
             + '  `biography` TEXT, '
+            + '  `is_connected` BOOLEAN NOT NULL DEFAULT false, '
+            + '  `last_connection` DATETIME , '
             + '  `is_account_confirmed` BOOLEAN NOT NULL DEFAULT false, '
             + '  `is_geolocation_allowed` BOOLEAN NOT NULL DEFAULT false, '
             + '  `location` VARCHAR(255) , '

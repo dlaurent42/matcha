@@ -1,9 +1,7 @@
-const express = require('express')
+const router = require('express').Router()
 const Notification = require('../../models/Notification')
 const Chat = require('../../models/Chat')
 const { isEmpty } = require('../../utils')
-
-const router = express.Router()
 
 router.post('/new-message', (req, res) => {
   if (isEmpty(req.body.emitter) || isEmpty(req.body.receiver) || isEmpty(req.body.message)) res.status(400).send({ err: 'Missing argument.' })

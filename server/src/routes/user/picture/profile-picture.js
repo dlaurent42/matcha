@@ -1,6 +1,4 @@
-const express = require('express')
-
-const router = express.Router()
+const router = require('express').Router()
 
 router.put('/set-as-profile-picture', (req, res) => {
   res.sendStatus(200)

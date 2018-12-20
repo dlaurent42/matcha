@@ -1,8 +1,6 @@
-const express = require('express')
+const router = require('express').Router()
 const User = require('../../../models/User')
 const { isEmpty } = require('../../../utils')
-
-const router = express.Router()
 
 router.get('/verify', (req, res) => {
   const user = new User()

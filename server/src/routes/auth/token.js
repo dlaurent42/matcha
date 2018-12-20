@@ -1,16 +1,14 @@
-const express = require('express')
+const router = require('express').Router()
 const Database = require('../../models/Database')
 const JsonWebToken = require('../../models/JsonWebToken')
 const { isEmpty } = require('../../utils')
 
-const router = express.Router()
-
 router.post('/', (req, res) => {
   // Check input
-  if (isEmpty(req.body.clientId) || isEmpty(req.body.clientSecret)) return res.sendStatus(400)
+  if (isEmpty(req.body.client_id) || isEmpty(req.body.client_secret)) return res.sendStatus(400)
 
   // Instanciate objects
-  const credentials = [req.body.clientId, req.body.clientSecret]
+  const credentials = [req.body.client_id, req.body.client_secret]
   const database = new Database()
   const jwt = new JsonWebToken()
 
