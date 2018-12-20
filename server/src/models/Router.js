@@ -22,8 +22,8 @@ const notifDelete = require('./../routes/notification/delete')
 const notifDeleteAll = require('./../routes/notification/deleteAll')
 const notifLike = require('./../routes/notification/like')
 const notifList = require('./../routes/notification/list')
-const notifOpened = require('./../routes/notification/open')
-const notifOpenedAll = require('./../routes/notification/openAll')
+const notifVieweded = require('./../routes/notification/viewed')
+const notifViewededAll = require('./../routes/notification/viewedAll')
 const notifProfileView = require('./../routes/notification/profileView')
 const notifUnlike = require('./../routes/notification/unlike')
 
@@ -55,8 +55,8 @@ class Router {
         notifDeleteAll,
         notifLike,
         notifList,
-        notifOpened,
-        notifOpenedAll,
+        notifVieweded,
+        notifViewededAll,
         notifProfileView,
         notifUnlike,
       ],
