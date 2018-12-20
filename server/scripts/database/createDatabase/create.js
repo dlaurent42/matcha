@@ -1,8 +1,8 @@
-const { db } = require('../../../src/config')
+const { DATABASE } = require('../../../src/config/config')
 
 const create = database => (
   new Promise((resolve, reject) => (
-    database.query(`CREATE DATABASE IF NOT EXISTS ${db.database};`, (err) => {
+    database.query(`CREATE DATABASE IF NOT EXISTS ${DATABASE.NAME};`, (err) => {
       if (err) reject(new Error('[mysql] Cannot create database: ', err.message))
       resolve()
     })

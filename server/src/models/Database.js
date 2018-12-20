@@ -1,9 +1,14 @@
 const mysql = require('mysql')
-const { db } = require('../config')
+const { DATABASE } = require('../config/config')
 
 class Database {
   constructor() {
-    this.connection = mysql.createConnection(db)
+    this.connection = mysql.createConnection({
+      host: DATABASE.HOST,
+      user: DATABASE.USER,
+      password: DATABASE.PASS,
+      database: DATABASE.NAME,
+    })
   }
 
   query(sql, args) {

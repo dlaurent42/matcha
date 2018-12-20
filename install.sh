@@ -7,4 +7,4 @@ cd ../server
 npm install
 
 # Install database (serverside)
-node scripts/database.js
+node scripts/database/index.js

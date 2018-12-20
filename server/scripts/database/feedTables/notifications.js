@@ -8,10 +8,8 @@ const notifications = database => (
       if (notification.emitter_id !== notification.receiver_id) {
         promises.push(query(
           database,
-          'INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`, `is_opened`, `creation`) VALUES (?, ?, ?, ?, ?, ?, ?);',
+          'INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`, `is_opened`, `creation`) VALUES (?, ?, ?, ?, ?);',
           [
-            notification.emitter_id,
-            notification.receiver_id,
             notification.emitter_id,
             notification.receiver_id,
             notification.type,
