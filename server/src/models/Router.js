@@ -9,6 +9,7 @@ const userGetById = require('../routes/user/id')
 const userConfirmAccount = require('../routes/user/confirmAccount')
 const userConnect = require('../routes/user/setConnected')
 const userDisconnect = require('../routes/user/setDisconnected')
+const userList = require('../routes/user/list')
 const userFake = require('../routes/user/report')
 const userRecoverPasswordMail = require('../routes/user/recoverPasswordMail')
 const userRecoverPasswordToken = require('../routes/user/recoverPasswordToken')
@@ -52,12 +53,13 @@ class Router {
         userAdd,
         userAuthenticate,
         userConfirmAccount,
-        userFake,
-        userGetById,
-        userRecoverPasswordMail,
-        userRecoverPasswordToken,
         userConnect,
         userDisconnect,
+        userFake,
+        userGetById,
+        userList,
+        userRecoverPasswordMail,
+        userRecoverPasswordToken,
       ],
       '/user/token': [
         userTokenVerify,
