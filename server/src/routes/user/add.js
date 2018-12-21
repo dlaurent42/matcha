@@ -25,7 +25,7 @@ router.post('/add', (req, res) => {
   if (!dataCheck(req.body.user)) return res.status(401).send({ err: 'Wrong input.' })
 
   return new User().add(req.body.user, req.body.redirect_uri)
-    .then(userData => res.json({ user: userData }))
+    .then(user => res.json({ user }))
     .catch(err => res.json({ err: err.message }))
 })
 

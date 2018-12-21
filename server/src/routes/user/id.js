@@ -3,7 +3,7 @@ const User = require('../../models/User')
 
 router.get('/:id', (req, res) => (
   new User().fetchInformationById(req.params.id)
-    .then(userData => res.json({ user: userData }))
+    .then(user => res.json({ user }))
     .catch(err => res.json({ err: err.message }))
 ))
 

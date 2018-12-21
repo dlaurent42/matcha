@@ -1,3 +1,4 @@
+const fs = require('fs')
 const Database = require('./Database')
 const Mail = require('./Mail')
 const JsonWebToken = require('./JsonWebToken')
@@ -90,17 +91,6 @@ class User {
     ))
   }
 
-  addLike(emitter, receiver) {
-    return new Promise((resolve, reject) => (
-      this.database.query('INSERT INTO `users_likes` (`liker_id`, `liked_id`) VALUES (?, ?);', [emitter, receiver])
-        .then((rows) => {
-          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
-          return resolve()
-        })
-        .catch(err => reject(err))
-    ))
-  }
-
   addIdentificationToken() {
     return new Promise((resolve, reject) => {
       const user = Object.assign(this.user, { date: Date.now() })
@@ -112,6 +102,41 @@ class User {
         })
         .catch(err => reject(err))
     })
+  }
+
+  addLike(emitter, receiver) {
+    return new Promise((resolve, reject) => (
+      this.database.query('INSERT INTO `users_likes` (`liker_id`, `liked_id`) VALUES (?, ?);', [emitter, receiver])
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          return resolve()
+        })
+        .catch(err => reject(err))
+    ))
+  }
+
+  addPicture(file, userId) {
+    return new Promise((resolve, reject) => (
+      this.fetchInformationById(userId)
+        .then(() => {
+          if (this.user.pictures.length >= 5) throw new Error('Maximum number of pictures reached.')
+          const isProfilePicture = (this.user.pictures.length === 0)
+          return this.database.query(
+            'INSERT INTO `users_pictures` (`user_id`, `filename`, `is_profile_pic`) VALUES (?, ?, ?);',
+            [userId, file.filename, isProfilePicture]
+          )
+        })
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          this.user.pictures.push(file.filename)
+          if (isEmpty(this.user.profilePic)) this.user.profilePic = file.filename
+          return resolve(this.user)
+        })
+        .catch((err) => {
+          fs.unlinkSync(`./src/assets/uploads/${file.filename}`)
+          return reject(err)
+        })
+    ))
   }
 
   addRecoverPasswordToken(email, redirectUri) {
@@ -143,6 +168,27 @@ class User {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return resolve()
         })
+        .catch(err => reject(err))
+    ))
+  }
+
+  deletePicture(userId, filename) {
+    return new Promise((resolve, reject) => (
+      this.fetchInformationById(userId)
+        .then(() => {
+          if (this.user.pictures.indexOf(filename) === -1) throw new Error('Wrong filename.')
+          if (this.user.profilePic === filename) this.user.profilePic = null
+          this.user.pictures = this.user.pictures.filter(el => el !== filename)
+          return this.database.query('DELETE FROM `users_pictures` WHERE `user_id` = ? AND `filename` = ? LIMIT 1;', [userId, filename])
+        })
+        .then(() => {
+          if (this.user.pictures.length > 0 && this.user.profilePic === null) {
+            [this.user.profilePic] = this.user.pictures
+            return this.database.query('UPDATE `users_pictures` SET `is_profile_pic` = 1 WHERE `filename` = ?', [this.user.profilePic])
+          }
+          return resolve(this.user)
+        })
+        .then(() => resolve(this.user))
         .catch(err => reject(err))
     ))
   }
@@ -382,17 +428,20 @@ class User {
     return new Promise((resolve, reject) => (
       this.database.query(
         '   SELECT '
-        + '   `picture`, '
-        + '   `is_profile_pic` '
+        + '   `filename`, '
+        + '   `is_profile_pic`, '
+        + '   `import` '
         + ' FROM `users_pictures` '
-        + ' WHERE `user_id` = ?;',
+        + ' WHERE `user_id` = ?'
+        + ' ORDER BY `is_profile_pic` DESC, `import` DESC;',
         [id]
       )
         .then((rows) => {
-          this.pictures = []
+          this.user.pictures = []
+          this.user.profilePic = null
           rows.forEach((pic) => {
-            if (pic.is_profile_pic) this.profilePic = pic.pictures
-            this.pictures.push(pic.picture)
+            if (pic.is_profile_pic) this.user.profilePic = pic.filename
+            this.user.pictures.push(pic.filename)
           })
           return resolve(this.user)
         })
@@ -407,6 +456,21 @@ class User {
           if (!isEmpty(rows)) this.user.registrationToken = rows[0].token
           return resolve(this.user)
         })
+        .catch(err => reject(err))
+    ))
+  }
+
+  setProfilePicture(userId, filename) {
+    return new Promise((resolve, reject) => (
+      this.fetchInformationById(userId)
+        .then(() => (
+          this.database.query('UPDATE `users_pictures` SET `is_profile_pic` = 0 WHERE `filename` = ?;', [this.user.profilePic])
+        ))
+        .then(() => (
+          this.database.query('UPDATE `users_pictures` SET `is_profile_pic` = 1 WHERE `filename` = ?;', [filename])
+        ))
+        .then(() => this.fetchPictures())
+        .then(() => resolve(this.user))
         .catch(err => reject(err))
     ))
   }

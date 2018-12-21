@@ -7,7 +7,7 @@ router.get('/confirm-account', (req, res) => {
   if (isEmpty(req.query.token)) return res.status(400).send({ err: 'Missing argument.' })
 
   return new User().verifyRegistrationToken(req.query.token)
-    .then(userData => res.json({ user: userData }))
+    .then(user => res.json({ user }))
     .catch(err => res.status(403).send({ err: err.message }))
 })
 

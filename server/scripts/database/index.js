@@ -15,7 +15,7 @@ const migrateDatabase = () => {
       process.exit() // eslint-disable-line 
     })
     .catch((err) => {
-      console.error(err)
+      console.error(err.message)
       process.exit() // eslint-disable-line 
     })
 }

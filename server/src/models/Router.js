@@ -9,9 +9,12 @@ const userGetById = require('../routes/user/id')
 const userConfirmAccount = require('../routes/user/confirmAccount')
 const userConnect = require('../routes/user/setConnected')
 const userDisconnect = require('../routes/user/setDisconnected')
-const userRecoverPassword = require('../routes/user/recoverPassword')
-const userTokenVerify = require('../routes/user/token/verify')
-const userTokenBan = require('../routes/user/token/ban')
+const userRecoverPasswordMail = require('../routes/user/recoverPasswordMail')
+const userRecoverPasswordToken = require('../routes/user/recoverPasswordToken')
+
+// user token
+const userTokenVerify = require('../routes/token/verify')
+const userTokenBan = require('../routes/token/ban')
 
 // chat
 const chatAddMessage = require('../routes/chat/add')
@@ -30,6 +33,11 @@ const notifViewededAll = require('../routes/notification/viewedAll')
 const notifProfileView = require('../routes/notification/profileView')
 const notifUnlike = require('../routes/notification/unlike')
 
+// pictures
+const pictureImport = require('../routes/pictures/import')
+const pictureDelete = require('../routes/pictures/delete')
+const pictureSetAsProfilePic = require('../routes/pictures/setProfilePic')
+
 // tags
 const tagList = require('../routes/tags/list')
 
@@ -44,7 +52,8 @@ class Router {
         userAuthenticate,
         userConfirmAccount,
         userGetById,
-        userRecoverPassword,
+        userRecoverPasswordMail,
+        userRecoverPasswordToken,
         userConnect,
         userDisconnect,
       ],
@@ -68,6 +77,11 @@ class Router {
         notifViewededAll,
         notifProfileView,
         notifUnlike,
+      ],
+      '/picture': [
+        pictureImport,
+        pictureDelete,
+        pictureSetAsProfilePic,
       ],
       '/tag': [
         tagList,

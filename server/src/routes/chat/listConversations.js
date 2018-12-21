@@ -5,7 +5,7 @@ const { isEmpty } = require('../../utils')
 router.get('/conversations', (req, res) => {
   if (isEmpty(req.query.user_id)) return res.status(400).send({ err: 'Missing argument.' })
   return new Chat().listConversations(req.query.user_id)
-    .then(conversations => res.json(conversations))
+    .then(conversations => res.json({ conversations }))
     .catch(err => res.json({ err: err.message }))
 })
 
