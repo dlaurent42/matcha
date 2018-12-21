@@ -15,14 +15,12 @@ router.post('/authenticate', (req, res) => {
   // Check input
   if (isEmpty(req.body.user)) return res.status(400).send({ err: 'Missing argument.' })
 
-  const userInput = Object.assign(req.body.user)
-  const user = new User()
-
   // Check user data
-  if (!dataCheck(userInput)) return res.sendStatus(401)
+  if (!dataCheck(req.body.user)) return res.sendStatus(401)
 
-  return user.fetchInformationByUsernameAndPassword(userInput.username, userInput.password)
-    .then(() => user.createToken())
+  const user = new User()
+  return user.fetchInformationByUsernameAndPassword(req.body.user.username, req.body.user.password)
+    .then(() => user.addIdentificationToken())
     .then(userData => res.json({ user: userData }))
     .catch(err => res.status(401).send({ err: err.message }))
 })

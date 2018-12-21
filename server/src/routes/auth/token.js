@@ -9,14 +9,12 @@ router.post('/', (req, res) => {
 
   // Instanciate objects
   const credentials = [req.body.client_id, req.body.client_secret]
-  const database = new Database()
-  const jwt = new JsonWebToken()
 
   // Check in the database if credentials are correct
-  return database.query('SELECT COUNT(*) as count FROM `auth` WHERE `clientId` = ? AND `clientSecret` = ?;', credentials)
+  return new Database().query('SELECT COUNT(*) as count FROM `auth` WHERE `clientId` = ? AND `clientSecret` = ?;', credentials)
     .then((rows) => {
       if (isEmpty(rows)) return res.sendStatus(401)
-      return jwt.create({ data: credentials })
+      return new JsonWebToken().create({ data: credentials })
     })
     .then(token => res.json({ token }))
     .catch(err => res.json({ err: err.message }))

@@ -9,6 +9,7 @@ const userGetById = require('../routes/user/id')
 const userConfirmAccount = require('../routes/user/confirmAccount')
 const userConnect = require('../routes/user/setConnected')
 const userDisconnect = require('../routes/user/setDisconnected')
+const userRecoverPassword = require('../routes/user/recoverPassword')
 const userTokenVerify = require('../routes/user/token/verify')
 const userTokenBan = require('../routes/user/token/ban')
 
@@ -43,6 +44,7 @@ class Router {
         userAuthenticate,
         userConfirmAccount,
         userGetById,
+        userRecoverPassword,
         userConnect,
         userDisconnect,
       ],

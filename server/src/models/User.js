@@ -84,7 +84,7 @@ class User {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return this.mail.registration(this.user, redirectUri)
         })
-        .then(() => this.createToken())
+        .then(() => this.addIdentificationToken())
         .then(() => resolve(this.user))
         .catch(err => reject(err))
     ))
@@ -101,7 +101,7 @@ class User {
     ))
   }
 
-  createToken() {
+  addIdentificationToken() {
     return new Promise((resolve, reject) => {
       const user = Object.assign(this.user, { date: Date.now() })
       return this.jwt.create(user)
@@ -114,12 +114,99 @@ class User {
     })
   }
 
+  addRecoverPasswordToken(email, redirectUri) {
+    const token = random(255)
+    return new Promise((resolve, reject) => (
+      this.fetchInformationByEmail(email)
+        .then(() => (
+          this.database.query(
+            'INSERT INTO `users_password_recovery` (`token`, `user_id`, `expiration_date`) VALUES (?, ?, NOW() + INTERVAL 1 DAY);',
+            [
+              token,
+              this.user.id,
+            ]
+          )
+        ))
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          return this.mail.passwordRecovery(this.user, token, redirectUri)
+        })
+        .then(() => resolve())
+        .catch(err => reject(err))
+    ))
+  }
+
   deleteLike(emitter, receiver) {
     return new Promise((resolve, reject) => (
       this.database.query('DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;', [emitter, receiver])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
           return resolve()
+        })
+        .catch(err => reject(err))
+    ))
+  }
+
+  fetchInformationByEmail(email) {
+    return new Promise((resolve, reject) => (
+      this.database.query(
+        '   SELECT '
+        + '   `users`.`id`, '
+        + '   `users`.`username`, '
+        + '   `users`.`firstname`, '
+        + '   `users`.`lastname`, '
+        + '   `users`.`email`, '
+        + '   `users`.`salt`, '
+        + '   `users`.`password`, '
+        + '   `users`.`creation`, '
+        + '   `users`.`birthday`, '
+        + '   `users`.`popularity`, '
+        + '   `users`.`biography`, '
+        + '   `users`.`is_account_confirmed`, '
+        + '   `users`.`is_geolocation_allowed`, '
+        + '   `users`.`location`, '
+        + '   `users_gender`.`gender`, '
+        + '   `users_sexual_orientation`.`orientation`, '
+        + '   `users_registration`.`token`'
+        + ' FROM `users` '
+        + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
+        + ' LEFT JOIN `users_sexual_orientation` ON `users_gender`.`id` = `users`.`id_orientation`'
+        + ' LEFT JOIN `users_registration` ON `users_registration`.`user_id` = `users`.`id` '
+        + ' WHERE `users`.`email` = ?'
+        + ' ORDER BY `users_registration`.`expiration_date` DESC'
+        + ' LIMIT 1;',
+        [email]
+      )
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('No user found.')
+          this.user.id = rows[0].email
+          this.user.username = rows[0].username
+          this.user.lastname = rows[0].lastname
+          this.user.firstname = rows[0].firstname
+          this.user.fullname = this.user.firstname.concat(' ', this.user.lastname)
+          this.user.email = rows[0].email
+          this.user.age = (isEmpty(rows[0].birthday))
+            ? null
+            : 'x' // calculate age from birthday TO DO
+          this.user.birthday = rows[0].birthday
+          this.user.creation = rows[0].creation
+          this.user.gender = rows[0].gender
+          this.user.orientation = rows[0].orientation
+          this.user.popularity = rows[0].popularity
+          this.user.biography = rows[0].biography
+          this.user.location = rows[0].location
+          this.user.registrationToken = rows[0].token
+          this.user.isGeolocalised = rows[0].is_geolocation_allowed
+          this.user.isAccountConfirmed = rows[0].is_account_confirmed
+          return this.fetchPictures(this.user.id)
+        })
+        .then((user) => {
+          if (isEmpty(user)) throw new Error('Cannot fetch user pictures.')
+          return this.fetchLikes(this.user.id)
+        })
+        .then((user) => {
+          if (isEmpty(user)) throw new Error('Cannot fetch user likes.')
+          return resolve(this.user)
         })
         .catch(err => reject(err))
     ))
@@ -346,7 +433,24 @@ class User {
     ))
   }
 
-  verifyAccount(token) {
+  verifyPasswordRecoveryToken(token) {
+    return new Promise((resolve, reject) => (
+      this.database.query(
+        '  SELECT `user_id`, `expiration_date` '
+        + 'FROM `users_password_recovery` '
+        + 'WHERE `token` = ? AND `expiration_date` > NOW();',
+        [token]
+      )
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('Token is incorrect or has expired.')
+          return this.fetchInformationById(rows[0].user_id)
+        })
+        .then(() => resolve(this.user))
+        .catch(err => reject(err))
+    ))
+  }
+
+  verifyRegistrationToken(token) {
     return new Promise((resolve, reject) => (
       this.database.query(
         '  SELECT `user_id`, `expiration_date` '
@@ -370,13 +474,13 @@ class User {
             [token]
           )
         })
-        .then(() => this.createToken())
+        .then(() => this.addIdentificationToken())
         .then(() => resolve(this.user))
         .catch(err => reject(err))
     ))
   }
 
-  verifyToken(token) {
+  verifyIdentifiationToken(token) {
     return new Promise((resolve, reject) => (
       this.jwt.check(token)
         .then((data) => {
@@ -387,7 +491,7 @@ class User {
           if (isEmpty(user)) throw new Error('Cannot fetch user information.')
           return this.jwt.delete(token)
         })
-        .then(() => this.createToken())
+        .then(() => this.addIdentificationToken())
         .then(() => resolve(this.user))
         .catch(err => reject(err))
     ))

@@ -4,8 +4,7 @@ const { isEmpty } = require('../../utils')
 
 router.put('/viewed-all', (req, res) => {
   if (isEmpty(req.body.user_id)) res.status(400).send({ err: 'Missing argument.' })
-  const notification = new Notification()
-  return notification.viewedAll(req.body.user_id)
+  return new Notification().viewedAll(req.body.user_id)
     .then(() => res.sendStatus(200))
     .catch(err => res.json({ err: err.message }))
 })

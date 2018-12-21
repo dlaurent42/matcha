@@ -32,6 +32,16 @@ class Mail {
     }
     return this.send(mailOptions)
   }
+
+  passwordRecovery(user, token, redirectUri) {
+    const mailOptions = {
+      from: this.user,
+      to: user.email,
+      subject: 'Registration',
+      text: `Please click here: ${redirectUri}?token=${token}`,
+    }
+    return this.send(mailOptions)
+  }
 }
 
 module.exports = Mail
