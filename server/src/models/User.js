@@ -161,6 +161,33 @@ class User {
     ))
   }
 
+  addReport(emitterId, receiverId) {
+    const emitter = {}
+    const receiver = {}
+    return new Promise((resolve, reject) => (
+      this.database.query('SELECT `username`, `email` FROM `users` WHERE `id` = ?;', [emitterId])
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('No user found.')
+          emitter.username = rows[0].username
+          emitter.email = rows[0].email
+          return this.database.query('SELECT `username`, `email` FROM `users` WHERE `id` = ?;', [receiverId])
+        })
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('No user found.')
+          receiver.username = rows[0].username
+          receiver.email = rows[0].email
+          return this.database.query('INSERT INTO `users_fakes` (`reporter_id`, `reported_id`) VALUES (?, ?);', [emitterId, receiverId])
+        })
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          return this.mail.reportUser(emitter, receiver)
+        })
+        .then(() => this.mail.warnAdminOfUserReporting(emitter, receiver))
+        .then(() => resolve())
+        .catch(err => reject(err))
+    ))
+  }
+
   deleteLike(emitter, receiver) {
     return new Promise((resolve, reject) => (
       this.database.query('DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;', [emitter, receiver])

@@ -37,8 +37,28 @@ class Mail {
     const mailOptions = {
       from: this.user,
       to: user.email,
-      subject: 'Registration',
+      subject: 'Recover password',
       text: `Please click here: ${redirectUri}?token=${token}`,
+    }
+    return this.send(mailOptions)
+  }
+
+  reportUser(emitter, receiver) {
+    const mailOptions = {
+      from: this.user,
+      to: emitter.email,
+      subject: 'Report user',
+      text: `Thanks for reporting ${receiver.username}.`,
+    }
+    return this.send(mailOptions)
+  }
+
+  warnAdminOfUserReporting(emitter, receiver) {
+    const mailOptions = {
+      from: this.user,
+      to: this.user,
+      subject: '[REPORT] User has been reported',
+      text: `${emitter.username} [${emitter.email}] has reported ${receiver.username} [${receiver.email}] as fake user.`,
     }
     return this.send(mailOptions)
   }
