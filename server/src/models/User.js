@@ -91,6 +91,17 @@ class User {
     ))
   }
 
+  addBlock(emitterId, receiverId) {
+    return new Promise((resolve, reject) => (
+      this.database.query('INSERT INTO `users_blocked` (`blocker_id`, `blocked_id`) VALUES (?, ?);', [emitterId, receiverId])
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          return resolve()
+        })
+        .catch(err => reject(err))
+    ))
+  }
+
   addIdentificationToken() {
     return new Promise((resolve, reject) => {
       const user = Object.assign(this.user, { date: Date.now() })

@@ -1,4 +1,5 @@
 const createAuth = require('./auth')
+const createBlock = require('./block')
 const createChat = require('./chat')
 const createFake = require('./fakes')
 const createGender = require('./gender')
@@ -15,6 +16,7 @@ const createUsers = require('./users')
 const createTables = database => (
   new Promise((resolve, reject) => (
     createAuth(database)
+      .then(() => createBlock(database))
       .then(() => createChat(database))
       .then(() => createFake(database))
       .then(() => createGender(database))
