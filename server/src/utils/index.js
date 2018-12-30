@@ -15,7 +15,8 @@ const isNumeric = require('./string/isNumeric')
 const random = require('./string/random')
 
 // User
-const userDateToAge = require('./user/ageFromDate')
+const userCoordToDist = require('./user/getDistFromCoord')
+const userDateToAge = require('./user/getAgeFromDate')
 const userIsEmail = require('./user/isEmail')
 const userIsFirstname = require('./user/isFirstname')
 const userIsLastname = require('./user/isLastname')
@@ -35,6 +36,7 @@ module.exports = {
   isEmpty,
   random,
   template,
+  userCoordToDist,
   userDateToAge,
   userIsEmail,
   userIsFirstname,
