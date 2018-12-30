@@ -5,6 +5,7 @@ dotenv.load()
 const environment = process.env.NODE_ENV || 'production'
 
 console.log(`Server environment is ${environment}`)
+
 const config = {
   production: {
     SERVER: {
@@ -20,6 +21,9 @@ const config = {
     MAIL: {
       USER: 'donotreply.matcha@gmail.com',
       PASS: 'm4tch4.S3cur3`P4ssw0rd/*',
+    },
+    JWT: {
+      DURATION: '15m',
     },
   },
   development: {
@@ -37,6 +41,9 @@ const config = {
       USER: 'donotreply.matcha@gmail.com',
       PASS: 'm4tch4.S3cur3`P4ssw0rd/*',
     },
+    JWT: {
+      DURATION: '24h',
+    },
   },
   test: {
     SERVER: {
@@ -52,6 +59,9 @@ const config = {
     MAIL: {
       USER: 'donotreply.matcha@gmail.com',
       PASS: 'm4tch4.S3cur3`P4ssw0rd/*',
+    },
+    JWT: {
+      DURATION: '24h',
     },
   },
 }

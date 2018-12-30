@@ -6,7 +6,9 @@
   "scripts": {
     "initialize": "node scripts/database/index.js",
     "start": "nodemon src/server.js",
-    "lint": "eslint \"**/*.js\""
+    "lint": "eslint \"**/*.js\"",
+    "dev": "NODE_ENV=development nodemon src/server.js",
+    "prod": "NODE_ENV=production nodemon src/server.js"
   },
   "engines": {
     "node": ">=10.6.0"
