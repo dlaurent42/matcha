@@ -8,6 +8,7 @@ const {
   isEmpty,
   userDateToAge,
 } = require('../utils')
+const { POPULARITY_POINTS } = require('../config/constants').MATCHING_SYSTEM
 
 class User {
   constructor() {
@@ -28,7 +29,8 @@ class User {
       orientation: [],
       popularity: 0,
       biography: null,
-      location: null,
+      latitude: null,
+      longitude: null,
       isGeolocalised: false,
       interests: [],
       token: null,
@@ -97,8 +99,9 @@ class User {
       this.database.query('INSERT INTO `users_blocked` (`blocker_id`, `blocked_id`) VALUES (?, ?);', [emitterId, receiverId])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
-          return resolve()
+          return this.database.query('UPDATE `users` SET `users`.`popularity` = `users`.`popularity` - ? WHERE `users`.`id` = ?;', [POPULARITY_POINTS.BLOCK, receiverId])
         })
+        .then(() => resolve())
         .catch(err => reject(err))
     ))
   }
@@ -116,13 +119,14 @@ class User {
     })
   }
 
-  addLike(emitter, receiver) {
+  addLike(emitterId, receiverId) {
     return new Promise((resolve, reject) => (
-      this.database.query('INSERT INTO `users_likes` (`liker_id`, `liked_id`) VALUES (?, ?);', [emitter, receiver])
+      this.database.query('INSERT INTO `users_likes` (`liker_id`, `liked_id`) VALUES (?, ?);', [emitterId, receiverId])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
-          return resolve()
+          return this.database.query('UPDATE `users` SET `users`.`popularity` = `users`.`popularity` + ? WHERE `users`.`id` = ?;', [POPULARITY_POINTS.LIKE, receiverId])
         })
+        .then(() => resolve())
         .catch(err => reject(err))
     ))
   }
@@ -148,6 +152,14 @@ class User {
           fs.unlinkSync(`./src/assets/uploads/${file.filename}`)
           return reject(err)
         })
+    ))
+  }
+
+  addProfileView(receiverId) {
+    return new Promise((resolve, reject) => (
+      this.database.query('UPDATE `users` SET `users`.`popularity` = `users`.`popularity` + ? WHERE `users`.`id` = ?;', [POPULARITY_POINTS.PROFILE_VIEW, receiverId])
+        .then(() => resolve())
+        .catch(err => reject(err))
     ))
   }
 
@@ -200,13 +212,14 @@ class User {
     ))
   }
 
-  deleteLike(emitter, receiver) {
+  deleteLike(emitterId, receiverId) {
     return new Promise((resolve, reject) => (
-      this.database.query('DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;', [emitter, receiver])
+      this.database.query('DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;', [emitterId, receiverId])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
-          return resolve()
+          return this.database.query('UPDATE `users` SET `users`.`popularity` = `users`.`popularity` - ? WHERE `users`.`id` = ?;', [POPULARITY_POINTS.UNLIKE, receiverId])
         })
+        .then(() => resolve())
         .catch(err => reject(err))
     ))
   }
@@ -242,7 +255,8 @@ class User {
         + '  `users`.`lastname`, '
         + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
         + '  `users`.`popularity`, '
-        + '  `users`.`location`, '
+        + '  `users`.`latitude`, '
+        + '  `users`.`longitude`, '
         + '  `users`.`is_connected`, '
         + '  DATE_FORMAT(`users`.`last_connection`, "%Y/%m/%d %T") AS last_connection, '
         + '  `users_gender`.`gender`, '
@@ -283,7 +297,8 @@ class User {
               fullname: user.firstname.concat(' ', user.lastname),
               age: userDateToAge(user.birthday),
               popularity: user.popularity,
-              location: user.location,
+              latitude: user.latitude,
+              longitude: user.longitude,
               is_connected: user.is_connected,
               gender: user.gender,
               orientation: sexualOrientation,
@@ -314,7 +329,8 @@ class User {
         + '   `users`.`biography`, '
         + '   `users`.`is_account_confirmed`, '
         + '   `users`.`is_geolocation_allowed`, '
-        + '   `users`.`location`, '
+        + '   `users`.`latitude`, '
+        + '   `users`.`longitude`, '
         + '   `users_gender`.`gender`, '
         + '   `orientations`.`orientation`, '
         + '   `users_registration`.`token`,'
@@ -353,7 +369,8 @@ class User {
           this.user.orientation = (isEmpty(rows[0].orientation)) ? null : rows[0].orientation.split(',')
           this.user.popularity = rows[0].popularity
           this.user.biography = rows[0].biography
-          this.user.location = rows[0].location
+          this.user.latitude = rows[0].latitude
+          this.user.longitude = rows[0].longitude
           this.user.registrationToken = rows[0].token
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
           this.user.isAccountConfirmed = rows[0].is_account_confirmed
@@ -389,7 +406,8 @@ class User {
         + '   `users`.`biography`, '
         + '   `users`.`is_account_confirmed`, '
         + '   `users`.`is_geolocation_allowed`, '
-        + '   `users`.`location`, '
+        + '   `users`.`latitude`, '
+        + '   `users`.`longitude`, '
         + '   `users_gender`.`gender`, '
         + '   `orientations`.`orientation`, '
         + '   `users_registration`.`token`,'
@@ -426,7 +444,8 @@ class User {
           this.user.orientation = (isEmpty(rows[0].orientation)) ? null : rows[0].orientation.split(',')
           this.user.popularity = rows[0].popularity
           this.user.biography = rows[0].biography
-          this.user.location = rows[0].location
+          this.user.latitude = rows[0].latitude
+          this.user.longitude = rows[0].longitude
           this.user.registrationToken = rows[0].token
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
           this.user.isAccountConfirmed = rows[0].is_account_confirmed
@@ -462,7 +481,8 @@ class User {
         + '   `users`.`biography`, '
         + '   `users`.`is_account_confirmed`, '
         + '   `users`.`is_geolocation_allowed`, '
-        + '   `users`.`location`, '
+        + '   `users`.`latitude`, '
+        + '   `users`.`longitude`, '
         + '   `users_gender`.`gender`, '
         + '   `orientations`.`orientation`, '
         + '   `users_registration`.`token`,'
@@ -502,7 +522,8 @@ class User {
           this.user.orientation = (isEmpty(rows[0].orientation)) ? null : rows[0].orientation.split(',')
           this.user.popularity = rows[0].popularity
           this.user.biography = rows[0].biography
-          this.user.location = rows[0].location
+          this.user.latitude = rows[0].latitude
+          this.user.longitude = rows[0].longitude
           this.user.registrationToken = rows[0].token
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
           this.user.isAccountConfirmed = rows[0].is_account_confirmed

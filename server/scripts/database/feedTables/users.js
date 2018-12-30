@@ -9,12 +9,12 @@ const users = database => (
         query(
           database,
           '   INSERT INTO `users` '
-          + '    (`username`, `firstname`, `lastname`, `email`, `password`, `salt`, `creation`, `birthday`, `popularity`, `is_account_confirmed`, `is_geolocation_allowed`, `id_gender`, `id_orientation`) '
-          + ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+          + '    (`username`, `firstname`, `lastname`, `email`, `password`, `salt`, `creation`, `birthday`, `popularity`, `is_account_confirmed`, `is_geolocation_allowed`, `id_gender`, `id_orientation`, `biography`, `is_connected`, `last_connection`, `latitude`, `longitude`) '
+          + ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
           [
             user.username,
             user.first_name,
-            user.last_name.toUpperCase(),
+            user.last_name,
             user.email,
             user.password,
             user.salt,
@@ -25,6 +25,11 @@ const users = database => (
             user.is_geolocation_allowed,
             user.gender,
             user.orientation,
+            user.biography,
+            user.is_connected,
+            user.last_connection,
+            user.latitude,
+            user.longitude,
           ]
         )
       )

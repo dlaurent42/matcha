@@ -1,6 +1,7 @@
 const createDatabase = require('./createDatabase')
 const createTables = require('./createTables')
 const feedTables = require('./feedTables')
+const { isEmpty } = require('../../src/utils')
 
 const migrateDatabase = () => {
   let database
@@ -15,7 +16,8 @@ const migrateDatabase = () => {
       process.exit() // eslint-disable-line 
     })
     .catch((err) => {
-      console.error(err.message)
+      if (isEmpty(err.message)) console.error(err)
+      else console.error(err.message)
       process.exit() // eslint-disable-line 
     })
 }
