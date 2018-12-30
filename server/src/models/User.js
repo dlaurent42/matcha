@@ -6,6 +6,7 @@ const {
   hash,
   random,
   isEmpty,
+  userDateToAge,
 } = require('../utils')
 
 class User {
@@ -231,6 +232,69 @@ class User {
     ))
   }
 
+  fetchAll(userId) {
+    const blockedUsers = []
+    const users = []
+    return new Promise((resolve, reject) => (
+      this.database.query('SELECT `blocked_id` FROM `users_blocked` WHERE `blocker_id` = ?;', [userId])
+        .then((blockedList) => {
+          Object.assign(blockedUsers, blockedList.map(item => item.blocked_id))
+          return this.database.query(
+            ' SELECT DISTINCT '
+            + '  `users`.`id`, '
+            + '  `users`.`username`, '
+            + '  `users`.`firstname`, '
+            + '  `users`.`lastname`, '
+            + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
+            + '  `users`.`popularity`, '
+            + '  `users`.`location`, '
+            + '  `users`.`is_connected`, '
+            + '  DATE_FORMAT(`users`.`last_connection`, "%Y/%m/%d %T") AS last_connection, '
+            + '  `users_gender`.`gender`, '
+            + '  `users_sexual_orientation`.`orientation`, '
+            + '  `interests`.`interests`, '
+            + '  `profile_pictures`.`profile_pic` '
+            + ' FROM  '
+            + '  `users` '
+            + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender` '
+            + ' LEFT JOIN `users_sexual_orientation` ON `users_sexual_orientation`.`id` = `users`.`id_orientation` '
+            + ' LEFT JOIN  ( '
+            + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(`users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
+            + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
+            + ' LEFT JOIN ( '
+            + '    SELECT `users_pictures`.`user_id`, `users_pictures`.`filename` AS profile_pic FROM `users_pictures` WHERE `users_pictures`.`is_profile_pic` = 1 '
+            + ' ) AS profile_pictures ON `profile_pictures`.`user_id` = `users`.`id` '
+            + ' WHERE `users`.`is_account_confirmed` = 1 AND NOT `users`.`id` = ? ORDER BY `users`.`id`',
+            [userId]
+          )
+        })
+        .then((usersList) => {
+          usersList.forEach((user) => {
+            if (blockedUsers.indexOf(user.id) === -1) {
+              const interests = (isEmpty(user.interests)) ? null : user.interests.split(',')
+              users.push({
+                id: user.id,
+                username: user.username,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                fullname: user.firstname.concat(' ', user.lastname),
+                age: userDateToAge(user.birthday),
+                popularity: user.popularity,
+                location: user.location,
+                is_connected: user.is_connected,
+                gender: user.gender,
+                orientation: user.orientation,
+                interests,
+                profilePic: user.profile_pic,
+              })
+            }
+          })
+          return resolve(users)
+        })
+        .catch(err => reject(err))
+    ))
+  }
+
   fetchInformationByEmail(email) {
     return new Promise((resolve, reject) => (
       this.database.query(
@@ -251,12 +315,15 @@ class User {
         + '   `users`.`location`, '
         + '   `users_gender`.`gender`, '
         + '   `users_sexual_orientation`.`orientation`, '
-        + '   `users_registration`.`token`'
+        + '   `users_registration`.`token`,'
+        + '   GROUP_CONCAT(`users_interests`.`tag`) AS interests'
         + ' FROM `users` '
         + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
-        + ' LEFT JOIN `users_sexual_orientation` ON `users_gender`.`id` = `users`.`id_orientation`'
+        + ' LEFT JOIN `users_sexual_orientation` ON `users_sexual_orientation`.`id` = `users`.`id_orientation`'
         + ' LEFT JOIN `users_registration` ON `users_registration`.`user_id` = `users`.`id` '
+        + ' LEFT JOIN `users_interests` ON `users_interests`.`user_id` = `users`.`id`'
         + ' WHERE `users`.`email` = ?'
+        + ' GROUP BY `users`.`id`'
         + ' ORDER BY `users_registration`.`expiration_date` DESC'
         + ' LIMIT 1;',
         [email]
@@ -269,9 +336,7 @@ class User {
           this.user.firstname = rows[0].firstname
           this.user.fullname = this.user.firstname.concat(' ', this.user.lastname)
           this.user.email = rows[0].email
-          this.user.age = (isEmpty(rows[0].birthday))
-            ? null
-            : 'x' // calculate age from birthday TO DO
+          this.user.age = userDateToAge(rows[0].birthday)
           this.user.birthday = rows[0].birthday
           this.user.creation = rows[0].creation
           this.user.gender = rows[0].gender
@@ -282,6 +347,7 @@ class User {
           this.user.registrationToken = rows[0].token
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
           this.user.isAccountConfirmed = rows[0].is_account_confirmed
+          this.user.interests = (isEmpty(rows[0].interests)) ? null : rows[0].interests.split(',')
           return this.fetchPictures(this.user.id)
         })
         .then((user) => {
@@ -316,12 +382,15 @@ class User {
         + '   `users`.`location`, '
         + '   `users_gender`.`gender`, '
         + '   `users_sexual_orientation`.`orientation`, '
-        + '   `users_registration`.`token`'
+        + '   `users_registration`.`token`,'
+        + '   GROUP_CONCAT(`users_interests`.`tag`) AS interests'
         + ' FROM `users` '
         + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
         + ' LEFT JOIN `users_sexual_orientation` ON `users_gender`.`id` = `users`.`id_orientation`'
         + ' LEFT JOIN `users_registration` ON `users_registration`.`user_id` = `users`.`id` '
+        + ' LEFT JOIN `users_interests` ON `users_interests`.`user_id` = `users`.`id`'
         + ' WHERE `users`.`id` = ?'
+        + ' GROUP BY `users`.`id`'
         + ' ORDER BY `users_registration`.`expiration_date` DESC'
         + ' LIMIT 1;',
         [id]
@@ -334,9 +403,7 @@ class User {
           this.user.firstname = rows[0].firstname
           this.user.fullname = this.user.firstname.concat(' ', this.user.lastname)
           this.user.email = rows[0].email
-          this.user.age = (isEmpty(rows[0].birthday))
-            ? null
-            : 'x' // calculate age from birthday TO DO
+          this.user.age = userDateToAge(rows[0].birthday)
           this.user.birthday = rows[0].birthday
           this.user.creation = rows[0].creation
           this.user.gender = rows[0].gender
@@ -347,6 +414,7 @@ class User {
           this.user.registrationToken = rows[0].token
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
           this.user.isAccountConfirmed = rows[0].is_account_confirmed
+          this.user.interests = (isEmpty(rows[0].interests)) ? null : rows[0].interests.split(',')
           return this.fetchPictures(id)
         })
         .then((user) => {
@@ -381,12 +449,15 @@ class User {
         + '   `users`.`location`, '
         + '   `users_gender`.`gender`, '
         + '   `users_sexual_orientation`.`orientation`, '
-        + '   `users_registration`.`token`'
+        + '   `users_registration`.`token`,'
+        + '   GROUP_CONCAT(`users_interests`.`tag`) AS interests'
         + ' FROM `users` '
         + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
         + ' LEFT JOIN `users_sexual_orientation` ON `users_gender`.`id` = `users`.`id_orientation`'
         + ' LEFT JOIN `users_registration` ON `users_registration`.`user_id` = `users`.`id` '
+        + ' LEFT JOIN `users_interests` ON `users_interests`.`user_id` = `users`.`id`'
         + ' WHERE `users`.`username` = ?'
+        + ' GROUP BY `users`.`id`'
         + ' ORDER BY `users_registration`.`expiration_date` DESC'
         + ' LIMIT 1;',
         [username]
@@ -400,9 +471,7 @@ class User {
           this.user.firstname = rows[0].firstname
           this.user.fullname = this.user.firstname.concat(' ', this.user.lastname)
           this.user.email = rows[0].email
-          this.user.age = (isEmpty(rows[0].birthday))
-            ? null
-            : 'x' // calculate age from birthday TO DO
+          this.user.age = userDateToAge(rows[0].birthday)
           this.user.birthday = rows[0].birthday
           this.user.creation = rows[0].creation
           this.user.gender = rows[0].gender
@@ -413,6 +482,7 @@ class User {
           this.user.registrationToken = rows[0].token
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
           this.user.isAccountConfirmed = rows[0].is_account_confirmed
+          this.user.interests = (isEmpty(rows[0].interests)) ? null : rows[0].interests.split(',')
           return this.fetchPictures(this.user.id)
         })
         .then((user) => {

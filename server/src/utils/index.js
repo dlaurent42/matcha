@@ -15,12 +15,12 @@ const isNumeric = require('./string/isNumeric')
 const random = require('./string/random')
 
 // User
+const userDateToAge = require('./user/ageFromDate')
 const userIsEmail = require('./user/isEmail')
 const userIsFirstname = require('./user/isFirstname')
 const userIsLastname = require('./user/isLastname')
 const userIsPassword = require('./user/isPassword')
 const userIsUsername = require('./user/isUsername')
-
 
 module.exports = {
   hash,
@@ -35,6 +35,7 @@ module.exports = {
   isEmpty,
   random,
   template,
+  userDateToAge,
   userIsEmail,
   userIsFirstname,
   userIsLastname,

@@ -1,0 +1,21 @@
+const MATCHING_SYSTEM = {
+  FACTORS: {
+    DISTANCE: 3,
+    GENDER: 10,
+    INTERESTS: 2,
+    POPULARITY: 2,
+  },
+  POPULARITY_POINTS: {
+    PROFILE_VIEW: 15,
+    LIKE: 50,
+    UNLIKE: 50,
+    BLOCK: 100,
+  },
+}
+
+const DEFAULT_VALUES = {
+  AGE_MIN: 18,
+  AGE_MAX: 99,
+}
+
+module.exports = { MATCHING_SYSTEM, DEFAULT_VALUES }
