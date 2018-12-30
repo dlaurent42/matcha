@@ -25,7 +25,7 @@ class User {
       birthday: null,
       creation: null,
       gender: null,
-      orientation: null,
+      orientation: [],
       popularity: 0,
       biography: null,
       location: null,
@@ -233,61 +233,63 @@ class User {
   }
 
   fetchAll(userId) {
-    const blockedUsers = []
-    const users = []
     return new Promise((resolve, reject) => (
-      this.database.query('SELECT `blocked_id` FROM `users_blocked` WHERE `blocker_id` = ?;', [userId])
-        .then((blockedList) => {
-          Object.assign(blockedUsers, blockedList.map(item => item.blocked_id))
-          return this.database.query(
-            ' SELECT DISTINCT '
-            + '  `users`.`id`, '
-            + '  `users`.`username`, '
-            + '  `users`.`firstname`, '
-            + '  `users`.`lastname`, '
-            + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
-            + '  `users`.`popularity`, '
-            + '  `users`.`location`, '
-            + '  `users`.`is_connected`, '
-            + '  DATE_FORMAT(`users`.`last_connection`, "%Y/%m/%d %T") AS last_connection, '
-            + '  `users_gender`.`gender`, '
-            + '  `users_sexual_orientation`.`orientation`, '
-            + '  `interests`.`interests`, '
-            + '  `profile_pictures`.`profile_pic` '
-            + ' FROM  '
-            + '  `users` '
-            + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender` '
-            + ' LEFT JOIN `users_sexual_orientation` ON `users_sexual_orientation`.`id` = `users`.`id_orientation` '
-            + ' LEFT JOIN  ( '
-            + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(`users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
-            + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
-            + ' LEFT JOIN ( '
-            + '    SELECT `users_pictures`.`user_id`, `users_pictures`.`filename` AS profile_pic FROM `users_pictures` WHERE `users_pictures`.`is_profile_pic` = 1 '
-            + ' ) AS profile_pictures ON `profile_pictures`.`user_id` = `users`.`id` '
-            + ' WHERE `users`.`is_account_confirmed` = 1 AND NOT `users`.`id` = ? ORDER BY `users`.`id`',
-            [userId]
-          )
-        })
+      this.database.query(
+        ' SELECT DISTINCT '
+        + '  `users`.`id`, '
+        + '  `users`.`username`, '
+        + '  `users`.`firstname`, '
+        + '  `users`.`lastname`, '
+        + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
+        + '  `users`.`popularity`, '
+        + '  `users`.`location`, '
+        + '  `users`.`is_connected`, '
+        + '  DATE_FORMAT(`users`.`last_connection`, "%Y/%m/%d %T") AS last_connection, '
+        + '  `users_gender`.`gender`, '
+        + '  `orientations`.`orientation`, '
+        + '  `interests`.`interests`, '
+        + '  `profile_pictures`.`profile_pic` '
+        + ' FROM  '
+        + '  `users` '
+        + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender` '
+        + ' LEFT JOIN ('
+        + '    SELECT `users_sexual_orientation`.`user_id`, GROUP_CONCAT(DISTINCT `users_gender`.`gender`) AS orientation'
+        + '    FROM `users_sexual_orientation`'
+        + '    LEFT JOIN `users_gender` ON `users_gender`.`id` = `users_sexual_orientation`.`gender_id`'
+        + '    GROUP BY `users_sexual_orientation`.`user_id`'
+        + ' ) AS orientations ON `orientations`.`user_id` = `users`.`id` '
+        + ' LEFT JOIN  ( '
+        + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(DISTINCT `users_interests`.`tag` ORDER BY `users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
+        + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
+        + ' LEFT JOIN ( '
+        + '    SELECT `users_pictures`.`user_id`, `users_pictures`.`filename` AS profile_pic FROM `users_pictures` WHERE `users_pictures`.`is_profile_pic` = 1 '
+        + ' ) AS profile_pictures ON `profile_pictures`.`user_id` = `users`.`id` '
+        + ' WHERE `users`.`is_account_confirmed` = 1 AND NOT `users`.`id` = ? AND `users`.`id` NOT IN ('
+        + '    SELECT `users_blocked`.`blocked_id` FROM `users_blocked` WHERE `users_blocked`.`blocker_id` = ?'
+        + ' )'
+        + ' ORDER BY `users`.`id`',
+        [userId, userId]
+      )
         .then((usersList) => {
+          const users = []
           usersList.forEach((user) => {
-            if (blockedUsers.indexOf(user.id) === -1) {
-              const interests = (isEmpty(user.interests)) ? null : user.interests.split(',')
-              users.push({
-                id: user.id,
-                username: user.username,
-                firstname: user.firstname,
-                lastname: user.lastname,
-                fullname: user.firstname.concat(' ', user.lastname),
-                age: userDateToAge(user.birthday),
-                popularity: user.popularity,
-                location: user.location,
-                is_connected: user.is_connected,
-                gender: user.gender,
-                orientation: user.orientation,
-                interests,
-                profilePic: user.profile_pic,
-              })
-            }
+            const interests = (isEmpty(user.interests)) ? null : user.interests.split(',')
+            const sexualOrientation = (isEmpty(user.orientation)) ? null : user.orientation.split(',')
+            users.push({
+              id: user.id,
+              username: user.username,
+              firstname: user.firstname,
+              lastname: user.lastname,
+              fullname: user.firstname.concat(' ', user.lastname),
+              age: userDateToAge(user.birthday),
+              popularity: user.popularity,
+              location: user.location,
+              is_connected: user.is_connected,
+              gender: user.gender,
+              orientation: sexualOrientation,
+              interests,
+              profilePic: user.profile_pic,
+            })
           })
           return resolve(users)
         })
@@ -306,22 +308,29 @@ class User {
         + '   `users`.`email`, '
         + '   `users`.`salt`, '
         + '   `users`.`password`, '
-        + '   `users`.`creation`, '
-        + '   `users`.`birthday`, '
+        + '   DATE_FORMAT(`users`.`creation`, "%Y/%m/%d %T") AS creation, '
+        + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
         + '   `users`.`popularity`, '
         + '   `users`.`biography`, '
         + '   `users`.`is_account_confirmed`, '
         + '   `users`.`is_geolocation_allowed`, '
         + '   `users`.`location`, '
         + '   `users_gender`.`gender`, '
-        + '   `users_sexual_orientation`.`orientation`, '
+        + '   `orientations`.`orientation`, '
         + '   `users_registration`.`token`,'
-        + '   GROUP_CONCAT(`users_interests`.`tag`) AS interests'
+        + '  `interests`.`interests` '
         + ' FROM `users` '
         + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
-        + ' LEFT JOIN `users_sexual_orientation` ON `users_sexual_orientation`.`id` = `users`.`id_orientation`'
+        + ' LEFT JOIN ('
+        + '    SELECT `users_sexual_orientation`.`user_id`, GROUP_CONCAT(DISTINCT `users_gender`.`gender`) AS orientation'
+        + '    FROM `users_sexual_orientation`'
+        + '    LEFT JOIN `users_gender` ON `users_gender`.`id` = `users_sexual_orientation`.`gender_id`'
+        + '    GROUP BY `users_sexual_orientation`.`user_id`'
+        + ' ) AS orientations ON `orientations`.`user_id` = `users`.`id` '
+        + ' LEFT JOIN  ( '
+        + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(DISTINCT `users_interests`.`tag` ORDER BY `users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
+        + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
         + ' LEFT JOIN `users_registration` ON `users_registration`.`user_id` = `users`.`id` '
-        + ' LEFT JOIN `users_interests` ON `users_interests`.`user_id` = `users`.`id`'
         + ' WHERE `users`.`email` = ?'
         + ' GROUP BY `users`.`id`'
         + ' ORDER BY `users_registration`.`expiration_date` DESC'
@@ -340,7 +349,8 @@ class User {
           this.user.birthday = rows[0].birthday
           this.user.creation = rows[0].creation
           this.user.gender = rows[0].gender
-          this.user.orientation = rows[0].orientation
+          this.user.interests = (isEmpty(rows[0].interests)) ? null : rows[0].interests.split(',')
+          this.user.orientation = (isEmpty(rows[0].orientation)) ? null : rows[0].orientation.split(',')
           this.user.popularity = rows[0].popularity
           this.user.biography = rows[0].biography
           this.user.location = rows[0].location
@@ -373,26 +383,31 @@ class User {
         + '   `users`.`email`, '
         + '   `users`.`salt`, '
         + '   `users`.`password`, '
-        + '   `users`.`creation`, '
-        + '   `users`.`birthday`, '
+        + '   DATE_FORMAT(`users`.`creation`, "%Y/%m/%d %T") AS creation, '
+        + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
         + '   `users`.`popularity`, '
         + '   `users`.`biography`, '
         + '   `users`.`is_account_confirmed`, '
         + '   `users`.`is_geolocation_allowed`, '
         + '   `users`.`location`, '
         + '   `users_gender`.`gender`, '
-        + '   `users_sexual_orientation`.`orientation`, '
+        + '   `orientations`.`orientation`, '
         + '   `users_registration`.`token`,'
-        + '   GROUP_CONCAT(`users_interests`.`tag`) AS interests'
+        + '  `interests`.`interests` '
         + ' FROM `users` '
         + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
-        + ' LEFT JOIN `users_sexual_orientation` ON `users_gender`.`id` = `users`.`id_orientation`'
+        + ' LEFT JOIN ('
+        + '    SELECT `users_sexual_orientation`.`user_id`, GROUP_CONCAT(DISTINCT `users_gender`.`gender`) AS orientation'
+        + '    FROM `users_sexual_orientation`'
+        + '    LEFT JOIN `users_gender` ON `users_gender`.`id` = `users_sexual_orientation`.`gender_id`'
+        + '    GROUP BY `users_sexual_orientation`.`user_id`'
+        + ' ) AS orientations ON `orientations`.`user_id` = `users`.`id` '
+        + ' LEFT JOIN  ( '
+        + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(DISTINCT `users_interests`.`tag` ORDER BY `users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
+        + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
         + ' LEFT JOIN `users_registration` ON `users_registration`.`user_id` = `users`.`id` '
-        + ' LEFT JOIN `users_interests` ON `users_interests`.`user_id` = `users`.`id`'
         + ' WHERE `users`.`id` = ?'
-        + ' GROUP BY `users`.`id`'
-        + ' ORDER BY `users_registration`.`expiration_date` DESC'
-        + ' LIMIT 1;',
+        + ' ORDER BY `users_registration`.`expiration_date` DESC;',
         [id]
       )
         .then((rows) => {
@@ -407,7 +422,8 @@ class User {
           this.user.birthday = rows[0].birthday
           this.user.creation = rows[0].creation
           this.user.gender = rows[0].gender
-          this.user.orientation = rows[0].orientation
+          this.user.interests = (isEmpty(rows[0].interests)) ? null : rows[0].interests.split(',')
+          this.user.orientation = (isEmpty(rows[0].orientation)) ? null : rows[0].orientation.split(',')
           this.user.popularity = rows[0].popularity
           this.user.biography = rows[0].biography
           this.user.location = rows[0].location
@@ -440,22 +456,29 @@ class User {
         + '   `users`.`email`, '
         + '   `users`.`salt`, '
         + '   `users`.`password`, '
-        + '   `users`.`creation`, '
-        + '   `users`.`birthday`, '
+        + '   DATE_FORMAT(`users`.`creation`, "%Y/%m/%d %T") AS creation, '
+        + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
         + '   `users`.`popularity`, '
         + '   `users`.`biography`, '
         + '   `users`.`is_account_confirmed`, '
         + '   `users`.`is_geolocation_allowed`, '
         + '   `users`.`location`, '
         + '   `users_gender`.`gender`, '
-        + '   `users_sexual_orientation`.`orientation`, '
+        + '   `orientations`.`orientation`, '
         + '   `users_registration`.`token`,'
-        + '   GROUP_CONCAT(`users_interests`.`tag`) AS interests'
+        + '  `interests`.`interests` '
         + ' FROM `users` '
         + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
-        + ' LEFT JOIN `users_sexual_orientation` ON `users_gender`.`id` = `users`.`id_orientation`'
+        + ' LEFT JOIN ('
+        + '    SELECT `users_sexual_orientation`.`user_id`, GROUP_CONCAT(DISTINCT `users_gender`.`gender`) AS orientation'
+        + '    FROM `users_sexual_orientation`'
+        + '    LEFT JOIN `users_gender` ON `users_gender`.`id` = `users_sexual_orientation`.`gender_id`'
+        + '    GROUP BY `users_sexual_orientation`.`user_id`'
+        + ' ) AS orientations ON `orientations`.`user_id` = `users`.`id` '
+        + ' LEFT JOIN  ( '
+        + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(DISTINCT `users_interests`.`tag` ORDER BY `users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
+        + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
         + ' LEFT JOIN `users_registration` ON `users_registration`.`user_id` = `users`.`id` '
-        + ' LEFT JOIN `users_interests` ON `users_interests`.`user_id` = `users`.`id`'
         + ' WHERE `users`.`username` = ?'
         + ' GROUP BY `users`.`id`'
         + ' ORDER BY `users_registration`.`expiration_date` DESC'
@@ -475,7 +498,8 @@ class User {
           this.user.birthday = rows[0].birthday
           this.user.creation = rows[0].creation
           this.user.gender = rows[0].gender
-          this.user.orientation = rows[0].orientation
+          this.user.interests = (isEmpty(rows[0].interests)) ? null : rows[0].interests.split(',')
+          this.user.orientation = (isEmpty(rows[0].orientation)) ? null : rows[0].orientation.split(',')
           this.user.popularity = rows[0].popularity
           this.user.biography = rows[0].biography
           this.user.location = rows[0].location
@@ -557,16 +581,20 @@ class User {
     ))
   }
 
-  fetchRegistrationToken(id) {
-    return new Promise((resolve, reject) => (
-      this.database.query('SELECT `token` FROM `users_registration` WHERE `user_id` = ? ORDER BY `expiration_date` DESC LIMIT 1;', [id])
-        .then((rows) => {
-          if (!isEmpty(rows)) this.user.registrationToken = rows[0].token
-          return resolve(this.user)
-        })
-        .catch(err => reject(err))
-    ))
-  }
+  // fetchRegistrationToken(id) {
+  //   return new Promise((resolve, reject) => (
+  //     this.database.query(
+  //       'SELECT `token` FROM `users_registration` '
+  //       + 'WHERE `user_id` = ? ORDER BY `expiration_date` DESC LIMIT 1;',
+  //       [id]
+  //     )
+  //       .then((rows) => {
+  //         if (!isEmpty(rows)) this.user.registrationToken = rows[0].token
+  //         return resolve(this.user)
+  //       })
+  //       .catch(err => reject(err))
+  //   ))
+  // }
 
   setProfilePicture(userId, filename) {
     return new Promise((resolve, reject) => (

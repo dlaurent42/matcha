@@ -3,6 +3,7 @@ const feedGenders = require('./genders')
 const feedInterests = require('./interests')
 const feedLikes = require('./likes')
 const feedNotifications = require('./notifications')
+const feedOrientations = require('./orientations')
 const feedUsers = require('./users')
 
 const feedTables = database => (
@@ -12,6 +13,7 @@ const feedTables = database => (
       .then(() => feedInterests(database))
       .then(() => feedLikes(database))
       .then(() => feedNotifications(database))
+      .then(() => feedOrientations(database))
       .then(() => feedUsers(database))
       .then(() => resolve())
       .catch(err => reject(err))
