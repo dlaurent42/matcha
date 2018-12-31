@@ -6,9 +6,10 @@ const {
   hash,
   random,
   isEmpty,
-  userDateToAge,
+  userGetAgeFromDate,
 } = require('../utils')
 const { POPULARITY_POINTS } = require('../config/constants').MATCHING_SYSTEM
+const { BOUNDARY_VALUES } = require('../config/constants')
 
 class User {
   constructor() {
@@ -99,7 +100,18 @@ class User {
       this.database.query('INSERT INTO `users_blocked` (`blocker_id`, `blocked_id`) VALUES (?, ?);', [emitterId, receiverId])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
-          return this.database.query('UPDATE `users` SET `users`.`popularity` = `users`.`popularity` - ? WHERE `users`.`id` = ?;', [POPULARITY_POINTS.BLOCK, receiverId])
+          return this.database.query(
+            'UPDATE `users` SET `users`.`popularity` = '
+            + 'IF (`users`.`popularity` - ? <= ?, ?, `users`.`popularity` - ?) '
+            + 'WHERE `users`.`id` = ?;',
+            [
+              POPULARITY_POINTS.BLOCK,
+              BOUNDARY_VALUES.POPULARITY_MIN,
+              BOUNDARY_VALUES.POPULARITY_MIN,
+              POPULARITY_POINTS.BLOCK,
+              receiverId,
+            ]
+          )
         })
         .then(() => resolve())
         .catch(err => reject(err))
@@ -124,7 +136,18 @@ class User {
       this.database.query('INSERT INTO `users_likes` (`liker_id`, `liked_id`) VALUES (?, ?);', [emitterId, receiverId])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
-          return this.database.query('UPDATE `users` SET `users`.`popularity` = `users`.`popularity` + ? WHERE `users`.`id` = ?;', [POPULARITY_POINTS.LIKE, receiverId])
+          return this.database.query(
+            'UPDATE `users` SET `users`.`popularity` = '
+            + 'IF (`users`.`popularity` + ? >= ?, ?, `users`.`popularity` + ?) '
+            + 'WHERE `users`.`id` = ?;',
+            [
+              POPULARITY_POINTS.LIKE,
+              BOUNDARY_VALUES.POPULARITY_MAX,
+              BOUNDARY_VALUES.POPULARITY_MAX,
+              POPULARITY_POINTS.LIKE,
+              receiverId,
+            ]
+          )
         })
         .then(() => resolve())
         .catch(err => reject(err))
@@ -157,7 +180,18 @@ class User {
 
   addProfileView(receiverId) {
     return new Promise((resolve, reject) => (
-      this.database.query('UPDATE `users` SET `users`.`popularity` = `users`.`popularity` + ? WHERE `users`.`id` = ?;', [POPULARITY_POINTS.PROFILE_VIEW, receiverId])
+      this.database.query(
+        'UPDATE `users` SET `users`.`popularity` = '
+        + 'IF (`users`.`popularity` + ? >= ?, ?, `users`.`popularity` + ?) '
+        + 'WHERE `users`.`id` = ?;',
+        [
+          POPULARITY_POINTS.PROFILE_VIEW,
+          BOUNDARY_VALUES.POPULARITY_MAX,
+          BOUNDARY_VALUES.POPULARITY_MAX,
+          POPULARITY_POINTS.PROFILE_VIEW,
+          receiverId,
+        ]
+      )
         .then(() => resolve())
         .catch(err => reject(err))
     ))
@@ -217,7 +251,18 @@ class User {
       this.database.query('DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;', [emitterId, receiverId])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
-          return this.database.query('UPDATE `users` SET `users`.`popularity` = `users`.`popularity` - ? WHERE `users`.`id` = ?;', [POPULARITY_POINTS.UNLIKE, receiverId])
+          return this.database.query(
+            'UPDATE `users` SET `users`.`popularity` = '
+            + 'IF (`users`.`popularity` - ? <= ?, ?, `users`.`popularity` - ?) '
+            + 'WHERE `users`.`id` = ?;',
+            [
+              POPULARITY_POINTS.UNLIKE,
+              BOUNDARY_VALUES.POPULARITY_MIN,
+              BOUNDARY_VALUES.POPULARITY_MIN,
+              POPULARITY_POINTS.UNLIKE,
+              receiverId,
+            ]
+          )
         })
         .then(() => resolve())
         .catch(err => reject(err))
@@ -247,43 +292,46 @@ class User {
 
   fetchAll(userId) {
     return new Promise((resolve, reject) => (
-      this.database.query(
-        ' SELECT DISTINCT '
-        + '  `users`.`id`, '
-        + '  `users`.`username`, '
-        + '  `users`.`firstname`, '
-        + '  `users`.`lastname`, '
-        + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
-        + '  `users`.`popularity`, '
-        + '  `users`.`latitude`, '
-        + '  `users`.`longitude`, '
-        + '  `users`.`is_connected`, '
-        + '  DATE_FORMAT(`users`.`last_connection`, "%Y/%m/%d %T") AS last_connection, '
-        + '  `users_gender`.`gender`, '
-        + '  `orientations`.`orientation`, '
-        + '  `interests`.`interests`, '
-        + '  `profile_pictures`.`profile_pic` '
-        + ' FROM  '
-        + '  `users` '
-        + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender` '
-        + ' LEFT JOIN ('
-        + '    SELECT `users_sexual_orientation`.`user_id`, GROUP_CONCAT(DISTINCT `users_gender`.`gender`) AS orientation'
-        + '    FROM `users_sexual_orientation`'
-        + '    LEFT JOIN `users_gender` ON `users_gender`.`id` = `users_sexual_orientation`.`gender_id`'
-        + '    GROUP BY `users_sexual_orientation`.`user_id`'
-        + ' ) AS orientations ON `orientations`.`user_id` = `users`.`id` '
-        + ' LEFT JOIN  ( '
-        + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(DISTINCT `users_interests`.`tag` ORDER BY `users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
-        + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
-        + ' LEFT JOIN ( '
-        + '    SELECT `users_pictures`.`user_id`, `users_pictures`.`filename` AS profile_pic FROM `users_pictures` WHERE `users_pictures`.`is_profile_pic` = 1 '
-        + ' ) AS profile_pictures ON `profile_pictures`.`user_id` = `users`.`id` '
-        + ' WHERE `users`.`is_account_confirmed` = 1 AND NOT `users`.`id` = ? AND `users`.`id` NOT IN ('
-        + '    SELECT `users_blocked`.`blocked_id` FROM `users_blocked` WHERE `users_blocked`.`blocker_id` = ?'
-        + ' )'
-        + ' ORDER BY `users`.`id`',
-        [userId, userId]
-      )
+      this.fetchInformationById(userId)
+        .then(() => (
+          this.database.query(
+            ' SELECT DISTINCT '
+            + '  `users`.`id`, '
+            + '  `users`.`username`, '
+            + '  `users`.`firstname`, '
+            + '  `users`.`lastname`, '
+            + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
+            + '  `users`.`popularity`, '
+            + '  `users`.`latitude`, '
+            + '  `users`.`longitude`, '
+            + '  `users`.`is_connected`, '
+            + '  DATE_FORMAT(`users`.`last_connection`, "%Y/%m/%d %T") AS last_connection, '
+            + '  `users_gender`.`gender`, '
+            + '  `orientations`.`orientation`, '
+            + '  `interests`.`interests`, '
+            + '  `profile_pictures`.`profile_pic` '
+            + ' FROM  '
+            + '  `users` '
+            + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender` '
+            + ' LEFT JOIN ('
+            + '    SELECT `users_sexual_orientation`.`user_id`, GROUP_CONCAT(DISTINCT `users_gender`.`gender`) AS orientation'
+            + '    FROM `users_sexual_orientation`'
+            + '    LEFT JOIN `users_gender` ON `users_gender`.`id` = `users_sexual_orientation`.`gender_id`'
+            + '    GROUP BY `users_sexual_orientation`.`user_id`'
+            + ' ) AS orientations ON `orientations`.`user_id` = `users`.`id` '
+            + ' LEFT JOIN  ( '
+            + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(DISTINCT `users_interests`.`tag` ORDER BY `users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
+            + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
+            + ' LEFT JOIN ( '
+            + '    SELECT `users_pictures`.`user_id`, `users_pictures`.`filename` AS profile_pic FROM `users_pictures` WHERE `users_pictures`.`is_profile_pic` = 1 '
+            + ' ) AS profile_pictures ON `profile_pictures`.`user_id` = `users`.`id` '
+            + ' WHERE `users`.`is_account_confirmed` = 1 AND NOT `users`.`id` = ? AND `users`.`id` NOT IN ('
+            + '    SELECT `users_blocked`.`blocked_id` FROM `users_blocked` WHERE `users_blocked`.`blocker_id` = ?'
+            + ' )'
+            + ' ORDER BY `users`.`id`',
+            [userId, userId]
+          )
+        ))
         .then((usersList) => {
           const users = []
           usersList.forEach((user) => {
@@ -295,7 +343,7 @@ class User {
               firstname: user.firstname,
               lastname: user.lastname,
               fullname: user.firstname.concat(' ', user.lastname),
-              age: userDateToAge(user.birthday),
+              age: userGetAgeFromDate(user.birthday),
               popularity: user.popularity,
               latitude: user.latitude,
               longitude: user.longitude,
@@ -306,7 +354,7 @@ class User {
               profilePic: user.profile_pic,
             })
           })
-          return resolve(users)
+          return resolve({ users, currentUser: this.user })
         })
         .catch(err => reject(err))
     ))
@@ -361,7 +409,7 @@ class User {
           this.user.firstname = rows[0].firstname
           this.user.fullname = this.user.firstname.concat(' ', this.user.lastname)
           this.user.email = rows[0].email
-          this.user.age = userDateToAge(rows[0].birthday)
+          this.user.age = userGetAgeFromDate(rows[0].birthday)
           this.user.birthday = rows[0].birthday
           this.user.creation = rows[0].creation
           this.user.gender = rows[0].gender
@@ -436,7 +484,7 @@ class User {
           this.user.firstname = rows[0].firstname
           this.user.fullname = this.user.firstname.concat(' ', this.user.lastname)
           this.user.email = rows[0].email
-          this.user.age = userDateToAge(rows[0].birthday)
+          this.user.age = userGetAgeFromDate(rows[0].birthday)
           this.user.birthday = rows[0].birthday
           this.user.creation = rows[0].creation
           this.user.gender = rows[0].gender
@@ -514,7 +562,7 @@ class User {
           this.user.firstname = rows[0].firstname
           this.user.fullname = this.user.firstname.concat(' ', this.user.lastname)
           this.user.email = rows[0].email
-          this.user.age = userDateToAge(rows[0].birthday)
+          this.user.age = userGetAgeFromDate(rows[0].birthday)
           this.user.birthday = rows[0].birthday
           this.user.creation = rows[0].creation
           this.user.gender = rows[0].gender

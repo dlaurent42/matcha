@@ -1,5 +1,6 @@
 // Obj
 const isEmpty = require('./obj/isEmpty')
+const dynamicSort = require('./obj/dynamicSort')
 
 // String
 const hasDigit = require('./string/hasDigit')
@@ -15,8 +16,10 @@ const isNumeric = require('./string/isNumeric')
 const random = require('./string/random')
 
 // User
-const userCoordToDist = require('./user/getDistFromCoord')
-const userDateToAge = require('./user/getAgeFromDate')
+const userGetDistFromCoord = require('./user/getDistFromCoord')
+const userGetAgeFromDate = require('./user/getAgeFromDate')
+const userGetMatchingScore = require('./user/getMatchingScore')
+const userNumberOfCommonInterests = require('./user/getNumberOfCommonInterests')
 const userIsEmail = require('./user/isEmail')
 const userIsFirstname = require('./user/isFirstname')
 const userIsLastname = require('./user/isLastname')
@@ -24,6 +27,7 @@ const userIsPassword = require('./user/isPassword')
 const userIsUsername = require('./user/isUsername')
 
 module.exports = {
+  dynamicSort,
   hash,
   hasDigit,
   hasLowercase,
@@ -36,8 +40,10 @@ module.exports = {
   isEmpty,
   random,
   template,
-  userCoordToDist,
-  userDateToAge,
+  userGetDistFromCoord,
+  userGetAgeFromDate,
+  userGetMatchingScore,
+  userNumberOfCommonInterests,
   userIsEmail,
   userIsFirstname,
   userIsLastname,

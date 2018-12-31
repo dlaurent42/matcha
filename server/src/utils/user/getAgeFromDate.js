@@ -1,8 +1,7 @@
 const isEmpty = require('../obj/isEmpty')
-const { AGE_MAX } = require('../../config/constants').DEFAULT_VALUES
 
 const getAgeFromDate = (birthDate) => {
-  if (isEmpty(birthDate)) return AGE_MAX
+  if (isEmpty(birthDate)) return null
   const dt = new Date()
   const diffYears = parseInt(dt.getFullYear(), 10) - parseInt(birthDate.split('/')[0], 10)
   const diffMonths = parseInt(birthDate.split('/')[1], 10) - parseInt(dt.getFullYear(), 10) - 1
