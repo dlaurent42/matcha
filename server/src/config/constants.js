@@ -31,29 +31,31 @@ const QUERIES = {
     ADD_MESSAGE: 'INSERT INTO `users_messages` (`owner_id`, `with_id`, `emitter_id`, `receiver_id`, `content`) VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?);',
     DELETE_CONVERSATION: 'DELETE FROM `users_messages` WHERE `owner_id` = ? AND `with_id` = ? ;',
     DELETE_CONVERSATIONS: 'DELETE FROM `users_messages` WHERE `owner_id` = ?;',
-    GET_CONVERSATIONS:
-      '   SELECT '
-      + '   `o`.*, '
-      + '   `users`.`username` '
-      + ' FROM `users_messages` o '
-      + ' LEFT JOIN `users_messages` b ON `o`.`with_id` = `b`.`with_id` AND `o`.`creation` < `b`.`creation` '
-      + ' LEFT JOIN `users` ON `o`.`with_id` = `users`.`id` '
-      + ' WHERE `b`.`creation` is NULL AND `o`.`owner_id` = ? '
-      + ' ORDER BY `b`.`creation` DESC;',
-    GET_MESSAGES:
-      '  SELECT '
-      + '  `users_messages`.`id`, '
-      + '  `users_messages`.`emitter_id`, '
-      + '  `a`.`username` AS \'emitter\', '
-      + '  `users_messages`.`receiver_id`, '
-      + '  `b`.`username` AS \'receiver\', '
-      + '  `users_messages`.`content`, '
-      + '  `users_messages`.`creation` '
-      + 'FROM `users_messages` '
-      + 'LEFT JOIN `users` a ON `users_messages`.`emitter_id` = a.`id`'
-      + 'LEFT JOIN `users` b ON `users_messages`.`receiver_id` = b.`id`'
-      + 'WHERE `owner_id` = ? AND `with_id` = ? '
-      + 'ORDER BY `creation` DESC;',
+    GET_CONVERSATIONS: [
+      'SELECT',
+      '   o.*,',
+      '   users.username',
+      'FROM users_messages o',
+      'LEFT JOIN users_messages b ON o.with_id = b.with_id AND o.creation < b.creation',
+      'LEFT JOIN users ON o.with_id = users.id',
+      'WHERE b.creation is NULL AND o.owner_id = ?',
+      'ORDER BY b.creation DESC;',
+    ].join(' '),
+    GET_MESSAGES: [
+      'SELECT',
+      '  users_messages.id,',
+      '  users_messages.emitter_id,',
+      '  a.username AS \'emitter\',',
+      '  users_messages.receiver_id,',
+      '  b.username AS \'receiver\',',
+      '  users_messages.content,',
+      '  users_messages.creation',
+      'FROM users_messages',
+      'LEFT JOIN users a ON users_messages.emitter_id = a.id',
+      'LEFT JOIN users b ON users_messages.receiver_id = b.id',
+      'WHERE owner_id = ? AND with_id = ?',
+      'ORDER BY creation DESC;',
+    ].join(' '),
   },
   INTERESTS: {
     GET_TAGS: 'SELECT DISTINCT `tag` FROM `users_interests` ORDER BY `tag`',
@@ -71,17 +73,18 @@ const QUERIES = {
     DELETE_LIKE: 'DELETE FROM `users_notifications` WHERE `emitter_id` = ? AND `receiver_id` = ? AND (`type` = \'like\' OR `type` = \'match\');',
     DELETE_NOTIFICATION: 'DELETE FROM `users_notifications` WHERE `id` = ?;',
     DELETE_NOTIFICATIONS: 'DELETE FROM `users_notifications` WHERE `receiver_id` = ?;',
-    GET_ALL:
-      '  SELECT'
-      + '  `users`.`username`, '
-      + '  `users_notifications`.`emitter_id`, '
-      + '  `users_notifications`.`type`, '
-      + '  `users_notifications`.`is_opened`, '
-      + '  `users_notifications`.`creation` '
-      + ' FROM `users_notifications`'
-      + ' LEFT JOIN `users` ON `users`.`id` = `users_notifications`.`emitter_id` '
-      + ' WHERE `users_notifications`.`receiver_id` = ? '
-      + ' ORDER BY `users_notifications`.`creation` DESC;',
+    GET_ALL: [
+      'SELECT',
+      '   users.username,',
+      '   users_notifications.emitter_id,',
+      '   users_notifications.type,',
+      '   users_notifications.is_opened,',
+      '   users_notifications.creation',
+      'FROM users_notifications',
+      'LEFT JOIN users ON users.id = users_notifications.emitter_id',
+      'WHERE users_notifications.receiver_id = ?',
+      'ORDER BY users_notifications.creation DESC;',
+    ].join(' '),
     GET_LIKE: 'SELECT COUNT(*) AS count FROM `users_likes` WHERE `liker_id` = ? AND `liked_id` = ?;',
     SET_VIEWED: 'UPDATE `users_notifications` SET `is_opened` = 1 WHERE `id` = ?;',
     SET_ALL_VIEWED: 'UPDATE `users_notifications` SET `is_opened` = 1 WHERE `receiver_id` = ?;',
@@ -97,51 +100,64 @@ const QUERIES = {
     DELETE_LIKE: 'DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;',
     DELETE_PICTURE: 'DELETE FROM `users_pictures` WHERE `user_id` = ? AND `filename` = ? LIMIT 1;',
     DELETE_REGISTRATION_TOKEN: 'DELETE FROM `users_registration` WHERE `token` = ?',
-    GET_ALL_USERS:
-      ' SELECT '
-      + '  `users`.`id`, '
-      + '  `users`.`username`, '
-      + '  `users`.`firstname`, '
-      + '  `users`.`lastname`, '
-      + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
-      + '  `users`.`popularity`, '
-      + '  `users`.`latitude`, '
-      + '  `users`.`longitude`, '
-      + '  `users`.`is_connected`, '
-      + '  DATE_FORMAT(`users`.`last_connection`, "%Y/%m/%d %T") AS last_connection, '
-      + '  `users_gender`.`gender`, '
-      + '  `orientations`.`orientation`, '
-      + '  `interests`.`interests`, '
-      + '  `likes`.`liker_id`, '
-      + '  `profile_pictures`.`profile_pic` '
-      + ' FROM  '
-      + '  `users` '
-      + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender` '
-      + ' LEFT JOIN ('
-      + '    SELECT `users_sexual_orientation`.`user_id`, GROUP_CONCAT(DISTINCT `users_gender`.`gender`) AS orientation'
-      + '    FROM `users_sexual_orientation`'
-      + '    LEFT JOIN `users_gender` ON `users_gender`.`id` = `users_sexual_orientation`.`gender_id`'
-      + '    GROUP BY `users_sexual_orientation`.`user_id`'
-      + ' ) AS orientations ON `orientations`.`user_id` = `users`.`id` '
-      + ' LEFT JOIN  ( '
-      + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(DISTINCT `users_interests`.`tag` ORDER BY `users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
-      + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
-      + ' LEFT JOIN ( '
-      + '    SELECT `users_pictures`.`user_id`, `users_pictures`.`filename` AS profile_pic FROM `users_pictures` WHERE `users_pictures`.`is_profile_pic` = 1 '
-      + ' ) AS profile_pictures ON `profile_pictures`.`user_id` = `users`.`id` '
-      + ' LEFT JOIN ( '
-      + '   SELECT `users_likes`.`liker_id` FROM `users_likes` WHERE `users_likes`.`liked_id` = ?'
-      + ' ) AS likes ON `likes`.`liker_id` = `users`.`id` '
-      + ' WHERE '
-      + '   `users`.`is_account_confirmed` = 1 '
-      + '   AND NOT `users`.`id` = ? '
-      + '   AND `users`.`id` NOT IN ('
-      + '    SELECT `users_blocked`.`blocked_id` FROM `users_blocked` WHERE `users_blocked`.`blocker_id` = ? '
-      + '   )'
-      + '   AND `users`.`id` NOT IN ('
-      + '    SELECT `users_blocked`.`blocker_id` FROM `users_blocked` WHERE `users_blocked`.`blocked_id` = ? '
-      + '   )'
-      + ' ORDER BY `users`.`id`;',
+    GET_ALL_USERS: [
+      'SELECT',
+      '   users.id,',
+      '   users.username,',
+      '   users.firstname,',
+      '   users.lastname,',
+      '   DATE_FORMAT(users.birthday, "%Y/%m/%d") AS birthday,',
+      '   users.popularity,',
+      '   users.latitude,',
+      '   users.longitude,',
+      '   users.is_connected,',
+      '   DATE_FORMAT(users.last_connection, "%Y/%m/%d %T") AS last_connection, ',
+      '   users_gender.gender,',
+      '   orientations.orientation,',
+      '   interests.interests,',
+      '   likes.liker_id,',
+      '   profile_pictures.profile_pic ',
+      'FROM',
+      '   users',
+      'LEFT JOIN users_gender ON users_gender.id = users.id_gender',
+      'LEFT JOIN (',
+      '   SELECT users_sexual_orientation.user_id, GROUP_CONCAT(DISTINCT users_gender.gender) AS orientation',
+      '   FROM users_sexual_orientation',
+      '   LEFT JOIN users_gender ON users_gender.id = users_sexual_orientation.gender_id',
+      '   GROUP BY users_sexual_orientation.user_id',
+      ') AS orientations ON orientations.user_id = users.id ',
+      'LEFT JOIN  ( ',
+      '   SELECT users_interests.user_id, GROUP_CONCAT(DISTINCT users_interests.tag ORDER BY users_interests.tag) AS interests',
+      '   FROM users_interests',
+      '   GROUP BY users_interests.user_id ',
+      ') AS interests ON interests.user_id = users.id ',
+      'LEFT JOIN ( ',
+      '   SELECT users_pictures.user_id, users_pictures.filename AS profile_pic',
+      '   FROM users_pictures',
+      '   WHERE users_pictures.is_profile_pic = 1 ',
+      ') AS profile_pictures ON profile_pictures.user_id = users.id ',
+      'LEFT JOIN ( ',
+      '   SELECT users_likes.liker_id',
+      '   FROM users_likes',
+      '   WHERE users_likes.liked_id = ?',
+      ') AS likes ON likes.liker_id = users.id ',
+      'WHERE ',
+      '   users.is_account_confirmed = 1 ',
+      ' AND',
+      '   NOT users.id = ? ',
+      ' AND',
+      '   users.id NOT IN (',
+      '     SELECT users_blocked.blocked_id ',
+      '     FROM users_blocked',
+      '     WHERE users_blocked.blocker_id = ? ',
+      '   )',
+      ' AND',
+      '   users.id NOT IN (',
+      '     SELECT users_blocked.blocker_id',
+      '     FROM users_blocked',
+      '     WHERE users_blocked.blocked_id = ? ',
+      '   )',
+      'ORDER BY users.id;'].join(' '),
     GET_LIKES: [
       'SELECT * FROM `users_likes` LEFT JOIN `users` ON `users_likes`.`liker_id` = `users`.`id` WHERE `users_likes`.`liked_id` = ? ORDER BY `users_likes`.`date` DESC ;',
       'SELECT * FROM `users_likes` LEFT JOIN `users` ON `users_likes`.`liked_id` = `users`.`id` WHERE `users_likes`.`liker_id` = ? ORDER BY `users_likes`.`date` DESC ;',
