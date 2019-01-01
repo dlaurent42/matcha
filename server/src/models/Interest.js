@@ -1,4 +1,5 @@
 const Database = require('./Database')
+const { INTERESTS } = require('../config/constants').QUERIES
 
 class Interest {
   constructor() {
@@ -8,7 +9,7 @@ class Interest {
 
   list() {
     return new Promise((resolve, reject) => (
-      this.database.query('SELECT DISTINCT `tag` FROM `users_interests` ORDER BY `tag`', [])
+      this.database.query(INTERESTS.GET_TAGS, [])
         .then((tags) => {
           Object.keys(tags).forEach((key) => {
             console.log(tags[key].tag)

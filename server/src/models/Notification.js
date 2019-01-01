@@ -1,5 +1,7 @@
 const Database = require('./Database')
 const { isEmpty } = require('../utils')
+const { NOTIFICATIONS } = require('../config/constants').QUERIES
+const { ERRORS } = require('../config/constants').RESPONSES
 
 class Notification {
   constructor() {
@@ -9,7 +11,7 @@ class Notification {
 
   delete(id) {
     return new Promise((resolve, reject) => (
-      this.database.query('DELETE FROM `users_notifications` WHERE `id` = ?;', [id])
+      this.database.query(NOTIFICATIONS.DELETE_NOTIFICATION, [id])
         .then(() => resolve())
         .catch(err => reject(err))
     ))
@@ -17,7 +19,7 @@ class Notification {
 
   deleteAll(uid) {
     return new Promise((resolve, reject) => (
-      this.database.query('DELETE FROM `users_notifications` WHERE `receiver_id` = ?;', [uid])
+      this.database.query(NOTIFICATIONS.DELETE_NOTIFICATION, [uid])
         .then(() => resolve())
         .catch(err => reject(err))
     ))
@@ -26,17 +28,19 @@ class Notification {
   like(emitter, receiver) {
     let isMatch = false
     return new Promise((resolve, reject) => (
-      this.database.query('SELECT COUNT(*) AS count FROM `users_likes` WHERE `liker_id` = ? AND `liked_id` = ?;', [receiver, emitter])
+      this.database.query(NOTIFICATIONS.GET_LIKE, [receiver, emitter])
         .then((rows) => {
           const type = (rows[0].count === 0)
             ? 'like'
             : 'match'
           if (type === 'match') isMatch = true
-          return this.database.query('INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, ?);', [emitter, receiver, type])
+          return this.database.query(NOTIFICATIONS.ADD_LIKE, [emitter, receiver, type])
         })
         .then((rows) => {
-          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
-          if (isMatch === true) return this.database.query('INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, \'match\');', [receiver, emitter])
+          if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
+          if (isMatch === true) {
+            return this.database.query(NOTIFICATIONS.ADD_MATCH, [receiver, emitter])
+          }
           return resolve()
         })
         .then(() => resolve())
@@ -46,10 +50,10 @@ class Notification {
 
   unlike(emitter, receiver) {
     return new Promise((resolve, reject) => (
-      this.database.query('DELETE FROM `users_notifications` WHERE `emitter_id` = ? AND `receiver_id` = ? AND (`type` = \'like\' OR `type` = \'match\');', [emitter, receiver])
-        .then(() => this.database.query('INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, \'unlike\');', [emitter, receiver]))
+      this.database.query(NOTIFICATIONS.DELETE_LIKE, [emitter, receiver])
+        .then(() => this.database.query(NOTIFICATIONS.ADD_DISLIKE, [emitter, receiver]))
         .then((rows) => {
-          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return resolve()
         })
         .catch(err => reject(err))
@@ -58,19 +62,7 @@ class Notification {
 
   list(uid) {
     return new Promise((resolve, reject) => (
-      this.database.query(
-        '  SELECT'
-        + '  `users`.`username`, '
-        + '  `users_notifications`.`emitter_id`, '
-        + '  `users_notifications`.`type`, '
-        + '  `users_notifications`.`is_opened`, '
-        + '  `users_notifications`.`creation` '
-        + ' FROM `users_notifications`'
-        + ' LEFT JOIN `users` ON `users`.`id` = `users_notifications`.`emitter_id` '
-        + ' WHERE `users_notifications`.`receiver_id` = ? '
-        + ' ORDER BY `users_notifications`.`creation` DESC; ',
-        [uid]
-      )
+      this.database.query(NOTIFICATIONS.GET_ALL, [uid])
         .then((rows) => {
           rows.forEach((notification) => {
             this.notifications.push({
@@ -89,9 +81,9 @@ class Notification {
 
   message(emitter, receiver) {
     return new Promise((resolve, reject) => (
-      this.database.query('INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, \'message\');', [emitter, receiver])
+      this.database.query(NOTIFICATIONS.ADD_MESSAGE, [emitter, receiver])
         .then((rows) => {
-          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return resolve()
         })
         .catch(err => reject(err))
@@ -100,9 +92,9 @@ class Notification {
 
   profileView(emitter, receiver) {
     return new Promise((resolve, reject) => (
-      this.database.query('INSERT INTO `users_notifications` (`emitter_id`, `receiver_id`, `type`) VALUES (?, ?, \'view\');', [emitter, receiver])
+      this.database.query(NOTIFICATIONS.ADD_PROFILE_VIEW, [emitter, receiver])
         .then((rows) => {
-          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return resolve()
         })
         .catch(err => reject(err))
@@ -111,9 +103,9 @@ class Notification {
 
   viewed(id) {
     return new Promise((resolve, reject) => (
-      this.database.query('UPDATE `users_notifications` SET `is_opened` = 1 WHERE `id` = ?;', [id])
+      this.database.query(NOTIFICATIONS.SET_VIEWED, [id])
         .then((rows) => {
-          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return resolve()
         })
         .catch(err => reject(err))
@@ -122,9 +114,9 @@ class Notification {
 
   viewedAll(id) {
     return new Promise((resolve, reject) => (
-      this.database.query('UPDATE `users_notifications` SET `is_opened` = 1 WHERE `receiver_id` = ?;', [id])
+      this.database.query(NOTIFICATIONS.SET_ALL_VIEWED, [id])
         .then((rows) => {
-          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return resolve()
         })
         .catch(err => reject(err))

@@ -37,7 +37,7 @@ class Chat {
 
   deleteAllConversations(owner) {
     return new Promise((resolve, reject) => (
-      this.database.query('DELETE FROM `users_messages` WHERE `owner_id` = ?;', [owner])
+      this.database.query(CHAT.DELETE_CONVERSATIONS, [owner])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return resolve()
@@ -48,7 +48,7 @@ class Chat {
 
   deleteConversation(emitter, receiver) {
     return new Promise((resolve, reject) => (
-      this.database.query('DELETE FROM `users_messages` WHERE `owner_id` = ? AND `with_id` = ? ;', [emitter, receiver])
+      this.database.query(CHAT.DELETE_CONVERSATION, [emitter, receiver])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return resolve()
@@ -59,17 +59,7 @@ class Chat {
 
   listConversations(userId) {
     return new Promise((resolve, reject) => (
-      this.database.query(
-        '   SELECT '
-        + '   `o`.*, '
-        + '   `users`.`username` '
-        + ' FROM `users_messages` o '
-        + ' LEFT JOIN `users_messages` b ON `o`.`with_id` = `b`.`with_id` AND `o`.`creation` < `b`.`creation` '
-        + ' LEFT JOIN `users` ON `o`.`with_id` = `users`.`id` '
-        + ' WHERE `b`.`creation` is NULL AND `o`.`owner_id` = ? '
-        + ' ORDER BY `b`.`creation` DESC;',
-        [userId]
-      )
+      this.database.query(CHAT.GET_CONVERSATIONS, [userId])
         .then((rows) => {
           this.conversations = []
           rows.forEach((conv) => {

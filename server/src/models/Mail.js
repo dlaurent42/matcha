@@ -1,10 +1,11 @@
 const nodemailer = require('nodemailer')
 const { isEmpty } = require('../utils')
+const { MAIL } = require('../config/config')
 
 class Mail {
   constructor() {
-    this.user = 'donotreply.matcha@gmail.com'
-    this.pass = 'm4tch4.S3cur3`P4ssw0rd/*'
+    this.user = MAIL.USER
+    this.pass = MAIL.PASS
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
