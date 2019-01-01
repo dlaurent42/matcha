@@ -456,21 +456,6 @@ class User {
     ))
   }
 
-  // fetchRegistrationToken(id) {
-  //   return new Promise((resolve, reject) => (
-  //     this.database.query(
-  //       'SELECT `token` FROM `users_registration` '
-  //       + 'WHERE `user_id` = ? ORDER BY `expiration_date` DESC LIMIT 1;',
-  //       [id]
-  //     )
-  //       .then((rows) => {
-  //         if (!isEmpty(rows)) this.user.registrationToken = rows[0].token
-  //         return resolve(this.user)
-  //       })
-  //       .catch(err => reject(err))
-  //   ))
-  // }
-
   setProfilePicture(userId, filename) {
     return new Promise((resolve, reject) => (
       this.fetchInformationById(userId)
