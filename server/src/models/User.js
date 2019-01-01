@@ -303,7 +303,7 @@ class User {
 
   fetchInformationByEmail(email) {
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.GET_USER_BY_EMAIL, [email])
+      this.database.query(USERS.GET_USER_BY_CONDITION({ condition: 'email' }), [email])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error(ERRORS.USER_NO_USER)
           this.user.id = rows[0].email
@@ -342,7 +342,7 @@ class User {
 
   fetchInformationById(id) {
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.GET_USER_BY_ID, [id])
+      this.database.query(USERS.GET_USER_BY_CONDITION({ condition: 'id' }), [id])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error(ERRORS.USER_NO_USER)
           this.user.id = id
@@ -381,10 +381,10 @@ class User {
 
   fetchInformationByUsernameAndPassword(username, password) {
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.GET_USER_BY_USERNAME, [username])
+      this.database.query(USERS.GET_USER_BY_CONDITION({ condition: 'username' }), [username])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error(ERRORS.USER_NO_USER)
-          if (hash(password, rows[0].salt) !== rows[0].password) throw new Error('Password is incorrect.')
+          if (hash(password, rows[0].salt) !== rows[0].password) throw new Error(ERRORS.USER_PASSWD)
           this.user.id = rows[0].id
           this.user.username = rows[0].username
           this.user.lastname = rows[0].lastname

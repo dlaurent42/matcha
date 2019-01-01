@@ -1,3 +1,5 @@
+const template = require('../utils/string/interpolation')
+
 const MATCHING_SYSTEM = {
   FACTORS: {
     DISTANCE_IMPORTANCE: 3,
@@ -79,7 +81,7 @@ const QUERIES = {
       + ' FROM `users_notifications`'
       + ' LEFT JOIN `users` ON `users`.`id` = `users_notifications`.`emitter_id` '
       + ' WHERE `users_notifications`.`receiver_id` = ? '
-      + ' ORDER BY `users_notifications`.`creation` DESC; ',
+      + ' ORDER BY `users_notifications`.`creation` DESC;',
     GET_LIKE: 'SELECT COUNT(*) AS count FROM `users_likes` WHERE `liker_id` = ? AND `liked_id` = ?;',
     SET_VIEWED: 'UPDATE `users_notifications` SET `is_opened` = 1 WHERE `id` = ?;',
     SET_ALL_VIEWED: 'UPDATE `users_notifications` SET `is_opened` = 1 WHERE `receiver_id` = ?;',
@@ -131,155 +133,60 @@ const QUERIES = {
       + ' )'
       + ' ORDER BY `users`.`id`',
     GET_LIKES: [
-      '   SELECT *'
-      + ' FROM `users_likes` '
-      + ' LEFT JOIN `users` ON `users_likes`.`liker_id` = `users`.`id` '
-      + ' WHERE `users_likes`.`liked_id` = ?'
-      + ' ORDER BY `users_likes`.`date` DESC ;',
-      '   SELECT *'
-      + ' FROM `users_likes` '
-      + ' LEFT JOIN `users` ON `users_likes`.`liked_id` = `users`.`id` '
-      + ' WHERE `users_likes`.`liker_id` = ?'
-      + ' ORDER BY `users_likes`.`date` DESC ;',
+      'SELECT * FROM `users_likes` LEFT JOIN `users` ON `users_likes`.`liker_id` = `users`.`id` WHERE `users_likes`.`liked_id` = ? ORDER BY `users_likes`.`date` DESC ;',
+      'SELECT * FROM `users_likes` LEFT JOIN `users` ON `users_likes`.`liked_id` = `users`.`id` WHERE `users_likes`.`liker_id` = ? ORDER BY `users_likes`.`date` DESC ;',
     ],
-    GET_PASSWORD_RECOVERY_TOKEN:
-      '  SELECT `user_id`, `expiration_date` '
-      + 'FROM `users_password_recovery` '
-      + 'WHERE `token` = ? AND `expiration_date` > NOW();',
-    GET_PICTURES:
-      '   SELECT '
-      + '   `filename`, '
-      + '   `is_profile_pic`, '
-      + '   `import` '
-      + ' FROM `users_pictures` '
-      + ' WHERE `user_id` = ?'
-      + ' ORDER BY `is_profile_pic` DESC, `import` DESC;',
-    GET_REGISTRATION_TOKEN:
-      '  SELECT `user_id`, `expiration_date` '
-      + 'FROM `users_registration` '
-      + 'WHERE `token` = ? AND `expiration_date` > NOW();',
-    GET_USER_BY_EMAIL:
-      '   SELECT '
-      + '   `users`.`id`, '
-      + '   `users`.`username`, '
-      + '   `users`.`firstname`, '
-      + '   `users`.`lastname`, '
-      + '   `users`.`email`, '
-      + '   `users`.`salt`, '
-      + '   `users`.`password`, '
-      + '   DATE_FORMAT(`users`.`creation`, "%Y/%m/%d %T") AS creation, '
-      + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
-      + '   `users`.`popularity`, '
-      + '   `users`.`biography`, '
-      + '   `users`.`is_account_confirmed`, '
-      + '   `users`.`is_geolocation_allowed`, '
-      + '   `users`.`latitude`, '
-      + '   `users`.`longitude`, '
-      + '   `users_gender`.`gender`, '
-      + '   `orientations`.`orientation`, '
-      + '   `users_registration`.`token`,'
-      + '  `interests`.`interests` '
-      + ' FROM `users` '
-      + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
-      + ' LEFT JOIN ('
-      + '    SELECT `users_sexual_orientation`.`user_id`, GROUP_CONCAT(DISTINCT `users_gender`.`gender`) AS orientation'
-      + '    FROM `users_sexual_orientation`'
-      + '    LEFT JOIN `users_gender` ON `users_gender`.`id` = `users_sexual_orientation`.`gender_id`'
-      + '    GROUP BY `users_sexual_orientation`.`user_id`'
-      + ' ) AS orientations ON `orientations`.`user_id` = `users`.`id` '
-      + ' LEFT JOIN  ( '
-      + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(DISTINCT `users_interests`.`tag` ORDER BY `users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
-      + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
-      + ' LEFT JOIN `users_registration` ON `users_registration`.`user_id` = `users`.`id` '
-      + ' WHERE `users`.`email` = ?'
-      + ' GROUP BY `users`.`id`'
-      + ' ORDER BY `users_registration`.`expiration_date` DESC'
-      + ' LIMIT 1;',
-    GET_USER_BY_ID:
-      '   SELECT '
-      + '   `users`.`id`, '
-      + '   `users`.`username`, '
-      + '   `users`.`firstname`, '
-      + '   `users`.`lastname`, '
-      + '   `users`.`email`, '
-      + '   `users`.`salt`, '
-      + '   `users`.`password`, '
-      + '   DATE_FORMAT(`users`.`creation`, "%Y/%m/%d %T") AS creation, '
-      + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
-      + '   `users`.`popularity`, '
-      + '   `users`.`biography`, '
-      + '   `users`.`is_account_confirmed`, '
-      + '   `users`.`is_geolocation_allowed`, '
-      + '   `users`.`latitude`, '
-      + '   `users`.`longitude`, '
-      + '   `users_gender`.`gender`, '
-      + '   `orientations`.`orientation`, '
-      + '   `users_registration`.`token`,'
-      + '  `interests`.`interests` '
-      + ' FROM `users` '
-      + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
-      + ' LEFT JOIN ('
-      + '    SELECT `users_sexual_orientation`.`user_id`, GROUP_CONCAT(DISTINCT `users_gender`.`gender`) AS orientation'
-      + '    FROM `users_sexual_orientation`'
-      + '    LEFT JOIN `users_gender` ON `users_gender`.`id` = `users_sexual_orientation`.`gender_id`'
-      + '    GROUP BY `users_sexual_orientation`.`user_id`'
-      + ' ) AS orientations ON `orientations`.`user_id` = `users`.`id` '
-      + ' LEFT JOIN  ( '
-      + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(DISTINCT `users_interests`.`tag` ORDER BY `users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
-      + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
-      + ' LEFT JOIN `users_registration` ON `users_registration`.`user_id` = `users`.`id` '
-      + ' WHERE `users`.`id` = ?'
-      + ' ORDER BY `users_registration`.`expiration_date` DESC;',
-    GET_USER_BY_USERNAME:
-      '   SELECT '
-      + '   `users`.`id`, '
-      + '   `users`.`username`, '
-      + '   `users`.`firstname`, '
-      + '   `users`.`lastname`, '
-      + '   `users`.`email`, '
-      + '   `users`.`salt`, '
-      + '   `users`.`password`, '
-      + '   DATE_FORMAT(`users`.`creation`, "%Y/%m/%d %T") AS creation, '
-      + '   DATE_FORMAT(`users`.`birthday`, "%Y/%m/%d") AS birthday, '
-      + '   `users`.`popularity`, '
-      + '   `users`.`biography`, '
-      + '   `users`.`is_account_confirmed`, '
-      + '   `users`.`is_geolocation_allowed`, '
-      + '   `users`.`latitude`, '
-      + '   `users`.`longitude`, '
-      + '   `users_gender`.`gender`, '
-      + '   `orientations`.`orientation`, '
-      + '   `users_registration`.`token`,'
-      + '  `interests`.`interests` '
-      + ' FROM `users` '
-      + ' LEFT JOIN `users_gender` ON `users_gender`.`id` = `users`.`id_gender`'
-      + ' LEFT JOIN ('
-      + '    SELECT `users_sexual_orientation`.`user_id`, GROUP_CONCAT(DISTINCT `users_gender`.`gender`) AS orientation'
-      + '    FROM `users_sexual_orientation`'
-      + '    LEFT JOIN `users_gender` ON `users_gender`.`id` = `users_sexual_orientation`.`gender_id`'
-      + '    GROUP BY `users_sexual_orientation`.`user_id`'
-      + ' ) AS orientations ON `orientations`.`user_id` = `users`.`id` '
-      + ' LEFT JOIN  ( '
-      + '    SELECT `users_interests`.`user_id`, GROUP_CONCAT(DISTINCT `users_interests`.`tag` ORDER BY `users_interests`.`tag`) AS interests FROM `users_interests` GROUP BY `users_interests`.`user_id` '
-      + ' ) AS interests ON `interests`.`user_id` = `users`.`id` '
-      + ' LEFT JOIN `users_registration` ON `users_registration`.`user_id` = `users`.`id` '
-      + ' WHERE `users`.`username` = ?'
-      + ' GROUP BY `users`.`id`'
-      + ' ORDER BY `users_registration`.`expiration_date` DESC'
-      + ' LIMIT 1;',
+    GET_PASSWORD_RECOVERY_TOKEN: 'SELECT `user_id`, `expiration_date` FROM `users_password_recovery` WHERE `token` = ? AND `expiration_date` > NOW();',
+    GET_PICTURES: 'SELECT `filename`, `is_profile_pic`, `import` FROM `users_pictures` WHERE `user_id` = ? ORDER BY `is_profile_pic` DESC, `import` DESC;',
+    GET_REGISTRATION_TOKEN: 'SELECT `user_id`, `expiration_date` FROM `users_registration` WHERE `token` = ? AND `expiration_date` > NOW();',
+    GET_USER_BY_CONDITION:
+      template`SELECT \
+        users.id, \
+        users.username, \
+        users.firstname, \
+        users.lastname, \
+        users.email, \
+        users.salt, \
+        users.password, \
+        DATE_FORMAT(users.creation, "%Y/%m/%d %T") AS creation, \
+        DATE_FORMAT(users.birthday, "%Y/%m/%d") AS birthday, \
+        users.popularity, \
+        users.biography, \
+        users.is_account_confirmed, \
+        users.is_geolocation_allowed, \
+        users.latitude, \
+        users.longitude, \
+        users_gender.gender, \
+        orientations.orientation, \
+        users_registration.token, \
+        interests.interests \
+      FROM users \
+      LEFT JOIN users_gender ON users_gender.id = users.id_gender \
+      LEFT JOIN ( \
+        SELECT \
+          users_sexual_orientation.user_id, \
+          GROUP_CONCAT(DISTINCT users_gender.gender) AS orientation \
+        FROM users_sexual_orientation \
+        LEFT JOIN users_gender ON users_gender.id = users_sexual_orientation.gender_id \
+        GROUP BY users_sexual_orientation.user_id \
+      ) AS orientations ON orientations.user_id = users.id \
+      LEFT JOIN  ( \
+        SELECT \
+          users_interests.user_id, \
+          GROUP_CONCAT(DISTINCT users_interests.tag ORDER BY users_interests.tag) AS interests \
+          FROM users_interests \
+          GROUP BY users_interests.user_id \
+      ) AS interests ON interests.user_id = users.id \
+      LEFT JOIN users_registration ON users_registration.user_id = users.id \
+      WHERE users.${'condition'} = ? \
+      ORDER BY users_registration.expiration_date DESC;`,
     GET_COUNT_BY_MAIL_AND_EMAIL: 'SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;',
     GET_USERNAME_AND_EMAIL: 'SELECT `username`, `email` FROM `users` WHERE `id` = ?;',
     SET_ACCOUNT_CONFIRMED: 'UPDATE `users` SET `is_account_confirmed` = 1 WHERE `id` = ?;',
     SET_CONNECTED: 'UPDATE `users` SET `is_connected` = 1 WHERE `id` = ?;',
     SET_DISCONNECTED: 'UPDATE `users` SET `is_connected` = 0, `last_connection` = NOW() WHERE `id` = ?;',
-    SET_LESS_POPULARITY:
-      'UPDATE `users` SET `users`.`popularity` = '
-      + 'IF (`users`.`popularity` - ? <= ?, ?, `users`.`popularity` - ?) '
-      + 'WHERE `users`.`id` = ?;',
-    SET_MORE_POPULARITY:
-      'UPDATE `users` SET `users`.`popularity` = '
-      + 'IF (`users`.`popularity` + ? >= ?, ?, `users`.`popularity` + ?) '
-      + 'WHERE `users`.`id` = ?;',
+    SET_LESS_POPULARITY: 'UPDATE `users` SET `users`.`popularity` = IF (`users`.`popularity` - ? <= ?, ?, `users`.`popularity` - ?) WHERE `users`.`id` = ?;',
+    SET_MORE_POPULARITY: 'UPDATE `users` SET `users`.`popularity` = IF (`users`.`popularity` + ? >= ?, ?, `users`.`popularity` + ?) WHERE `users`.`id` = ?;',
     SET_PROFILE_PICTURE: 'UPDATE `users_pictures` SET `is_profile_pic` = ? WHERE `filename` = ?;',
   },
 }
@@ -296,6 +203,7 @@ const RESPONSES = {
     USER_ACCOUNT_EXISTS: 'An account with entered email/username already exists.',
     USER_FETCH_LIKES: 'Cannot fetch user likes.',
     USER_FETCH_PICTURES: 'Cannot fetch user pictures.',
+    USER_PASSWD: 'Incorrect password.',
     USER_MAX_PICTURES: 'Maximum number of pictures reached.',
     USER_NO_USER: 'No user found.',
     USER_PICTURE_FILENAME: 'Wrong filename.',

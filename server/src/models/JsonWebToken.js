@@ -3,7 +3,7 @@ const Database = require('./Database')
 const { isEmpty } = require('../utils')
 const { JWT } = require('../config/config')
 const { JSON_WEB_TOKEN } = require('../config/constants').QUERIES
-const { ERRORS } = require('../config/constants').REPONSES
+const { ERRORS } = require('../config/constants').RESPONSES
 
 class JsonWebToken {
   constructor() {
