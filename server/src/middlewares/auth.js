@@ -3,7 +3,7 @@ const { isEmpty } = require('../utils')
 
 const authCredentials = (req, res, next) => {
   const bearerHeader = req.headers.authorization
-  if (typeof bearerHeader === 'undefined') return res.sendStatus(403)
+  if (isEmpty(bearerHeader)) return res.sendStatus(403)
   const jwt = new JsonWebToken()
   const bearerToken = bearerHeader.split(' ')[1]
   return jwt.check(bearerToken)

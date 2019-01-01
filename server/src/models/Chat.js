@@ -1,5 +1,7 @@
 const Database = require('./Database')
 const { isEmpty } = require('../utils')
+const { ERRORS } = require('../config/constants').RESPONSES
+const { CHAT } = require('../config/constants').QUERIES
 
 class Chat {
   constructor() {
@@ -10,9 +12,23 @@ class Chat {
 
   addMessage(emitter, receiver, content) {
     return new Promise((resolve, reject) => (
-      this.database.query('INSERT INTO `users_messages` (`owner_id`, `with_id`, `emitter_id`, `receiver_id`, `content`) VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?);', [emitter, receiver, emitter, receiver, content, receiver, emitter, emitter, receiver, content])
+      this.database.query(
+        CHAT.ADD_MESSAGE,
+        [
+          emitter,
+          receiver,
+          emitter,
+          receiver,
+          content,
+          receiver,
+          emitter,
+          emitter,
+          receiver,
+          content,
+        ]
+      )
         .then((rows) => {
-          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return resolve()
         })
         .catch(err => reject(err))
@@ -23,7 +39,7 @@ class Chat {
     return new Promise((resolve, reject) => (
       this.database.query('DELETE FROM `users_messages` WHERE `owner_id` = ?;', [owner])
         .then((rows) => {
-          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return resolve()
         })
         .catch(err => reject(err))
@@ -34,7 +50,7 @@ class Chat {
     return new Promise((resolve, reject) => (
       this.database.query('DELETE FROM `users_messages` WHERE `owner_id` = ? AND `with_id` = ? ;', [emitter, receiver])
         .then((rows) => {
-          if (isEmpty(rows)) throw new Error('An error occured. Please try again later.')
+          if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return resolve()
         })
         .catch(err => reject(err))
@@ -82,19 +98,7 @@ class Chat {
   listMessages(emitter, receiver) {
     return new Promise((resolve, reject) => (
       this.database.query(
-        '  SELECT '
-        + '  `users_messages`.`id`, '
-        + '  `users_messages`.`emitter_id`, '
-        + '  `a`.`username` AS \'emitter\', '
-        + '  `users_messages`.`receiver_id`, '
-        + '  `b`.`username` AS \'receiver\', '
-        + '  `users_messages`.`content`, '
-        + '  `users_messages`.`creation` '
-        + 'FROM `users_messages` '
-        + 'LEFT JOIN `users` a ON `users_messages`.`emitter_id` = a.`id`'
-        + 'LEFT JOIN `users` b ON `users_messages`.`receiver_id` = b.`id`'
-        + 'WHERE `owner_id` = ? AND `with_id` = ? '
-        + 'ORDER BY `creation` DESC;',
+        CHAT.GET_MESSAGES,
         [emitter, receiver]
       )
         .then((rows) => {

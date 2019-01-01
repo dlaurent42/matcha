@@ -7,6 +7,7 @@ const {
   userGetDistFromCoord,
   userGetMatchingScore,
 } = require('../../utils')
+const { ERRORS } = require('../../config/constants').RESPONSES
 
 // Override each user information with distance, number of common interests and matching score
 const overrideUsers = (users, currentUser) => (
@@ -62,7 +63,7 @@ const filterUsers = (users, params) => {
 }
 
 router.get('/', (req, res) => {
-  if (isEmpty(req.query.user_id)) return res.status(400).send({ err: 'Missing argument.' })
+  if (isEmpty(req.query.user_id)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
   return new User().fetchAll(req.query.user_id)
     .then(({ users, currentUser }) => {
       const overrideUsersArr = overrideUsers(users, currentUser)

@@ -2,6 +2,7 @@ const router = require('express').Router()
 const multer = require('multer')
 const User = require('../../models/User')
 const { isEmpty, random } = require('../../utils')
+const { ERRORS } = require('../../config/constants').RESPONSES
 
 const fileFilter = (req, file, cb) => {
   if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') cb(null, true)
@@ -26,8 +27,8 @@ const upload = multer({
 })
 
 router.post('/import', upload.single('picture'), (req, res) => {
-  if (isEmpty(req.file)) return res.status(400).send({ err: 'Wrong file import.' })
-  if (isEmpty(req.body.user_id)) res.status(400).send({ err: 'Missing argument.' })
+  if (isEmpty(req.file)) return res.status(400).send({ err: ERRORS.DATA_VALIDATION })
+  if (isEmpty(req.body.user_id)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
   return new User().addPicture(req.file, req.body.user_id)
     .then(user => res.json({ user }))
     .catch(err => res.json({ err: err.message }))

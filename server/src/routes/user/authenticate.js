@@ -5,6 +5,7 @@ const {
   userIsUsername,
   userIsPassword,
 } = require('../../utils')
+const { ERRORS } = require('../../config/constants').RESPONSES
 
 const dataCheck = user => (
   userIsUsername(user.username)
@@ -13,10 +14,10 @@ const dataCheck = user => (
 
 router.post('/authenticate', (req, res) => {
   // Check input
-  if (isEmpty(req.body.user)) return res.status(400).send({ err: 'Missing argument.' })
+  if (isEmpty(req.body.user)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
 
   // Check user data
-  if (!dataCheck(req.body.user)) return res.sendStatus(401)
+  if (!dataCheck(req.body.user)) return res.status(401).json({ err: ERRORS.DATA_VALIDATION })
 
   const user = new User()
   return user.fetchInformationByUsernameAndPassword(req.body.user.username, req.body.user.password)

@@ -8,6 +8,7 @@ const {
   userIsEmail,
   userIsPassword,
 } = require('../../utils')
+const { ERRORS } = require('../../config/constants').RESPONSES
 
 const dataCheck = user => (
   userIsFirstname(user.firstname)
@@ -19,10 +20,12 @@ const dataCheck = user => (
 
 router.post('/add', (req, res) => {
   // Check if user is not undefined
-  if (isEmpty(req.body.user) || isEmpty(req.body.redirect_uri)) return res.status(400).send({ err: 'Missing argument.' })
+  if (isEmpty(req.body.user) || isEmpty(req.body.redirect_uri)) {
+    return res.status(400).json({ err: ERRORS.DATA_MISSING })
+  }
 
   // Check user data
-  if (!dataCheck(req.body.user)) return res.status(401).send({ err: 'Wrong input.' })
+  if (!dataCheck(req.body.user)) return res.status(401).json({ err: ERRORS.DATA_VALIDATION })
 
   return new User().add(req.body.user, req.body.redirect_uri)
     .then(user => res.json({ user }))
