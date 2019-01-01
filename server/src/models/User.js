@@ -250,6 +250,27 @@ class User {
     ))
   }
 
+  deleteBlock(emitterId, receiverId) {
+    return new Promise((resolve, reject) => (
+      this.database.query(USERS.DELETE_BLOCK, [emitterId, receiverId])
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
+          return this.database.query(
+            USERS.SET_MORE_POPULARITY,
+            [
+              POPULARITY_POINTS.UNBLOCK,
+              BOUNDARY_VALUES.POPULARITY_MAX,
+              BOUNDARY_VALUES.POPULARITY_MAX,
+              POPULARITY_POINTS.UNBLOCK,
+              receiverId,
+            ]
+          )
+        })
+        .then(() => resolve())
+        .catch(err => reject(err))
+    ))
+  }
+
   deleteLike(emitterId, receiverId) {
     return new Promise((resolve, reject) => (
       this.database.query(USERS.DELETE_LIKE, [emitterId, receiverId])

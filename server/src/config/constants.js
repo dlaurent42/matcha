@@ -13,6 +13,7 @@ const MATCHING_SYSTEM = {
     LIKE: 50,
     UNLIKE: 50,
     BLOCK: 100,
+    UNBLOCK: 100,
   },
 }
 
@@ -109,6 +110,7 @@ const QUERIES = {
       REGISTRATION: 'DELETE FROM `users_registration` WHERE `user_id` = ?;',
       SEXUAL_ORIENTATION: 'DELETE FROM `users_sexual_orientation WHERE `user_id` = ?;',
     },
+    DELETE_BLOCK: 'DELETE FROM `users_blocked` WHERE `blocker_id` = ? AND `blocked_id` = ? LIMIT 1;',
     DELETE_LIKE: 'DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;',
     DELETE_PICTURE: 'DELETE FROM `users_pictures` WHERE `user_id` = ? AND `filename` = ? LIMIT 1;',
     DELETE_REGISTRATION_TOKEN: 'DELETE FROM `users_registration` WHERE `token` = ?',

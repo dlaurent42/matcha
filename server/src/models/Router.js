@@ -14,6 +14,7 @@ const userList = require('../routes/user/list')
 const userFake = require('../routes/user/report')
 const userRecoverPasswordMail = require('../routes/user/recoverPasswordMail')
 const userRecoverPasswordToken = require('../routes/user/recoverPasswordToken')
+const userUnblock = require('../routes/user/unblock')
 
 // user token
 const userTokenVerify = require('../routes/token/verify')
@@ -62,6 +63,7 @@ class Router {
         userList,
         userRecoverPasswordMail,
         userRecoverPasswordToken,
+        userUnblock,
       ],
       '/user/token': [
         userTokenVerify,
