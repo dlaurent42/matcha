@@ -13,17 +13,18 @@ const config = {
       PORT: '8081',
     },
     DATABASE: {
-      HOST: '127.0.0.1',
-      NAME: 'matcha',
-      USER: 'root',
-      PASS: 'password',
+      HOST: process.env.DATABASE_HOST || '127.0.0.1',
+      NAME: process.env.DATABASE_NAME || 'matcha',
+      USER: process.env.DATABASE_USER,
+      PASS: process.env.DATABASE_PASS,
     },
     MAIL: {
-      USER: 'donotreply.matcha@gmail.com',
-      PASS: 'm4tch4.S3cur3`P4ssw0rd/*',
+      USER: process.env.MAIL_USER,
+      PASS: process.env.MAIL_PASS,
     },
     JWT: {
       DURATION: '15m',
+      SECRET: process.env.SECRET_KEY,
     },
   },
   development: {
@@ -32,17 +33,18 @@ const config = {
       PORT: '8081',
     },
     DATABASE: {
-      HOST: '127.0.0.1',
-      NAME: 'matcha',
-      USER: 'root',
-      PASS: 'password',
+      HOST: process.env.DATABASE_HOST || '127.0.0.1',
+      NAME: process.env.DATABASE_NAME || 'matcha',
+      USER: process.env.DATABASE_USER,
+      PASS: process.env.DATABASE_PASS,
     },
     MAIL: {
-      USER: 'donotreply.matcha@gmail.com',
-      PASS: 'm4tch4.S3cur3`P4ssw0rd/*',
+      USER: process.env.MAIL_USER,
+      PASS: process.env.MAIL_PASS,
     },
     JWT: {
       DURATION: '24h',
+      SECRET: process.env.SECRET_KEY || 'ABFA422265CE21265CDECF71CD8DF',
     },
   },
   test: {
@@ -51,17 +53,18 @@ const config = {
       PORT: '8081',
     },
     DATABASE: {
-      HOST: '127.0.0.1',
-      NAME: 'matcha_test',
-      USER: 'root',
-      PASS: 'password',
+      HOST: process.env.DATABASE_HOST || '127.0.0.1',
+      NAME: process.env.DATABASE_NAME || 'matcha_test',
+      USER: process.env.DATABASE_USER,
+      PASS: process.env.DATABASE_PASS,
     },
     MAIL: {
-      USER: 'donotreply.matcha@gmail.com',
-      PASS: 'm4tch4.S3cur3`P4ssw0rd/*',
+      USER: process.env.MAIL_USER,
+      PASS: process.env.MAIL_PASS,
     },
     JWT: {
       DURATION: '24h',
+      SECRET: process.env.SECRET_KEY || 'ABFA422265CE21265CDECF71CD8DF',
     },
   },
 }
