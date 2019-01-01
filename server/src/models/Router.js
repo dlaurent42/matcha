@@ -8,6 +8,7 @@ const userAuthenticate = require('../routes/user/authenticate')
 const userGetById = require('../routes/user/id')
 const userConfirmAccount = require('../routes/user/confirmAccount')
 const userConnect = require('../routes/user/setConnected')
+const userDelete = require('../routes/user/delete')
 const userDisconnect = require('../routes/user/setDisconnected')
 const userList = require('../routes/user/list')
 const userFake = require('../routes/user/report')
@@ -54,6 +55,7 @@ class Router {
         userAuthenticate,
         userConfirmAccount,
         userConnect,
+        userDelete,
         userDisconnect,
         userFake,
         userGetById,

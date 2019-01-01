@@ -225,6 +225,31 @@ class User {
     ))
   }
 
+  delete(userId) {
+    return new Promise((resolve, reject) => (
+      this.database.query(USERS.DELETE_USER.USER, [userId])
+        .then(() => this.database.query(USERS.DELETE_USER.BLOCKED, [userId, userId]))
+        .then(() => this.database.query(USERS.DELETE_USER.INTERESTS, [userId]))
+        .then(() => this.database.query(USERS.DELETE_USER.LIKES, [userId, userId]))
+        .then(() => this.database.query(USERS.DELETE_USER.MESSAGES, [userId, userId]))
+        .then(() => this.database.query(USERS.DELETE_USER.NOTIFICATIONS, [userId]))
+        .then(() => this.database.query(USERS.DELETE_USER.PASS_RECOVERY, [userId]))
+        .then(() => this.database.query(USERS.GET_PICTURES, [userId]))
+        .then((rows) => {
+          if (!isEmpty(rows)) {
+            rows.forEach((row) => {
+              fs.unlinkSync(`./src/assets/uploads/${row.filename}`)
+            })
+          }
+          return this.database.query(USERS.DELETE_USER.PICTURES, [userId])
+        })
+        .then(() => this.database.query(USERS.DELETE_USER.REGISTRATION, [userId]))
+        .then(() => this.database.query(USERS.DELETE_USER.SEXUAL_ORIENTATION, [userId]))
+        .then(() => resolve())
+        .catch(err => reject(err))
+    ))
+  }
+
   deleteLike(emitterId, receiverId) {
     return new Promise((resolve, reject) => (
       this.database.query(USERS.DELETE_LIKE, [emitterId, receiverId])
@@ -262,6 +287,7 @@ class User {
             [this.user.profilePic] = this.user.pictures
             return this.database.query(USERS.SET_PROFILE_PICTURE, [1, this.user.profilePic])
           }
+          fs.unlinkSync(`./src/assets/uploads/${filename}`)
           return resolve(this.user)
         })
         .then(() => resolve(this.user))
