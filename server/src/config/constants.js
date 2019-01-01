@@ -98,7 +98,7 @@ const QUERIES = {
     DELETE_PICTURE: 'DELETE FROM `users_pictures` WHERE `user_id` = ? AND `filename` = ? LIMIT 1;',
     DELETE_REGISTRATION_TOKEN: 'DELETE FROM `users_registration` WHERE `token` = ?',
     GET_ALL_USERS:
-      ' SELECT DISTINCT '
+      ' SELECT '
       + '  `users`.`id`, '
       + '  `users`.`username`, '
       + '  `users`.`firstname`, '
@@ -112,6 +112,7 @@ const QUERIES = {
       + '  `users_gender`.`gender`, '
       + '  `orientations`.`orientation`, '
       + '  `interests`.`interests`, '
+      + '  `likes`.`liker_id`, '
       + '  `profile_pictures`.`profile_pic` '
       + ' FROM  '
       + '  `users` '
@@ -128,10 +129,19 @@ const QUERIES = {
       + ' LEFT JOIN ( '
       + '    SELECT `users_pictures`.`user_id`, `users_pictures`.`filename` AS profile_pic FROM `users_pictures` WHERE `users_pictures`.`is_profile_pic` = 1 '
       + ' ) AS profile_pictures ON `profile_pictures`.`user_id` = `users`.`id` '
-      + ' WHERE `users`.`is_account_confirmed` = 1 AND NOT `users`.`id` = ? AND `users`.`id` NOT IN ('
-      + '    SELECT `users_blocked`.`blocked_id` FROM `users_blocked` WHERE `users_blocked`.`blocker_id` = ?'
-      + ' )'
-      + ' ORDER BY `users`.`id`',
+      + ' LEFT JOIN ( '
+      + '   SELECT `users_likes`.`liker_id` FROM `users_likes` WHERE `users_likes`.`liked_id` = ?'
+      + ' ) AS likes ON `likes`.`liker_id` = `users`.`id` '
+      + ' WHERE '
+      + '   `users`.`is_account_confirmed` = 1 '
+      + '   AND NOT `users`.`id` = ? '
+      + '   AND `users`.`id` NOT IN ('
+      + '    SELECT `users_blocked`.`blocked_id` FROM `users_blocked` WHERE `users_blocked`.`blocker_id` = ? '
+      + '   )'
+      + '   AND `users`.`id` NOT IN ('
+      + '    SELECT `users_blocked`.`blocker_id` FROM `users_blocked` WHERE `users_blocked`.`blocked_id` = ? '
+      + '   )'
+      + ' ORDER BY `users`.`id`;',
     GET_LIKES: [
       'SELECT * FROM `users_likes` LEFT JOIN `users` ON `users_likes`.`liker_id` = `users`.`id` WHERE `users_likes`.`liked_id` = ? ORDER BY `users_likes`.`date` DESC ;',
       'SELECT * FROM `users_likes` LEFT JOIN `users` ON `users_likes`.`liked_id` = `users`.`id` WHERE `users_likes`.`liker_id` = ? ORDER BY `users_likes`.`date` DESC ;',

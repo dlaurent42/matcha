@@ -272,12 +272,13 @@ class User {
   fetchAll(userId) {
     return new Promise((resolve, reject) => (
       this.fetchInformationById(userId)
-        .then(() => this.database.query(USERS.GET_ALL_USERS, [userId, userId]))
+        .then(() => this.database.query(USERS.GET_ALL_USERS, [userId, userId, userId, userId]))
         .then((usersList) => {
           const users = []
           usersList.forEach((user) => {
             const interests = (isEmpty(user.interests)) ? null : user.interests.split(',')
             const sexualOrientation = (isEmpty(user.orientation)) ? null : user.orientation.split(',')
+            const link = (!isEmpty(user.liker_id))
             users.push({
               id: user.id,
               username: user.username,
@@ -292,6 +293,7 @@ class User {
               gender: user.gender,
               orientation: sexualOrientation,
               interests,
+              link,
               profilePic: user.profile_pic,
             })
           })

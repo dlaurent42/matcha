@@ -12,7 +12,12 @@ const { ERRORS } = require('../../config/constants').RESPONSES
 // Override each user information with distance, number of common interests and matching score
 const overrideUsers = (users, currentUser) => (
   users.map((user) => {
+    let link = 'Let\'s match !'
+    if (user.link && !currentUser.likes.includes(user.id)) link = `It seems you like ${user.username} !`
+    else if (user.link && currentUser.likes.includes(user.id)) link = 'It is a match !'
+    else if (!user.link && currentUser.likes.includes(user.id)) link = `${user.username} likes you ! Let's match !`
     Object.assign(user, {
+      link,
       distance: userGetDistFromCoord(currentUser, user),
       commonInterestsNumber: userNumberOfCommonInterests(currentUser, user),
     })
