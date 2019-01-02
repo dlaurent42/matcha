@@ -98,6 +98,7 @@ const QUERIES = {
     ADD_REGISTRATION_INFO: 'INSERT INTO `users` (`username`, `firstname`, `lastname`, `email`, `password`, `salt`) VALUES (?, ?, ?, ?, ?, ?);',
     ADD_REGISTRATION_TOKEN: 'INSERT INTO `users_registration` (`token`, `user_id`, `expiration_date`) VALUES (?, ?, NOW() + INTERVAL 1 DAY);',
     ADD_REPORT: 'INSERT INTO `users_fakes` (`reporter_id`, `reported_id`) VALUES (?, ?);',
+    ADD_SEXUAL_ORIENTATION: 'INSERT INTO `users_sexual_orientation` (`user_id`, `gender_id`) VALUES (?, (SELECT `users_gender`.`id` FROM `users_gender` WHERE `users_gender`.`gender` IN (?)));',
     DELETE_USER: {
       USER: 'DELETE FROM `users` WHERE `id` = ? LIMIT 1;',
       BLOCKED: 'DELETE FROM `users_blocked` WHERE `blocker_id` = ? OR `blocked_id` = ?;',
@@ -225,8 +226,11 @@ const QUERIES = {
     SET_ACCOUNT_CONFIRMED: 'UPDATE `users` SET `is_account_confirmed` = 1 WHERE `id` = ?;',
     SET_CONNECTED: 'UPDATE `users` SET `is_connected` = 1 WHERE `id` = ?;',
     SET_DISCONNECTED: 'UPDATE `users` SET `is_connected` = 0, `last_connection` = NOW() WHERE `id` = ?;',
+    SET_GENDER: 'UPDATE `users` SET `users`.`gender_id` = (SELECT `users_gender`.`id` FROM `users_gender` WHERE `users_gender`.`gender` = ?) WHERE `users`.`id` = ?;',
+    SET_GENERAL_INFO: 'UPDATE `users` SET ?? = ? WHERE `id` = ?;',
     SET_LESS_POPULARITY: 'UPDATE `users` SET `users`.`popularity` = IF (`users`.`popularity` - ? <= ?, ?, `users`.`popularity` - ?) WHERE `users`.`id` = ?;',
     SET_MORE_POPULARITY: 'UPDATE `users` SET `users`.`popularity` = IF (`users`.`popularity` + ? >= ?, ?, `users`.`popularity` + ?) WHERE `users`.`id` = ?;',
+    SET_PASSWORD: 'UPDATE `users` SET `salt` = ?, `password` = ? WHERE `id` = ?;',
     SET_PROFILE_PICTURE: 'UPDATE `users_pictures` SET `is_profile_pic` = ? WHERE `filename` = ?;',
   },
 }
@@ -244,6 +248,7 @@ const RESPONSES = {
     USER_FETCH_LIKES: 'Cannot fetch user likes.',
     USER_FETCH_PICTURES: 'Cannot fetch user pictures.',
     USER_PASSWD: 'Incorrect password.',
+    USER_MIN_PICTURES: 'Minimum number of pictures is one.',
     USER_MAX_PICTURES: 'Maximum number of pictures reached.',
     USER_NO_USER: 'No user found.',
     USER_PICTURE_FILENAME: 'Wrong filename.',

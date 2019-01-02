@@ -20,9 +20,12 @@ const userGetDistFromCoord = require('./user/getDistFromCoord')
 const userGetAgeFromDate = require('./user/getAgeFromDate')
 const userGetMatchingScore = require('./user/getMatchingScore')
 const userNumberOfCommonInterests = require('./user/getNumberOfCommonInterests')
+const userIsBirthdate = require('./user/isBirthdate')
 const userIsEmail = require('./user/isEmail')
 const userIsFirstname = require('./user/isFirstname')
 const userIsLastname = require('./user/isLastname')
+const userIsLatitude = require('./user/userIsLatitude')
+const userIsLongitude = require('./user/userIsLongitude')
 const userIsPassword = require('./user/isPassword')
 const userIsUsername = require('./user/isUsername')
 
@@ -44,9 +47,12 @@ module.exports = {
   userGetAgeFromDate,
   userGetMatchingScore,
   userNumberOfCommonInterests,
+  userIsBirthdate,
   userIsEmail,
   userIsFirstname,
   userIsLastname,
+  userIsLatitude,
+  userIsLongitude,
   userIsPassword,
   userIsUsername,
 }

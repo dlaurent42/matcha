@@ -296,6 +296,9 @@ class User {
     return new Promise((resolve, reject) => (
       this.fetchInformationById(userId)
         .then(() => {
+          if (this.user.pictures.length <= 1) {
+            throw new Error(ERRORS.USER_MIN_PICTURES)
+          }
           if (this.user.pictures.indexOf(filename) === -1) {
             throw new Error(ERRORS.USER_PICTURE_FILENAME)
           }
@@ -534,6 +537,41 @@ class User {
           if (isEmpty(rows)) throw new Error(ERRORS.USER_NO_USER)
           return resolve()
         })
+        .catch(err => reject(err))
+    ))
+  }
+
+  setGeneralInformation(userId, key, value) {
+    return new Promise((resolve, reject) => (
+      this.database.query(USERS.SET_GENERAL_INFO, [key, value, userId])
+        .then(() => resolve())
+        .catch(err => reject(err))
+    ))
+  }
+
+  setPassword(userId, value) {
+    return new Promise((resolve, reject) => {
+      const salt = random(255)
+      const password = hash(value, salt)
+      return this.database.query(USERS.SET_PASSWORD, [salt, password, userId])
+        .then(() => resolve())
+        .catch(err => reject(err))
+    })
+  }
+
+  setGender(userId, value) {
+    return new Promise((resolve, reject) => (
+      this.database.query(USERS.SET_GENDER, [value, userId])
+        .then(() => resolve())
+        .catch(err => reject(err))
+    ))
+  }
+
+  setSexualOrientation(userId, values) {
+    return new Promise((resolve, reject) => (
+      this.database.query(USERS.DELETE_USER.SEXUAL_ORIENTATION, [userId])
+        .then(() => this.database.query(USERS.ADD_SEXUAL_ORIENTATION, [userId, values]))
+        .then(() => resolve())
         .catch(err => reject(err))
     ))
   }
