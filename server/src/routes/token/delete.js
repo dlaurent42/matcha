@@ -3,7 +3,7 @@ const JsonWebToken = require('../../models/JsonWebToken')
 const { isEmpty } = require('../../utils')
 const { ERRORS } = require('../../config/constants').RESPONSES
 
-router.post('/ban', (req, res) => {
+router.delete('/', (req, res) => {
   if (isEmpty(req.body.token)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
   return new JsonWebToken().delete(req.body.token)
     .then(() => res.sendStatus(200))

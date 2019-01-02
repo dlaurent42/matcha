@@ -3,7 +3,7 @@ const User = require('../../models/User')
 const { isEmpty, userIsEmail } = require('../../utils')
 const { ERRORS } = require('../../config/constants').RESPONSES
 
-router.post('/recover-password-query', (req, res) => {
+router.post('/recover-password', (req, res) => {
   if (isEmpty(req.body.email) || isEmpty(req.body.redirect_uri)) {
     return res.status(400).json({ err: ERRORS.DATA_MISSING })
   }

@@ -61,16 +61,12 @@ const fetchPromises = (userId, fields) => {
   return promises
 }
 
-router.put('/update', (req, res) => {
-  if (isEmpty(req.body.user_id) || isEmpty(req.body.fields)) {
-    return res.status(400).json({ err: ERRORS.DATA_MISSING })
-  }
-  if (!verifyInput(req.body.fields)) {
-    return res.status(400).json({ err: ERRORS.DATA_MISSING })
-  }
-  const promises = fetchPromises(req.body.user_id, req.body.fields)
+router.put('/:id/', (req, res) => {
+  if (isEmpty(req.body.fields)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
+  if (!verifyInput(req.body.fields)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
+  const promises = fetchPromises(req.params.id, req.body.fields)
   return Promise.all(promises)
-    .then(() => new User().fetchInformationById(req.body.user_id))
+    .then(() => new User().fetchInformationById(req.params.id))
     .then(updatedUser => res.json({ user: updatedUser }))
     .catch(err => res.json({ err: err.message }))
 })

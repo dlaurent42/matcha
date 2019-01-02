@@ -4,7 +4,7 @@ const Notification = require('../../models/Notification')
 const { isEmpty } = require('../../utils')
 const { ERRORS } = require('../../config/constants').RESPONSES
 
-router.post('/see-profile', (req, res) => {
+router.post('/profile', (req, res) => {
   if (isEmpty(req.body.emitter) || isEmpty(req.body.receiver)) {
     return res.status(400).json({ err: ERRORS.DATA_MISSING })
   }

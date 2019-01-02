@@ -1,10 +1,10 @@
 const router = require('express').Router()
 const User = require('../../models/User')
 
-router.delete('/:id', (req, res) => (
-  new User().delete(req.params.id)
+router.put('/:id/connect', (req, res) => (
+  new User().setConnected(req.params.id)
     .then(() => res.sendStatus(200))
-    .catch(err => res.json({ err: err.message }))
+    .catch(err => res.status(403).send({ err: err.message }))
 ))
 
 module.exports = router

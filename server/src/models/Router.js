@@ -1,100 +1,100 @@
-// auth
-const authToken = require('../routes/auth/token')
+// middlewares/
 const authCredentials = require('../middlewares/auth')
 
-// user
-const userAdd = require('../routes/user/add')
-const userAuthenticate = require('../routes/user/authenticate')
-const userGetById = require('../routes/user/id')
-const userConfirmAccount = require('../routes/user/confirmAccount')
-const userConnect = require('../routes/user/setConnected')
-const userDelete = require('../routes/user/delete')
-const userDisconnect = require('../routes/user/setDisconnected')
-const userList = require('../routes/user/list')
-const userFake = require('../routes/user/report')
-const userRecoverPasswordMail = require('../routes/user/recoverPasswordMail')
-const userRecoverPasswordToken = require('../routes/user/recoverPasswordToken')
-const userUnblock = require('../routes/user/unblock')
-const userUpdate = require('../routes/user/update')
+// routes/auth
+const authGet = require('../routes/auth/get')
 
-// user token
-const userTokenVerify = require('../routes/token/verify')
-const userTokenBan = require('../routes/token/ban')
-
-// chat
-const chatAddMessage = require('../routes/chat/add')
-const chatDeleteAllConversations = require('../routes/chat/deleteAllConversations')
+// routes/chat
+const chatDeleteMessage = require('../routes/chat/deleteMessage')
 const chatDeleteConversation = require('../routes/chat/deleteConversation')
-const chatListConversations = require('../routes/chat/listConversations')
-const chatListMessages = require('../routes/chat/listMessages')
+const chatGetMessage = require('../routes/chat/getMessage')
+const chatGetConversation = require('../routes/chat/getConversation')
 
-// notifications
+// routes/notifications
 const notifDelete = require('../routes/notification/delete')
 const notifDeleteAll = require('../routes/notification/deleteAll')
-const notifLike = require('../routes/notification/like')
-const notifList = require('../routes/notification/list')
-const notifVieweded = require('../routes/notification/viewed')
-const notifViewededAll = require('../routes/notification/viewedAll')
-const notifProfileView = require('../routes/notification/profileView')
-const notifUnlike = require('../routes/notification/unlike')
+const notifDeleteLike = require('../routes/notification/deleteLike')
+const notifGet = require('../routes/notification/get')
+const notifPostLike = require('../routes/notification/postLike')
+const notifPostProfile = require('../routes/notification/postProfile')
+const notifPutAllViewed = require('../routes/notification/putAllViewed')
+const notifPutViewed = require('../routes/notification/putViewed')
 
-// pictures
-const pictureImport = require('../routes/pictures/import')
+// routes/pictures
 const pictureDelete = require('../routes/pictures/delete')
-const pictureSetAsProfilePic = require('../routes/pictures/setProfilePic')
+const picturePost = require('../routes/pictures/post')
+const picturePutProfile = require('../routes/pictures/putProfile')
 
-// tags
-const tagList = require('../routes/tags/list')
+// routes/tags
+const tagGet = require('../routes/tags/get')
+
+// routes/token
+const tokenGet = require('../routes/token/get')
+const tokenDelete = require('../routes/token/delete')
+
+// routes/user
+const userDelete = require('../routes/user/delete')
+const userDeleteBlock = require('../routes/user/deleteBlock')
+const userGet = require('../routes/user/get')
+const userGetAll = require('../routes/user/getAll')
+const userGetAuthenticate = require('../routes/user/getAuthenticate')
+const userPost = require('../routes/user/post')
+const userPostBlock = require('../routes/user/postBlock')
+const userPostRecoverPassword = require('../routes/user/postRecoverPassword')
+const userPostReport = require('../routes/user/postReport')
+const userPut = require('../routes/user/put')
+const userPutConfirmAccount = require('../routes/user/putConfirmAccount')
+const userPutConnect = require('../routes/user/putConnect')
+const userPutDisconnect = require('../routes/user/putDisconnect')
 
 class Router {
   constructor(app) {
     this.app = app
     this.routes = {
+      '/auth': [authGet],
       '': [authCredentials],
-      '/auth': [authToken],
       '/chat': [
-        chatAddMessage,
-        chatDeleteAllConversations,
+        chatDeleteMessage,
         chatDeleteConversation,
-        chatListConversations,
-        chatListMessages,
+        chatGetMessage,
+        chatGetConversation,
       ],
       '/notification': [
         notifDelete,
         notifDeleteAll,
-        notifLike,
-        notifList,
-        notifVieweded,
-        notifViewededAll,
-        notifProfileView,
-        notifUnlike,
+        notifDeleteLike,
+        notifGet,
+        notifPostLike,
+        notifPostProfile,
+        notifPutAllViewed,
+        notifPutViewed,
       ],
       '/picture': [
-        pictureImport,
         pictureDelete,
-        pictureSetAsProfilePic,
+        picturePost,
+        picturePutProfile,
       ],
       '/tag': [
-        tagList,
+        tagGet,
       ],
       '/user': [
-        userAdd,
-        userAuthenticate,
-        userConfirmAccount,
-        userConnect,
         userDelete,
-        userDisconnect,
-        userFake,
-        userGetById,
-        userList,
-        userRecoverPasswordMail,
-        userRecoverPasswordToken,
-        userUnblock,
-        userUpdate,
+        userDeleteBlock,
+        userGet,
+        userGetAll,
+        userGetAuthenticate,
+        userPost,
+        userPostBlock,
+        userPostRecoverPassword,
+        userPostReport,
+        userPut,
+        userPutConfirmAccount,
+        userPutConnect,
+        userPutDisconnect,
       ],
-      '/user/token': [
-        userTokenVerify,
-        userTokenBan,
+      '/token': [
+        tokenGet,
+        tokenDelete,
       ],
     }
   }

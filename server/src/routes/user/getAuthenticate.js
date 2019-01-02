@@ -12,7 +12,7 @@ const dataCheck = user => (
   && userIsPassword(user.password)
 )
 
-router.post('/authenticate', (req, res) => {
+router.get('/authenticate', (req, res) => {
   // Check input
   if (isEmpty(req.body.user)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
 

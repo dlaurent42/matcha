@@ -67,7 +67,7 @@ const filterUsers = (users, params) => {
   })
 }
 
-router.get('/', (req, res) => {
+router.get('/all/', (req, res) => {
   if (isEmpty(req.query.user_id)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
   return new User().fetchAll(req.query.user_id)
     .then(({ users, currentUser }) => {

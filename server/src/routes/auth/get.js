@@ -5,7 +5,7 @@ const { isEmpty } = require('../../utils')
 const { ERRORS } = require('../../config/constants').RESPONSES
 const { GET_TOKEN } = require('../../config/constants').QUERIES.AUTH
 
-router.post('/', (req, res) => {
+router.get('/', (req, res) => {
   // Check input
   if (isEmpty(req.body.client_id) || isEmpty(req.body.client_secret)) {
     return res.status(400).json({ err: ERRORS.DATA_MISSING })

@@ -1,15 +1,13 @@
 const router = require('express').Router()
 const User = require('../../models/User')
-const { isEmpty } = require('../../utils/')
+const { isEmpty } = require('../../utils')
 const { ERRORS } = require('../../config/constants').RESPONSES
 
-router.get('/confirm-account', (req, res) => {
-  // Check if token is defined
+router.get('/', (req, res) => {
   if (isEmpty(req.query.token)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
-
-  return new User().verifyRegistrationToken(req.query.token)
+  return new User().verifyIdentifiationToken(req.query.token)
     .then(user => res.json({ user }))
-    .catch(err => res.status(403).send({ err: err.message }))
+    .catch(err => res.json({ err: err.message }))
 })
 
 module.exports = router

@@ -26,7 +26,7 @@ const upload = multer({
   fileFilter,
 })
 
-router.post('/import', upload.single('picture'), (req, res) => {
+router.post('/', upload.single('picture'), (req, res) => {
   if (isEmpty(req.file)) return res.status(400).send({ err: ERRORS.DATA_VALIDATION })
   if (isEmpty(req.body.user_id)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
   return new User().addPicture(req.file, req.body.user_id)
