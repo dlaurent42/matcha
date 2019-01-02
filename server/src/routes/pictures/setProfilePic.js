@@ -3,7 +3,7 @@ const User = require('../../models/User')
 const { isEmpty } = require('../../utils')
 const { ERRORS } = require('../../config/constants').RESPONSES
 
-router.put('/delete', (req, res) => {
+router.put('/profile-picture', (req, res) => {
   if (isEmpty(req.body.filename) || isEmpty(req.body.user_id)) {
     return res.status(400).json({ err: ERRORS.DATA_MISSING })
   }

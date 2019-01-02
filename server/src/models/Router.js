@@ -50,27 +50,8 @@ class Router {
   constructor(app) {
     this.app = app
     this.routes = {
-      '/auth': [authToken],
       '': [authCredentials],
-      '/user': [
-        userAdd,
-        userAuthenticate,
-        userConfirmAccount,
-        userConnect,
-        userDelete,
-        userDisconnect,
-        userFake,
-        userGetById,
-        userList,
-        userRecoverPasswordMail,
-        userRecoverPasswordToken,
-        userUnblock,
-        userUpdate,
-      ],
-      '/user/token': [
-        userTokenVerify,
-        userTokenBan,
-      ],
+      '/auth': [authToken],
       '/chat': [
         chatAddMessage,
         chatDeleteAllConversations,
@@ -95,6 +76,25 @@ class Router {
       ],
       '/tag': [
         tagList,
+      ],
+      '/user': [
+        userAdd,
+        userAuthenticate,
+        userConfirmAccount,
+        userConnect,
+        userDelete,
+        userDisconnect,
+        userFake,
+        userGetById,
+        userList,
+        userRecoverPasswordMail,
+        userRecoverPasswordToken,
+        userUnblock,
+        userUpdate,
+      ],
+      '/user/token': [
+        userTokenVerify,
+        userTokenBan,
       ],
     }
   }
