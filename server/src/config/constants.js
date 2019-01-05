@@ -224,7 +224,6 @@ const QUERIES = {
     GET_COUNT_BY_MAIL_AND_EMAIL: 'SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;',
     GET_USERNAME_AND_EMAIL: 'SELECT `username`, `email` FROM `users` WHERE `id` = ?;',
     SET_ACCOUNT_CONFIRMED: 'UPDATE `users` SET `is_account_confirmed` = 1 WHERE `id` = ?;',
-    SET_CONNECTED: 'UPDATE `users` SET `is_connected` = 1 WHERE `id` = ?;',
     SET_DISCONNECTED: 'UPDATE `users` SET `is_connected` = 0, `last_connection` = NOW() WHERE `id` = ?;',
     SET_GENDER: 'UPDATE `users` SET `users`.`gender_id` = (SELECT `users_gender`.`id` FROM `users_gender` WHERE `users_gender`.`gender` = ?) WHERE `users`.`id` = ?;',
     SET_GENERAL_INFO: 'UPDATE `users` SET ?? = ? WHERE `id` = ?;',

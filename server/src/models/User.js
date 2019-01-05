@@ -519,17 +519,6 @@ class User {
     ))
   }
 
-  setConnected(id) {
-    return new Promise((resolve, reject) => (
-      this.database.query(USERS.SET_CONNECTED, [id])
-        .then((rows) => {
-          if (isEmpty(rows)) throw new Error(ERRORS.USER_NO_USER)
-          return resolve()
-        })
-        .catch(err => reject(err))
-    ))
-  }
-
   setDisconnected(id) {
     return new Promise((resolve, reject) => (
       this.database.query(USERS.SET_DISCONNECTED, [id])

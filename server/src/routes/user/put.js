@@ -28,6 +28,8 @@ const verifyInput = (fields) => {
     'longitude',
     'gender',
     'sexualOrientation',
+    'connect',
+    'disconnect',
   ]
   Object.keys(fields).forEach((key, value) => {
     if (key === 'username' && !userIsUsername(value)) err = true
@@ -56,6 +58,8 @@ const fetchPromises = (userId, fields) => {
     else if (key === 'lastname') promises.push(user.setGeneralInformation(userId, key, value.toUpperCase()))
     else if (key === 'gender') promises.push(user.setGender(userId, value))
     else if (key === 'sexualOrientation') promises.push(user.setSexualOrientation(userId, value))
+    else if (key === 'connect') promises.push(user.setGeneralInformation(userId, 'is_connected', 1))
+    else if (key === 'disconnect') promises.push(user.setDisconnected(userId))
     else promises.push(user.setGeneralInformation(userId, key, value))
   })
   return promises

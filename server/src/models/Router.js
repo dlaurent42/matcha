@@ -44,8 +44,6 @@ const userPostRecoverPassword = require('../routes/user/postRecoverPassword')
 const userPostReport = require('../routes/user/postReport')
 const userPut = require('../routes/user/put')
 const userPutConfirmAccount = require('../routes/user/putConfirmAccount')
-const userPutConnect = require('../routes/user/putConnect')
-const userPutDisconnect = require('../routes/user/putDisconnect')
 
 class Router {
   constructor(app) {
@@ -89,8 +87,6 @@ class Router {
         userPostReport,
         userPut,
         userPutConfirmAccount,
-        userPutConnect,
-        userPutDisconnect,
       ],
       '/token': [
         tokenGet,
