@@ -80,6 +80,7 @@ const QUERIES = {
     DELETE_NOTIFICATIONS: 'DELETE FROM `users_notifications` WHERE `receiver_id` = ?;',
     GET_ALL: [
       'SELECT',
+      '   users_notifications.id,',
       '   users.username,',
       '   users_notifications.emitter_id,',
       '   users_notifications.type,',
@@ -113,7 +114,7 @@ const QUERIES = {
       PASS_RECOVERY: 'DELETE FROM `users_password_recovery` WHERE `user_id` = ?;',
       PICTURES: 'DELETE FROM `users_pictures` WHERE `user_id` = ?;',
       REGISTRATION: 'DELETE FROM `users_registration` WHERE `user_id` = ?;',
-      SEXUAL_ORIENTATION: 'DELETE FROM `users_sexual_orientation WHERE `user_id` = ?;',
+      SEXUAL_ORIENTATION: 'DELETE FROM `users_sexual_orientation` WHERE `user_id` = ?;',
     },
     DELETE_BLOCK: 'DELETE FROM `users_blocked` WHERE `blocker_id` = ? AND `blocked_id` = ? LIMIT 1;',
     DELETE_LIKE: 'DELETE FROM `users_likes` WHERE `liker_id`= ? AND `liked_id` = ? ;',
@@ -181,9 +182,9 @@ const QUERIES = {
       'SELECT * FROM `users_likes` LEFT JOIN `users` ON `users_likes`.`liker_id` = `users`.`id` WHERE `users_likes`.`liked_id` = ? ORDER BY `users_likes`.`date` DESC ;',
       'SELECT * FROM `users_likes` LEFT JOIN `users` ON `users_likes`.`liked_id` = `users`.`id` WHERE `users_likes`.`liker_id` = ? ORDER BY `users_likes`.`date` DESC ;',
     ],
-    GET_PASSWORD_RECOVERY_TOKEN: 'SELECT `user_id`, `expiration_date` FROM `users_password_recovery` WHERE `token` = ? AND `expiration_date` > NOW();',
+    GET_PASSWORD_RECOVERY_TOKEN: 'SELECT `user_id` FROM `users_password_recovery` WHERE `token` = ? AND `expiration_date` > NOW();',
     GET_PICTURES: 'SELECT `filename`, `is_profile_pic`, `import` FROM `users_pictures` WHERE `user_id` = ? ORDER BY `is_profile_pic` DESC, `import` DESC;',
-    GET_REGISTRATION_TOKEN: 'SELECT `user_id`, `expiration_date` FROM `users_registration` WHERE `token` = ? AND `expiration_date` > NOW();',
+    GET_REGISTRATION_TOKEN: 'SELECT `user_id` FROM `users_registration` WHERE `token` = ? AND `expiration_date` > NOW();',
     GET_USER_BY_CONDITION:
       template`SELECT \
         users.id, \
@@ -225,7 +226,7 @@ const QUERIES = {
       LEFT JOIN users_registration ON users_registration.user_id = users.id \
       WHERE users.${'condition'} = ? \
       ORDER BY users_registration.expiration_date DESC;`,
-    GET_COUNT_BY_MAIL_AND_EMAIL: 'SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;',
+    GET_COUNT_BY_USERNAME_AND_EMAIL: 'SELECT COUNT(*) AS count FROM `users` WHERE `username` = ? OR `email` = ? LIMIT 1;',
     GET_USERNAME_AND_EMAIL: 'SELECT `username`, `email` FROM `users` WHERE `id` = ?;',
     SET_ACCOUNT_CONFIRMED: 'UPDATE `users` SET `is_account_confirmed` = 1 WHERE `id` = ?;',
     SET_DISCONNECTED: 'UPDATE `users` SET `is_connected` = 0, `last_connection` = NOW() WHERE `id` = ?;',

@@ -18,7 +18,7 @@ const dataCheck = user => (
   && userIsPassword(user.password, user.cpassword)
 )
 
-router.post('/add', (req, res) => {
+router.post('/', (req, res) => {
   // Check if user is not undefined
   if (isEmpty(req.body.user) || isEmpty(req.body.redirect_uri)) {
     return res.status(400).json({ err: ERRORS.DATA_MISSING })

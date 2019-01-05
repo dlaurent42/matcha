@@ -4,6 +4,8 @@ const { isEmpty } = require('../../utils')
 const { ERRORS } = require('../../config/constants').RESPONSES
 
 router.get('/recover-password', (req, res) => {
+  console.log('Entering correct function')
+  console.log(req.query.token)
   // Check if token is defined
   if (isEmpty(req.query.token)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
   return new User().verifyPasswordRecoveryToken(req.query.token)

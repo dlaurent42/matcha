@@ -66,8 +66,9 @@ class Notification {
         .then((rows) => {
           rows.forEach((notification) => {
             this.notifications.push({
+              notification_id: notification.id,
               emitter_id: notification.emitter_id,
-              username: notification.username,
+              emitter_username: notification.username,
               type: notification.type,
               viewed: notification.is_opened,
               date: notification.creation,

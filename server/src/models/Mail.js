@@ -4,6 +4,7 @@ const { MAIL } = require('../config/config')
 
 class Mail {
   constructor() {
+    this.admin = MAIL.ADMIN
     this.user = MAIL.USER
     this.pass = MAIL.PASS
     this.transporter = nodemailer.createTransport({
@@ -57,10 +58,12 @@ class Mail {
   warnAdminOfUserReporting(emitter, receiver) {
     const mailOptions = {
       from: this.user,
-      to: this.user,
+      to: this.admin,
       subject: '[REPORT] User has been reported',
       text: `${emitter.username} [${emitter.email}] has reported ${receiver.username} [${receiver.email}] as fake user.`,
     }
+    console.log('Mail options:')
+    console.log(mailOptions)
     return this.send(mailOptions)
   }
 }

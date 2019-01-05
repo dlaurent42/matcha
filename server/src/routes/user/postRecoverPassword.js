@@ -9,7 +9,6 @@ router.post('/recover-password', (req, res) => {
   }
 
   if (!userIsEmail(req.body.email)) return res.status(401).json({ err: ERRORS.DATA_VALIDATION })
-
   return new User().addRecoverPasswordToken(req.body.email, req.body.redirect_uri)
     .then(() => res.sendStatus(200))
     .catch(err => res.json({ err: err.message }))

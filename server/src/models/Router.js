@@ -5,10 +5,10 @@ const authCredentials = require('../middlewares/auth')
 const authGet = require('../routes/auth/get')
 
 // routes/chat
-const chatDeleteMessage = require('../routes/chat/deleteMessage')
 const chatDeleteConversation = require('../routes/chat/deleteConversation')
 const chatGetMessage = require('../routes/chat/getMessage')
 const chatGetConversation = require('../routes/chat/getConversation')
+const chatPostMessage = require('../routes/chat/postMessage')
 
 // routes/notifications
 const notifDelete = require('../routes/notification/delete')
@@ -20,10 +20,10 @@ const notifPostProfile = require('../routes/notification/postProfile')
 const notifPutAllViewed = require('../routes/notification/putAllViewed')
 const notifPutViewed = require('../routes/notification/putViewed')
 
-// routes/pictures
-const pictureDelete = require('../routes/pictures/delete')
-const picturePost = require('../routes/pictures/post')
-const picturePutProfile = require('../routes/pictures/putProfile')
+// routes/picture
+const pictureDelete = require('../routes/picture/delete')
+const picturePost = require('../routes/picture/post')
+const picturePutProfile = require('../routes/picture/putProfile')
 
 // routes/tags
 const tagGet = require('../routes/tags/get')
@@ -38,6 +38,7 @@ const userDeleteBlock = require('../routes/user/deleteBlock')
 const userGet = require('../routes/user/get')
 const userGetAll = require('../routes/user/getAll')
 const userGetAuthenticate = require('../routes/user/getAuthenticate')
+const userGetRecoverPassword = require('../routes/user/getRecoverPassword')
 const userPost = require('../routes/user/post')
 const userPostBlock = require('../routes/user/postBlock')
 const userPostRecoverPassword = require('../routes/user/postRecoverPassword')
@@ -52,10 +53,10 @@ class Router {
       '/auth': [authGet],
       '': [authCredentials],
       '/chat': [
-        chatDeleteMessage,
         chatDeleteConversation,
         chatGetMessage,
         chatGetConversation,
+        chatPostMessage,
       ],
       '/notification': [
         notifDelete,
@@ -72,21 +73,22 @@ class Router {
         picturePost,
         picturePutProfile,
       ],
-      '/tag': [
+      '/tags': [
         tagGet,
       ],
       '/user': [
-        userDelete,
         userDeleteBlock,
-        userGet,
         userGetAll,
         userGetAuthenticate,
-        userPost,
+        userGetRecoverPassword,
         userPostBlock,
         userPostRecoverPassword,
         userPostReport,
-        userPut,
         userPutConfirmAccount,
+        userDelete,
+        userGet,
+        userPost,
+        userPut,
       ],
       '/token': [
         tokenGet,

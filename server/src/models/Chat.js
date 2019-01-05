@@ -67,15 +67,13 @@ class Chat {
               this.conversations.push({
                 id: conv.receiver_id,
                 username: conv.username,
-                seen: conv.seen,
-                date: conv.creation,
+                lastMessageDate: conv.creation,
               })
             } else {
               this.conversations.push({
                 id: conv.emitter_id,
                 username: conv.username,
-                seen: conv.seen,
-                date: conv.creation,
+                lastMessageDate: conv.creation,
               })
             }
           })

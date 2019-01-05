@@ -50,8 +50,9 @@ class User {
 
   add(user, redirectUri) {
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.GET_COUNT_BY_MAIL_AND_EMAIL, [user.username, user.email])
+      this.database.query(USERS.GET_COUNT_BY_USERNAME_AND_EMAIL, [user.username, user.email])
         .then((rows) => {
+          console.log(rows)
           if (rows[0].count > 0) throw new Error(ERRORS.USER_ACCOUNT_EXISTS)
           const salt = random(255)
           const password = hash(user.password, salt)
@@ -113,16 +114,15 @@ class User {
   }
 
   addIdentificationToken() {
-    return new Promise((resolve, reject) => {
-      const user = Object.assign(this.user, { date: Date.now() })
-      return this.jwt.create(user)
+    return new Promise((resolve, reject) => (
+      this.jwt.create(this.user)
         .then((newToken) => {
           if (isEmpty(newToken)) throw new Error(ERRORS.JWT_CREATION)
           this.user.identificationToken = newToken
           return resolve(this.user)
         })
         .catch(err => reject(err))
-    })
+    ))
   }
 
   addLike(emitterId, receiverId) {
@@ -358,7 +358,7 @@ class User {
       this.database.query(USERS.GET_USER_BY_CONDITION({ condition: 'email' }), [email])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error(ERRORS.USER_NO_USER)
-          this.user.id = rows[0].email
+          this.user.id = rows[0].id
           this.user.username = rows[0].username
           this.user.lastname = rows[0].lastname
           this.user.firstname = rows[0].firstname
@@ -393,6 +393,7 @@ class User {
   }
 
   fetchInformationById(id) {
+    console.log('fetchning info with id ', id)
     return new Promise((resolve, reject) => (
       this.database.query(USERS.GET_USER_BY_CONDITION({ condition: 'id' }), [id])
         .then((rows) => {
@@ -477,14 +478,14 @@ class User {
         .then((rows) => {
           this.liked = []
           rows.forEach((like) => {
-            this.liked.push({ id: like.id, username: like.username, at: like.date })
+            this.user.liked.push({ id: like.id, username: like.username, at: like.date })
           })
           return this.database.query(USERS.GET_LIKES[1], [id])
         })
         .then((rows) => {
           this.likes = []
           rows.forEach((like) => {
-            this.likes.push({ id: like.id, username: like.username, at: like.date })
+            this.user.likes.push({ id: like.id, username: like.username, at: like.date })
           })
           return resolve(this.user)
         })
@@ -513,7 +514,7 @@ class User {
       this.fetchInformationById(userId)
         .then(() => this.database.query(USERS.SET_PROFILE_PICTURE, [0, this.user.profilePic]))
         .then(() => this.database.query(USERS.SET_PROFILE_PICTURE, [1, filename]))
-        .then(() => this.fetchPictures())
+        .then(() => this.fetchPictures(userId))
         .then(() => resolve(this.user))
         .catch(err => reject(err))
     ))
@@ -566,9 +567,13 @@ class User {
   }
 
   verifyPasswordRecoveryToken(token) {
+    console.log('token is ')
+    console.log(token)
     return new Promise((resolve, reject) => (
       this.database.query(USERS.GET_PASSWORD_RECOVERY_TOKEN, [token])
         .then((rows) => {
+          console.log('rows are')
+          console.log(rows)
           if (isEmpty(rows)) throw new Error(ERRORS.USER_TOKEN_EXPIRED)
           return this.fetchInformationById(rows[0].user_id)
         })

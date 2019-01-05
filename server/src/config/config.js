@@ -21,6 +21,7 @@ const config = {
     MAIL: {
       USER: process.env.MAIL_USER,
       PASS: process.env.MAIL_PASS,
+      ADMIN: process.env.MAIL_ADMIN || 'dlaurent@student.42.fr',
     },
     JWT: {
       DURATION: '15m',
@@ -41,6 +42,7 @@ const config = {
     MAIL: {
       USER: process.env.MAIL_USER,
       PASS: process.env.MAIL_PASS,
+      ADMIN: process.env.MAIL_ADMIN || 'dlaurent@student.42.fr',
     },
     JWT: {
       DURATION: '24h',
@@ -61,6 +63,7 @@ const config = {
     MAIL: {
       USER: process.env.MAIL_USER,
       PASS: process.env.MAIL_PASS,
+      ADMIN: process.env.MAIL_ADMIN || 'dlaurent@student.42.fr',
     },
     JWT: {
       DURATION: '24h',

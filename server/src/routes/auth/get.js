@@ -2,6 +2,7 @@ const router = require('express').Router()
 const Database = require('../../models/Database')
 const JsonWebToken = require('../../models/JsonWebToken')
 const { isEmpty } = require('../../utils')
+const { JWT } = require('../../config/config')
 const { ERRORS } = require('../../config/constants').RESPONSES
 const { GET_TOKEN } = require('../../config/constants').QUERIES.AUTH
 
@@ -22,7 +23,7 @@ router.get('/', (req, res) => {
       }
       return new JsonWebToken().create({ data: credentials })
     })
-    .then(token => res.json({ token }))
+    .then(token => res.json({ token, expire: JWT.DURATION }))
     .catch(err => res.json({ err: err.message }))
 })
 
