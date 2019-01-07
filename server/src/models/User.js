@@ -95,7 +95,11 @@ class User {
 
   addBlock(emitterId, receiverId) {
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.ADD_BLOCK, [emitterId, receiverId])
+      this.database.query(USERS.GET_BLOCK, [emitterId, receiverId])
+        .then((rows) => {
+          if (isEmpty(rows) || rows[0].count > 0) throw new Error(ERRORS.USER_BLOCK)
+          return this.database.query(USERS.ADD_BLOCK, [emitterId, receiverId])
+        })
         .then((rows) => {
           if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return this.database.query(
@@ -128,7 +132,11 @@ class User {
 
   addLike(emitterId, receiverId) {
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.ADD_LIKE, [emitterId, receiverId])
+      this.database.query(USERS.GET_LIKE, [emitterId, receiverId])
+        .then((rows) => {
+          if (isEmpty(rows) || rows[0].count > 0) throw new Error(ERRORS.USER_LIKE)
+          return this.database.query(USERS.ADD_LIKE, [emitterId, receiverId])
+        })
         .then((rows) => {
           if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return this.database.query(
@@ -253,7 +261,11 @@ class User {
 
   deleteBlock(emitterId, receiverId) {
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.DELETE_BLOCK, [emitterId, receiverId])
+      this.database.query(USERS.GET_BLOCK, [emitterId, receiverId])
+        .then((rows) => {
+          if (isEmpty(rows) || rows[0].count === 0) throw new Error(ERRORS.USER_NOT_BLOCK)
+          return this.database.query(USERS.DELETE_BLOCK, [emitterId, receiverId])
+        })
         .then((rows) => {
           if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return this.database.query(
@@ -274,7 +286,11 @@ class User {
 
   deleteLike(emitterId, receiverId) {
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.DELETE_LIKE, [emitterId, receiverId])
+      this.database.query(USERS.GET_LIKE, [emitterId, receiverId])
+        .then((rows) => {
+          if (isEmpty(rows) || rows[0].count === 0) throw new Error(ERRORS.USER_NOT_LIKE)
+          return this.database.query(USERS.DELETE_LIKE, [emitterId, receiverId])
+        })
         .then((rows) => {
           if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
           return this.database.query(

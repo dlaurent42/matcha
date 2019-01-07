@@ -43,6 +43,7 @@ class Notification {
           }
           return resolve()
         })
+        .then(() => this.database.query(NOTIFICATIONS.DELETE_UNLIKE, [receiver, emitter]))
         .then(() => resolve())
         .catch(err => reject(err))
     ))
