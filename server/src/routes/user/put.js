@@ -2,6 +2,7 @@ const router = require('express').Router()
 const User = require('../../models/User')
 const {
   isEmpty,
+  isNumeric,
   userIsBirthdate,
   userIsFirstname,
   userIsLastname,
@@ -66,6 +67,7 @@ const fetchPromises = (userId, fields) => {
 }
 
 router.put('/:id', (req, res) => {
+  if (!isNumeric(req.params.id)) return res.sendStatus(404)
   if (isEmpty(req.body.fields)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
   if (verifyInput(req.body.fields)) return res.status(400).json({ err: ERRORS.DATA_VALIDATION })
   const promises = fetchPromises(req.params.id, req.body.fields)
