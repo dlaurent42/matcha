@@ -163,6 +163,7 @@ const QUERIES = {
       ') AS likes ON likes.liker_id = users.id ',
       'WHERE ',
       '   users.is_profile_complete = 1 ',
+      ' AND',
       '   users.is_account_confirmed = 1 ',
       ' AND',
       '   NOT users.id = ? ',

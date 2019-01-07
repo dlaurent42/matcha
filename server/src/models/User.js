@@ -395,7 +395,6 @@ class User {
   }
 
   fetchInformationById(id) {
-    console.log('fetchning info with id ', id)
     return new Promise((resolve, reject) => (
       this.database.query(USERS.GET_USER_BY_CONDITION({ condition: 'id' }), [id])
         .then((rows) => {
@@ -553,6 +552,7 @@ class User {
   }
 
   setGeneralInformation(userId, key, value) {
+    console.log(`id: ${userId}, key: ${key}, value: ${value}`)
     return new Promise((resolve, reject) => (
       this.database.query(USERS.SET_GENERAL_INFO, [key, value, userId])
         .then(() => resolve())

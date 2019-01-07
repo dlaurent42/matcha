@@ -53,6 +53,8 @@ const filterUsers = (users, params) => {
     if (!isEmpty(filters.distance_max) && (isEmpty(user.distance) || user.distance > filters.distance_max)) return false // eslint-disable-line max-len
     if (!isEmpty(filters.popularity_min) && (isEmpty(user.popularity) || user.popularity < filters.popularity_min)) return false // eslint-disable-line max-len
     if (!isEmpty(filters.popularity_max) && (isEmpty(user.popularity) || user.popularity > filters.popularity_max)) return false // eslint-disable-line max-len
+    if (!isEmpty(filters.matching_score_min) && (isEmpty(user.matchingScore) || user.matchingScore < filters.matching_score_min)) return false // eslint-disable-line max-len
+    if (!isEmpty(filters.matching_score_max) && (isEmpty(user.matchingScore) || user.matchingScore > filters.matching_score_max)) return false // eslint-disable-line max-len
     if (!isEmpty(filters.interests)) {
       if (isEmpty(user.interests)) return false
       let interestsMatch = true
@@ -68,12 +70,12 @@ const filterUsers = (users, params) => {
 }
 
 router.get('/all/', (req, res) => {
-  if (isEmpty(req.query.user_id)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
-  return new User().fetchAll(req.query.user_id)
+  if (isEmpty(req.body.user_id)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
+  return new User().fetchAll(req.body.user_id)
     .then(({ users, currentUser }) => {
       const overrideUsersArr = overrideUsers(users, currentUser)
-      const filteredUsersArr = filterUsers(overrideUsersArr, req.query.filters)
-      const sortedUsersArr = sortUsers(filteredUsersArr, req.query.sort)
+      const filteredUsersArr = filterUsers(overrideUsersArr, req.body.filters)
+      const sortedUsersArr = sortUsers(filteredUsersArr, req.body.sort)
       return res.json(sortedUsersArr)
     })
     .catch(err => res.json({ err: err.message }))
