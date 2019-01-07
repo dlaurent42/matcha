@@ -16,7 +16,6 @@ const pictures = database => (
             + '  `filename` VARCHAR(255) NOT NULL , '
             + '  `is_profile_pic` BOOLEAN NOT NULL DEFAULT false, '
             + '  `import` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, '
-            + '   UNIQUE(filename),'
             + '   PRIMARY KEY (`id`)'
             + ') '
             + 'ENGINE = InnoDB;'

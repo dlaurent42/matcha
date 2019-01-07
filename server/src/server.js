@@ -13,7 +13,7 @@ class Server {
   constructor() {
     this.app = express()
     this.app.use(morgan('combined'))
-    this.app.use('/assets', express.static('src/assets/uploads'))
+    this.app.use('/assets', express.static('src/assets/uploads'), express.static('src/assets/seed'))
     this.app.use(bodyParser.json())
     this.app.use(cors())
     this.http = http.Server(this.app)

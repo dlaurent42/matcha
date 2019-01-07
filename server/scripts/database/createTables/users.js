@@ -30,7 +30,6 @@ const users = database => (
             + '  `latitude` VARCHAR(255) , '
             + '  `longitude` VARCHAR(255) , '
             + '  `id_gender` INT , '
-            + '  `id_orientation` INT , '
             + '   UNIQUE (`username`),'
             + '   UNIQUE (`email`),'
             + '   PRIMARY KEY (`id`)'

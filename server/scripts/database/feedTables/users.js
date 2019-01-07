@@ -4,17 +4,19 @@ const query = require('../utils/query')
 const users = database => (
   new Promise((resolve, reject) => {
     const promises = []
+    const latitude = 48.8534
+    const longitude = 2.3488
     usersJsonList.forEach((user) => {
       promises.push(
         query(
           database,
           '   INSERT INTO `users` '
           + '    (`username`, `firstname`, `lastname`, `email`, `password`, `salt`, `creation`, `birthday`, `popularity`, `is_account_confirmed`, `is_geolocation_allowed`, `id_gender`, `id_orientation`, `biography`, `is_connected`, `last_connection`, `latitude`, `longitude`, `is_profile_complete`) '
-          + ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1);',
+          + ' VALUES (?, ?, UPPER(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1);',
           [
             user.username,
-            user.first_name,
-            user.last_name,
+            user.firstname,
+            user.lastname,
             user.email,
             user.password,
             user.salt,
@@ -28,8 +30,8 @@ const users = database => (
             user.biography,
             user.is_connected,
             user.last_connection,
-            user.latitude,
-            user.longitude,
+            latitude + Math.random() * 2 - 1,
+            longitude + Math.random() - 0.5,
           ]
         )
       )
