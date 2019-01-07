@@ -29,8 +29,9 @@ const picturePutProfile = require('../routes/picture/putProfile')
 const tagGet = require('../routes/tags/get')
 
 // routes/token
-const tokenGet = require('../routes/token/get')
 const tokenDelete = require('../routes/token/delete')
+const tokenGet = require('../routes/token/get')
+const tokenPost = require('../routes/token/post')
 
 // routes/user
 const userDelete = require('../routes/user/delete')
@@ -76,6 +77,11 @@ class Router {
       '/tags': [
         tagGet,
       ],
+      '/token': [
+        tokenDelete,
+        tokenGet,
+        tokenPost,
+      ],
       '/user': [
         userDeleteBlock,
         userGetAll,
@@ -89,10 +95,6 @@ class Router {
         userGet,
         userPost,
         userPut,
-      ],
-      '/token': [
-        tokenGet,
-        tokenDelete,
       ],
     }
   }
