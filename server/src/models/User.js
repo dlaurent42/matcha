@@ -7,6 +7,7 @@ const {
   random,
   isEmpty,
   userGetAgeFromDate,
+  userIsProfileComplete,
 } = require('../utils')
 const { POPULARITY_POINTS } = require('../config/constants').MATCHING_SYSTEM
 const { BOUNDARY_VALUES } = require('../config/constants')
@@ -44,7 +45,7 @@ class User {
       identificationToken: null,
       registrationToken: null,
       isAccountConfirmed: false,
-      isAccountComplete: false,
+      isProfileComplete: false,
     }
   }
 
@@ -376,6 +377,7 @@ class User {
           this.user.longitude = rows[0].longitude
           this.user.registrationToken = rows[0].token
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
+          this.user.isProfileComplete = rows[0].is_profile_complete
           this.user.isAccountConfirmed = rows[0].is_account_confirmed
           this.user.interests = (isEmpty(rows[0].interests)) ? null : rows[0].interests.split(',')
           return this.fetchPictures(this.user.id)
@@ -416,6 +418,7 @@ class User {
           this.user.longitude = rows[0].longitude
           this.user.registrationToken = rows[0].token
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
+          this.user.isProfileComplete = rows[0].is_profile_complete
           this.user.isAccountConfirmed = rows[0].is_account_confirmed
           this.user.interests = (isEmpty(rows[0].interests)) ? null : rows[0].interests.split(',')
           return this.fetchPictures(id)
@@ -456,6 +459,7 @@ class User {
           this.user.longitude = rows[0].longitude
           this.user.registrationToken = rows[0].token
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
+          this.user.isProfileComplete = rows[0].is_profile_complete
           this.user.isAccountConfirmed = rows[0].is_account_confirmed
           this.user.interests = (isEmpty(rows[0].interests)) ? null : rows[0].interests.split(',')
           return this.fetchPictures(this.user.id)
@@ -505,6 +509,23 @@ class User {
           })
           return resolve(this.user)
         })
+        .catch(err => reject(err))
+    ))
+  }
+
+  setProfileComplete(userId) {
+    return new Promise((resolve, reject) => (
+      this.fetchInformationById(userId)
+        .then(() => {
+          if (!this.user.isProfileComplete) {
+            if (userIsProfileComplete(this.user)) {
+              this.user.isProfileComplete = true
+              return this.setGeneralInformation(userId, 'is_profile_complete', 1)
+            }
+          }
+          return resolve(this.user)
+        })
+        .then(() => resolve(this.user))
         .catch(err => reject(err))
     ))
   }

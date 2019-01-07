@@ -9,8 +9,8 @@ const users = database => (
         query(
           database,
           '   INSERT INTO `users` '
-          + '    (`username`, `firstname`, `lastname`, `email`, `password`, `salt`, `creation`, `birthday`, `popularity`, `is_account_confirmed`, `is_geolocation_allowed`, `id_gender`, `id_orientation`, `biography`, `is_connected`, `last_connection`, `latitude`, `longitude`) '
-          + ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+          + '    (`username`, `firstname`, `lastname`, `email`, `password`, `salt`, `creation`, `birthday`, `popularity`, `is_account_confirmed`, `is_geolocation_allowed`, `id_gender`, `id_orientation`, `biography`, `is_connected`, `last_connection`, `latitude`, `longitude`, `is_profile_complete`) '
+          + ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1);',
           [
             user.username,
             user.first_name,

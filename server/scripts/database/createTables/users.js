@@ -25,6 +25,7 @@ const users = database => (
             + '  `is_connected` BOOLEAN NOT NULL DEFAULT false, '
             + '  `last_connection` DATETIME , '
             + '  `is_account_confirmed` BOOLEAN NOT NULL DEFAULT false, '
+            + '  `is_profile_complete` BOOLEAN NOT NULL DEFAULT false, '
             + '  `is_geolocation_allowed` BOOLEAN NOT NULL DEFAULT false, '
             + '  `latitude` VARCHAR(255) , '
             + '  `longitude` VARCHAR(255) , '

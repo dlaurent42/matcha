@@ -162,6 +162,7 @@ const QUERIES = {
       '   WHERE users_likes.liked_id = ?',
       ') AS likes ON likes.liker_id = users.id ',
       'WHERE ',
+      '   users.is_profile_complete = 1 ',
       '   users.is_account_confirmed = 1 ',
       ' AND',
       '   NOT users.id = ? ',
@@ -199,6 +200,7 @@ const QUERIES = {
         users.popularity, \
         users.biography, \
         users.is_account_confirmed, \
+        users.is_profile_complete, \
         users.is_geolocation_allowed, \
         users.latitude, \
         users.longitude, \

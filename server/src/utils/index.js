@@ -28,6 +28,7 @@ const userIsLatitude = require('./user/userIsLatitude')
 const userIsLongitude = require('./user/userIsLongitude')
 const userIsPassword = require('./user/isPassword')
 const userIsUsername = require('./user/isUsername')
+const userIsProfileComplete = require('./user/isProfileComplete')
 
 module.exports = {
   dynamicSort,
@@ -54,5 +55,6 @@ module.exports = {
   userIsLatitude,
   userIsLongitude,
   userIsPassword,
+  userIsProfileComplete,
   userIsUsername,
 }

@@ -70,8 +70,8 @@ router.put('/:id/', (req, res) => {
   if (!verifyInput(req.body.fields)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
   const promises = fetchPromises(req.params.id, req.body.fields)
   return Promise.all(promises)
-    .then(() => new User().fetchInformationById(req.params.id))
-    .then(updatedUser => res.json({ user: updatedUser }))
+    .then(() => new User().setProfileComplete(req.params.id))
+    .then(user => res.json({ user }))
     .catch(err => res.json({ err: err.message }))
 })
 
