@@ -11,8 +11,8 @@ const users = database => (
         query(
           database,
           '   INSERT INTO `users` '
-          + '    (`username`, `firstname`, `lastname`, `email`, `password`, `salt`, `creation`, `birthday`, `popularity`, `is_account_confirmed`, `is_geolocation_allowed`, `id_gender`, `id_orientation`, `biography`, `is_connected`, `last_connection`, `latitude`, `longitude`, `is_profile_complete`) '
-          + ' VALUES (?, ?, UPPER(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1);',
+          + '    (`username`, `firstname`, `lastname`, `email`, `password`, `salt`, `creation`, `birthday`, `popularity`, `is_account_confirmed`, `is_geolocation_allowed`, `id_gender`, `biography`, `is_connected`, `last_connection`, `latitude`, `longitude`, `is_profile_complete`) '
+          + ' VALUES (?, ?, UPPER(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1);',
           [
             user.username,
             user.firstname,
@@ -26,7 +26,6 @@ const users = database => (
             user.is_account_confirmed,
             user.is_geolocation_allowed,
             user.gender,
-            user.orientation,
             user.biography,
             user.is_connected,
             user.last_connection,

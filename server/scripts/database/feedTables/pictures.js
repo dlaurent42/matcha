@@ -31,7 +31,7 @@ const pictures = database => (
     })
     return Promise.all(promises)
       .then(() => {
-        console.log('[mysql] usesr_pictures table has been feeded')
+        console.log('[mysql] users_pictures table has been feeded')
         return resolve()
       })
       .catch(err => reject(err))
