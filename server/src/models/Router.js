@@ -3,6 +3,8 @@ const authCredentials = require('../middlewares/auth')
 
 // routes/auth
 const authGet = require('../routes/auth/get')
+const authGetId = require('../routes/auth/getId')
+const authPost = require('../routes/auth/post')
 
 // routes/chat
 const chatDeleteConversation = require('../routes/chat/deleteConversation')
@@ -53,6 +55,10 @@ class Router {
     this.routes = {
       '/auth': [authGet],
       '': [authCredentials],
+      '/credentials': [
+        authGetId,
+        authPost,
+      ],
       '/chat': [
         chatDeleteConversation,
         chatGetMessage,
