@@ -12,6 +12,7 @@ const auth = database => (
             'CREATE TABLE `auth` '
             + '( '
             + '  `id` INT NOT NULL AUTO_INCREMENT , '
+            + '  `user_id` INT NOT NULL , '
             + '  `clientId` VARCHAR(255) NOT NULL , '
             + '  `clientSecret` VARCHAR(255) NOT NULL , '
             + '  PRIMARY KEY (`id`)'

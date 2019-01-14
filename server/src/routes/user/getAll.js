@@ -70,12 +70,12 @@ const filterUsers = (users, params) => {
 }
 
 router.get('/all/', (req, res) => {
-  if (isEmpty(req.body.user_id)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
-  return new User().fetchAll(req.body.user_id)
+  if (isEmpty(req.query.user_id)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
+  return new User().fetchAll(req.query.user_id)
     .then(({ users, currentUser }) => {
       const overrideUsersArr = overrideUsers(users, currentUser)
-      const filteredUsersArr = filterUsers(overrideUsersArr, req.body.filters)
-      const sortedUsersArr = sortUsers(filteredUsersArr, req.body.sort)
+      const filteredUsersArr = filterUsers(overrideUsersArr, req.query.filters)
+      const sortedUsersArr = sortUsers(filteredUsersArr, req.query.sort)
       return res.json(sortedUsersArr)
     })
     .catch(err => res.json({ err: err.message }))

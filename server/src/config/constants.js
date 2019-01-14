@@ -30,7 +30,7 @@ const BOUNDARY_VALUES = {
 
 const QUERIES = {
   AUTH: {
-    GET_TOKEN: 'SELECT COUNT(*) as count FROM `auth` WHERE `clientId` = ? AND `clientSecret` = ?;',
+    GET_TOKEN: 'SELECT COUNT(*) as count FROM `auth` WHERE `client_id` = ? AND `client_secret` = ?;',
   },
   CHAT: {
     ADD_MESSAGE: 'INSERT INTO `users_messages` (`owner_id`, `with_id`, `emitter_id`, `receiver_id`, `content`) VALUES (?, ?, ?, ?, ?), (?, ?, ?, ?, ?);',

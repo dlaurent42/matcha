@@ -5,7 +5,7 @@ const auth = database => (
   new Promise((resolve, reject) => {
     const promises = []
     authJsonList.forEach((row) => {
-      promises.push(query(database, 'INSERT INTO `auth` (`clientId`, `clientSecret`) VALUES (?, ?);', [row.clientId, row.clientSecret]))
+      promises.push(query(database, 'INSERT INTO `auth` (`user_id`, `client_id`, `client_secret`) VALUES (?, ?);', [row.userId, row.clientId, row.clientSecret]))
     })
     return Promise.all(promises)
       .then(() => {

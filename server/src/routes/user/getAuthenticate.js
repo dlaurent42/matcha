@@ -14,17 +14,17 @@ const dataCheck = (username, password) => (
 
 router.get('/authenticate', (req, res) => {
   // Check input
-  if (isEmpty(req.body.username) || isEmpty(req.body.password)) {
+  if (isEmpty(req.query.username) || isEmpty(req.query.password)) {
     return res.status(400).json({ err: ERRORS.DATA_MISSING })
   }
 
   // Check user data
-  if (!dataCheck(req.body.username, req.body.password)) {
+  if (!dataCheck(req.query.username, req.query.password)) {
     return res.status(401).json({ err: ERRORS.DATA_VALIDATION })
   }
 
   const user = new User()
-  return user.fetchInformationByUsernameAndPassword(req.body.username, req.body.password)
+  return user.fetchInformationByUsernameAndPassword(req.query.username, req.query.password)
     .then(() => user.addIdentificationToken())
     .then(userData => res.json({ user: userData }))
     .catch(err => res.status(401).send({ err: err.message }))

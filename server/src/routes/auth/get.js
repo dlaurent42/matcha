@@ -8,12 +8,12 @@ const { GET_TOKEN } = require('../../config/constants').QUERIES.AUTH
 
 router.get('/', (req, res) => {
   // Check input
-  if (isEmpty(req.body.client_id) || isEmpty(req.body.client_secret)) {
+  if (isEmpty(req.query.client_id) || isEmpty(req.query.client_secret)) {
     return res.status(400).json({ err: ERRORS.DATA_MISSING })
   }
 
   // Instanciate objects
-  const credentials = [req.body.client_id, req.body.client_secret]
+  const credentials = [req.query.client_id, req.query.client_secret]
 
   // Check in the database if credentials are correct
   return new Database().query(GET_TOKEN, credentials)
