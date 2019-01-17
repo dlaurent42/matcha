@@ -1,33 +1,113 @@
 <template>
-  <div class="Home">
-    Hello world, there are currently {{ userCount }} users
-    <v-carousel></v-carousel>
-  </div>
+    <b-container fluid class="h-100">
+        <b-row class="justify-content-md-center">
+            <b-col lg="4" xl="3" cols="12" md="8">
+              <b-card class="mt-5">
+                <b-card-header class="pb-2 mb-3">
+                  <b-row>
+                    <b-col cols="2" class="p-0">
+                      <font-awesome-icon icon="code" size="2x"/>
+                    </b-col>
+                    <b-col cols="10">
+                      <h4>Our values makes us what we are</h4>
+                    </b-col>
+                  </b-row>
+                </b-card-header>
+                <p class="card-text">
+                  Our core values form the foundation of our success and our enthusiasm for technology.
+                  They are also our incentive for bringing people together.
+                </p>
+                <p class="card-text">
+                  Here, you can learn more about what makes us tick and what you can expect when you work with us.
+                </p>
+              </b-card>
+            </b-col>
+            <b-col lg="4" xl="3" cols="12" md="8">
+              <b-card class="mt-5">
+                <b-card-header class="pb-2 mb-3">
+                  <b-row>
+                    <b-col cols="2" class="p-0">
+                      <font-awesome-icon icon="heart" size="2x"/>
+                    </b-col>
+                    <b-col cols="10">
+                      <h4>Matcha loves you !</h4>
+                    </b-col>
+                  </b-row>
+                </b-card-header>
+                <p class="card-text">
+                  Our members are not anonymous users, but rather individual personalities.
+                  We can only offer you a product that meets your needs if we know what you are thinking and feeling.
+                </p>
+                <p class="card-text">
+                  The reason why we developed Matcha is very special: We wanted to created a new way to meet interesting people nearby.
+                </p>
+              </b-card>
+            </b-col>
+            <b-col lg="4" xl="3" cols="12" md="8">
+              <b-card class="mt-5">
+                <b-card-header class="pb-2 mb-3">
+                  <b-row>
+                    <b-col cols="2" class="p-0">
+                      <font-awesome-icon icon="archway" size="2x"/>
+                    </b-col>
+                    <b-col cols="10">
+                      <h4>The right path isn’t always the easiest</h4>
+                    </b-col>
+                  </b-row>
+                </b-card-header>
+                <p class="card-text">
+                  We’ve always followed our own path and aren’t afraid of putting ideas into practice.
+                  Even if that means taking risks. It is important to quickly determine whether you are on the right track or not.
+                </p>
+                <p class="card-text">
+                  This is the only way to develop true innovations and sustainable technologies.
+                </p>
+              </b-card>
+            </b-col>
+        </b-row>
+    </b-container>
 </template>
 <script>
 import User from '@/services/User'
-import Carousel from '@/components/Carousel'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faHeart, faCode, faArchway } from '@fortawesome/free-solid-svg-icons'
+
+library.add(faHeart)
+library.add(faCode)
+library.add(faArchway)
 
 export default {
   name: 'Home',
-  components: {
-    'v-carousel': Carousel
-  },
   data () {
     return {
       userCount: 0
     }
   },
   mounted () {
-    this.countUsers()
   },
   methods: {
     async countUsers () {
-      const response = await User.count()
-      this.userCount = response.data.userCount
+      await User.count()
+        .then((response) => {
+          console.log(response)
+          this.userCount = response
+        }, error => {
+          console.log(error)
+          this.userCount = 1
+        })
     }
   }
 }
 </script>
-<style type="text/css">
+<style scoped>
+h4 {
+  color: white;
+}
+.card {
+  background-color: #343a40a6;
+  color: #9a9da0;
+}
+.card-header {
+  border-bottom: 1px solid rgb(154, 157, 160);
+}
 </style>

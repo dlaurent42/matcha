@@ -1,0 +1,6 @@
+html, body {
+    height:100%;
+}
+#wrapper {
+    min-height: 100%;
+}
