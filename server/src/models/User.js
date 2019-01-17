@@ -370,6 +370,18 @@ class User {
     ))
   }
 
+  fetchGenders() {
+    return new Promise((resolve, reject) => (
+      this.database.query(USERS.GET_GENDERS, [])
+        .then((rows) => {
+          const genders = []
+          rows.forEach((row) => { genders.push(row.gender) })
+          return resolve(genders)
+        })
+        .catch(err => reject(err))
+    ))
+  }
+
   fetchInformationByEmail(email) {
     return new Promise((resolve, reject) => (
       this.database.query(USERS.GET_USER_BY_CONDITION({ condition: 'email' }), [email])

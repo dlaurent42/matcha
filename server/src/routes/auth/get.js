@@ -7,7 +7,6 @@ const { ERRORS } = require('../../config/constants').RESPONSES
 const { GET_TOKEN } = require('../../config/constants').QUERIES.AUTH
 
 router.get('/', (req, res) => {
-  console.log('here')
   // Check input
   if (isEmpty(req.query.client_id) || isEmpty(req.query.client_secret)) {
     return res.status(400).json({ err: ERRORS.DATA_MISSING })

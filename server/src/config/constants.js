@@ -184,6 +184,7 @@ const QUERIES = {
       '   )',
       'ORDER BY users.id;'].join(' '),
     GET_BLOCK: 'SELECT COUNT(*) AS count FROM `users_blocked` WHERE `blocker_id` = ? AND `blocked_id` = ? ;',
+    GET_GENDERS: 'SELECT `gender` FROM `users_gender` ORDER BY gender ASC;',
     GET_LIKE: 'SELECT COUNT(*) AS count FROM `users_likes` WHERE `users_likes`.`liker_id` = ? AND `users_likes`.`liked_id` = ?;',
     GET_LIKES: [
       'SELECT * FROM `users_likes` LEFT JOIN `users` ON `users_likes`.`liker_id` = `users`.`id` WHERE `users_likes`.`liked_id` = ? ORDER BY `users_likes`.`date` DESC ;',

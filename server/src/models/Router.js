@@ -41,6 +41,7 @@ const userDeleteBlock = require('../routes/user/deleteBlock')
 const userGet = require('../routes/user/get')
 const userGetAll = require('../routes/user/getAll')
 const userGetAuthenticate = require('../routes/user/getAuthenticate')
+const userGetGenders = require('../routes/user/getGenders')
 const userGetRecoverPassword = require('../routes/user/getRecoverPassword')
 const userPost = require('../routes/user/post')
 const userPostBlock = require('../routes/user/postBlock')
@@ -92,6 +93,7 @@ class Router {
         userDeleteBlock,
         userGetAll,
         userGetAuthenticate,
+        userGetGenders,
         userGetRecoverPassword,
         userPostBlock,
         userPostRecoverPassword,
