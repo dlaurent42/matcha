@@ -55,6 +55,8 @@ const filterUsers = (users, params) => {
     if (!isEmpty(filters.popularity_max) && (isEmpty(user.popularity) || user.popularity > filters.popularity_max)) return false // eslint-disable-line max-len
     if (!isEmpty(filters.matching_score_min) && (isEmpty(user.matchingScore) || user.matchingScore < filters.matching_score_min)) return false // eslint-disable-line max-len
     if (!isEmpty(filters.matching_score_max) && (isEmpty(user.matchingScore) || user.matchingScore > filters.matching_score_max)) return false // eslint-disable-line max-len
+    if (filters.is_match !== undefined && filters.is_match === 0 && user.link === 'It is a match !') return false
+    if (filters.is_match !== undefined && filters.is_match === 1 && user.link !== 'It is a match !') return false
     if (!isEmpty(filters.interests)) {
       if (isEmpty(user.interests)) return false
       let interestsMatch = true
