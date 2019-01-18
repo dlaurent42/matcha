@@ -49,6 +49,7 @@ const userPostRecoverPassword = require('../routes/user/postRecoverPassword')
 const userPostReport = require('../routes/user/postReport')
 const userPut = require('../routes/user/put')
 const userPutConfirmAccount = require('../routes/user/putConfirmAccount')
+const userPutPassword = require('../routes/user/putPassword')
 
 class Router {
   constructor(app) {
@@ -99,6 +100,7 @@ class Router {
         userPostRecoverPassword,
         userPostReport,
         userPutConfirmAccount,
+        userPutPassword,
         userDelete,
         userGet,
         userPost,

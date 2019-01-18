@@ -270,6 +270,7 @@ const RESPONSES = {
     USER_NO_USER: 'No user found.',
     USER_PICTURE_FILENAME: 'Wrong filename.',
     USER_TOKEN_EXPIRED: 'Token is incorrect or has expired.',
+    USER_WRONG_PASSWORD: 'Wrong current password.',
   },
 }
 

@@ -10,7 +10,6 @@ const {
   userIsEmail,
   userIsLatitude,
   userIsLongitude,
-  userIsPassword,
 } = require('../../utils')
 const { ERRORS } = require('../../config/constants').RESPONSES
 
@@ -21,7 +20,6 @@ const verifyInput = (fields) => {
     'firstname',
     'lastname',
     'email',
-    'password',
     'birthday',
     'biography',
     'allowLocation',
@@ -37,7 +35,6 @@ const verifyInput = (fields) => {
     if (key === 'firstname' && !userIsFirstname(fields[key])) err = true
     if (key === 'lastname' && !userIsLastname(fields[key])) err = true
     if (key === 'email' && !userIsEmail(fields[key])) err = true
-    if (key === 'password' && !userIsPassword(fields[key])) err = true
     if (key === 'birthday' && !userIsBirthdate(fields[key])) err = true
     if (key === 'biography' && isEmpty(fields[key])) err = true
     if (key === 'allowLocation' && fields[key] !== true && fields[key] !== false) err = true
@@ -54,8 +51,7 @@ const fetchPromises = (userId, fields) => {
   const promises = []
   const user = new User()
   Object.keys(fields).forEach((key) => {
-    if (key === 'password') promises.push(user.setPassword(userId, fields[key]))
-    else if (key === 'firstname') promises.push(user.setGeneralInformation(userId, key, fields[key].charAt(0).toUpperCase() + fields[key].slice(1)))
+    if (key === 'firstname') promises.push(user.setGeneralInformation(userId, key, fields[key].charAt(0).toUpperCase() + fields[key].slice(1)))
     else if (key === 'lastname') promises.push(user.setGeneralInformation(userId, key, fields[key].toUpperCase()))
     else if (key === 'gender') promises.push(user.setGender(userId, fields[key]))
     else if (key === 'sexualOrientation') promises.push(user.setSexualOrientation(userId, fields[key]))
