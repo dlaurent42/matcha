@@ -7,6 +7,13 @@ const SERVER = {
   PORT: 8082,
 }
 
+const NOTIFICATION_TYPES = [
+  'like',
+  'match',
+  'unlike',
+  'profile',
+]
+
 class Server {
   constructor() {
     // Server variables
@@ -35,11 +42,46 @@ class Server {
       // Handle notifications
       socket.on('notification', (notification) => {
         console.log(`Notification asked: (${notification}).`)
+        if (notification.type && NOTIFICATION_TYPES.indexOf(notification.type) > -1
+        && notification.emitter && notification.receiver) {
+          console.log('Notification is valid.')
+          if (this.correlationTable[notification.receiver]
+          || this.correlationTable[notification.receiver].length) {
+            this.correlationTable[notification.receiver].forEach((socketId) => {
+              console.log('Notification receiver is online.')
+              this.io.sockets.socket(socketId).emit({
+                type: 'notification',
+                data: { type: notification.type, emitter: notification.emitter },
+              })
+            })
+          } else {
+            console.log('Notification receiver is offline.')
+          }
+        } else console.log('Notification is invalid.')
       })
 
       // Handle chat messages
       socket.on('message', (message) => {
-        console.log(`Notification asked: (${message}).`)
+        console.log(`Message received: (${message}).`)
+        if (message.emitter && message.receiver && message.content) {
+          console.log('Message well formatted.')
+          if (this.correlationTable[message.receiver]
+          && this.correlationTable[message.receiver].length) {
+            console.log('Message receiver is online.')
+            this.correlationTable[message.receiver].forEach((socketId) => {
+              this.io.sockets.socket(socketId).emit({
+                type: 'message',
+                data: {
+                  content: message.content,
+                  emitter: message.emitter,
+                  receiver: message.receiver,
+                },
+              })
+            })
+          } else console.log('Message receiver is offline.')
+        } else {
+          console.log('Message not well formatted.')
+        }
       })
 
       // [PRESET EVENT] remove socket Id from correlationTable
