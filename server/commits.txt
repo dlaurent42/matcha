@@ -1,7 +1,0 @@
-[server/database]
-[server/documentation]
-[server/feature]
-[server/fix]
-[server/lint]
-[server/tests]
-[server/miscellaneous]
