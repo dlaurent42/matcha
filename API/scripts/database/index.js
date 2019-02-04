@@ -13,11 +13,13 @@ const migrateDatabase = () => {
     .then(() => feedTables(database))
     .then(() => {
       console.log('[mysql] Database has been succesfully updated')
+      database.end((err) => { console.error(err) })
       process.exit() // eslint-disable-line 
     })
     .catch((err) => {
       if (isEmpty(err.message)) console.error(err)
       else console.error(err.message)
+      database.end((error) => { console.error(error) })
       process.exit() // eslint-disable-line 
     })
 }

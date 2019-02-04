@@ -3,17 +3,28 @@ const { DATABASE } = require('../config/config')
 
 class Database {
   constructor() {
-    this.connection = mysql.createConnection({
+    this.credentials = {
       host: DATABASE.HOST,
       user: DATABASE.USER,
       password: DATABASE.PASS,
       database: DATABASE.NAME,
-    })
+    }
+    this.connection = this.createConnection()
+  }
+
+  createConnection() {
+    return mysql.createConnection(this.credentials)
   }
 
   query(sql, args) {
+    if (this.connection === null) this.connection = this.createConnection()
     return new Promise((resolve, reject) => {
-      this.connection.query(sql, args, (err, rows) => {
+      this.connection.query(sql, args, async (err, rows) => {
+        try {
+          await this.close()
+        } catch (e) {
+          console.error(e)
+        }
         if (err) return reject(err)
         return resolve(rows)
       })
@@ -23,6 +34,7 @@ class Database {
   close() {
     return new Promise((resolve, reject) => {
       this.connection.end((err) => {
+        this.connection = null
         if (err) return reject(err)
         return resolve()
       })
