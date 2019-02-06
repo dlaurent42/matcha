@@ -1,24 +1,43 @@
 <template>
-  <div class="outgoing_msg">
+  <div class="outgoing_msg" @click="toggle">
     <div class="sent_msg">
-        <p>{{ messageText }} </p>
-      <span class="time_date">{{ this.date }}</span>
+        <p>{{ this.message.content }} </p>
+      <span v-show="hidden" class="time_date">{{ getDate }}</span>
     </div>
   </div>
 </template>
 <script>
+import Format from '@/services/FormatDate'
+import User from '@/services/User'
 export default {
   name: 'SentMessage',
   data: () => {
     return {
+      hidden: false,
       messageText: 'hello world',
-      date: 'Today'
+      username: 'Chuck Norris',
+      image: 'https://ptetutorials.com/images/user-profile.png'
     }
   },
-  props: ['user', 'message'],
   mounted () {
-    if (this.message !== undefined) this.messageText = this.message.text
-    if (this.message !== undefined) this.date = this.message.date
+    this.getProfilePic()
+    this.hidden = this.last
+  },
+  props: ['user', 'message', 'last'],
+  methods: {
+    getProfilePic () {
+      User.getProfilePic(this.user.id)
+        .then(success => { this.image = success })
+        .catch(() => {})
+    },
+    toggle () {
+      this.hidden = !this.hidden
+    }
+  },
+  computed: {
+    getDate () {
+      return Format.messageDate(this.message.date)
+    }
   }
 }
 </script>
@@ -48,7 +67,7 @@ export default {
 }
 .outgoing_msg {
   overflow:hidden;
-  margin:26px 0 26px;
+  margin: 15px 0 15px;
 }
 .sent_msg {
   float: right;

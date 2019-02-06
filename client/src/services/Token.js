@@ -3,11 +3,11 @@ import { isEmpty } from '@/utils/obj/isEmpty'
 
 export default {
   setToken (token) {
-    if (!isEmpty(token)) localStorage.setItem('jwt', token)
+    if (!isEmpty(token)) sessionStorage.setItem('jwt', token)
   },
   getToken () {
-    if (!isEmpty(localStorage.getItem('jwt'))) {
-      return localStorage.getItem('jwt')
+    if (!isEmpty(sessionStorage.getItem('jwt'))) {
+      return sessionStorage.getItem('jwt')
     }
     return null
   },

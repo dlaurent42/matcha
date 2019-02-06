@@ -1,36 +1,37 @@
 <template>
     <b-col lg="4" class="mt-5">
         <b-card class="box1">
-            <img v-bind:src="person.picture.medium" alt>
+            <img src="https://randomuser.me/api/portraits/men/65.jpg" alt>
             <div class="title">
-            <p>{{ person.name.first }}</p>
-            <p>{{ person.name.last }}</p>
-            <p>{{ person.location.city }}</p>
+              <p>{{ person.age }}</p>
+              <p>{{ person.username }}</p>
             </div>
-            <ul class="icon">
-            <li>
-                <b-button class="rounded-circle" variant="outline-danger">
-                <font-awesome-icon :icon="['far', 'heart']"/>
-                </b-button>
-            </li>
-            <li>
-                <b-button class="rounded-circle" variant="outline-warning">
-                <font-awesome-icon :icon="['fas', 'times']"/>
-                </b-button>
-            </li>
-            </ul>
+            <v-btn
+              class="icon"
+              v-bind:id="person.id"
+              v-on:like="like"
+              v-on:block="block"
+            />
         </b-card>
     </b-col>
 </template>
 
 <script>
+import MatchButton from '@/components/MatchButton'
 export default {
   name: 'MatchQuick',
+  components: {
+    'v-btn': MatchButton
+  },
   props: ['person'],
   data () {
     return {
       user: []
     }
+  },
+  methods: {
+    like (id) { this.$emit('like', id) },
+    block (id) { this.$emit('block', id) }
   }
 }
 </script>
@@ -54,6 +55,7 @@ export default {
 }
 .box1 {
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  padding: 0;
   position: relative;
   overflow: hidden;
 }

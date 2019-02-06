@@ -59,17 +59,12 @@ export default {
   },
   methods: {
     async login () {
-      await User.login({
-        params: {
-          username: this.input.username,
-          password: this.input.password
-        }
-      })
+      const data = { params: { username: this.input.username, password: this.input.password } }
+      User.login(data)
         .then(
-          // On success go to profile page
           success => {
-            console.log(`Login - Response from server is: ${JSON.stringify(success)}`)
-            router.push('/Profile')
+            this.$emit('authenticated', success)
+            router.push('/')
           },
           error => console.dir(error)
         )

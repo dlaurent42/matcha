@@ -1,18 +1,22 @@
 <template>
   <b-container>
-    <b-row>
+    <transition-group name="list-complete" tag="div" class="row">
       <v-match
-      v-for="(person, index) in persons"
-      v-bind:key="index"
-      v-bind:person="person"
+        v-for="person in persons"
+        v-bind:key="person.id"
+        v-bind:person="person"
+        v-on:like="like"
+        v-on:block="block"
+        class="list-complete-item"
       ></v-match>
-    </b-row>
+    </transition-group>
   </b-container>
 </template>
 
 <script>
-import axios from 'axios'
-import SoloMatch from '../components/SoloMatch'
+import User from '@/services/User'
+import router from '@/router'
+import SoloMatch from '@/components/SoloMatch'
 export default {
   name: 'Contact',
   components: {
@@ -20,22 +24,72 @@ export default {
   },
   data () {
     return {
-      persons: []
+      match: [],
+      persons: [],
+      filters: {
+        age_min: '18',
+        age_max: '25',
+        distance_min: '',
+        distance_max: '',
+        popularity_min: '',
+        popularity_max: '',
+        interests: '',
+        matching_score_min: '',
+        matching_score_max: '',
+        is_match: '0'
+      },
+      sort: ''
     }
   },
   methods: {
     getInitialUsers () {
-      for (var i = 0; i < 6; i++) {
-        axios.get(`https://randomuser.me/api/`).then(response => {
-          this.persons.push(response.data.results[0])
+      User.getAll({ filters: this.filters, sort: this.sort })
+        .then(success => {
+          this.match = [...success.data]
+          this.persons = this.match.splice(0, 6)
         })
-      }
+    },
+    remove (id) {
+      this.persons = this.persons.filter(person => person.id !== id)
+    },
+    add () {
+      const add = this.match.shift()
+      this.persons.push(add)
+    },
+    like (id) {
+      const userID = sessionStorage.getItem('userID')
+      User.like(userID, id)
+        .then(success => {
+          this.remove(id)
+          this.add()
+        })
+        .catch(err => console.dir(err))
+    },
+    block (id) {
+      const userID = sessionStorage.getItem('userID')
+      User.block(userID, id)
+        .then(success => {
+          this.remove(id)
+          this.add()
+        })
+        .catch(err => console.dir(err))
     }
   },
   beforeMount () {
-    this.getInitialUsers()
+    if (this.authenticated === false) router.push('/')
+    else this.getInitialUsers()
   }
 }
 </script>
 <style scoped>
+.list-complete-item {
+  transition: all 1s;
+}
+.list-complete-enter, .list-complete-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+.list-complete-leave-active {
+  position: absolute;
+}
 </style>

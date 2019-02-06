@@ -12,11 +12,11 @@ import Profile from '@/pages/Profile'
 import Match from '@/pages/Match'
 import MatchQuick from '@/pages/MatchQuick'
 import Messages from '@/pages/Messages'
-import sentMessage from '@/components/SentMessage'
+import UserProfile from '@/pages/UserProfile'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   routes: [
     {
@@ -27,7 +27,10 @@ export default new Router({
     {
       path: '/match',
       name: 'Match',
-      component: Match
+      component: Match,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/messages',
@@ -35,14 +38,12 @@ export default new Router({
       component: Messages
     },
     {
-      path: '/sentMessage',
-      name: 'sentMessage',
-      component: sentMessage
-    },
-    {
       path: '/matchquick',
       name: 'MatchQuick',
-      component: MatchQuick
+      component: MatchQuick,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/login',
@@ -72,7 +73,31 @@ export default new Router({
     {
       path: '/profile',
       name: 'Profile',
-      component: Profile
+      component: Profile,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/profile/:id',
+      name: 'UserProfile',
+      component: UserProfile,
+      meta: {
+        requiresAuth: true
+      }
     }
+
   ]
 })
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (sessionStorage.getItem('userID') === null ||
+    sessionStorage.getItem('userID') === undefined) {
+      next({
+        path: '/'
+      })
+    } else next()
+  } else next()
+})
+
+export default router

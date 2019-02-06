@@ -1,39 +1,59 @@
 <template>
-  <div class="incoming_msg">
+  <div class="incoming_msg" @click="toggle">
     <div class="incoming_msg_img">
       <img v-bind:src="this.image" alt="sunil">
     </div>
     <div class="received_msg">
       <div class="received_withd_msg">
         <p>
-          {{ messageText }}
+          {{ this.message.content }}
         </p>
-        <span class="time_date">11:01 AM | June 9</span>
+        <span class="time_date" v-show="hidden">{{ getDate }}</span>
       </div>
     </div>
   </div>
 </template>
 <script>
+import Format from '@/services/FormatDate'
+import User from '@/services/User'
 export default {
   name: 'ReceiveMessage',
   data: () => {
     return {
+      hidden: false,
       messageText: 'hello world',
       username: 'Chuck Norris',
       image: 'https://ptetutorials.com/images/user-profile.png'
     }
   },
-  props: ['user', 'message'],
   mounted () {
-    if (this.message !== undefined) this.messageText = this.message
-    if (this.user !== undefined) this.username = this.user.username
-    if (this.user !== undefined) this.image = this.user.image
+    this.hidden = this.last
+    this.getProfilePic()
+  },
+  props: ['user', 'message', 'last'],
+  methods: {
+    getProfilePic () {
+      User.getProfilePic(this.user.id)
+        .then(success => { this.image = success })
+        .catch(() => {})
+    },
+    toggle () {
+      this.hidden = !this.hidden
+    }
+  },
+  computed: {
+    getDate () {
+      return Format.messageDate(this.message.date)
+    }
   }
 }
 </script>
 <style scoped>
 img {
   max-width:100%;
+}
+.incoming_msg {
+  margin: 15px 0 15px;
 }
 .incoming_msg_img {
   display: inline-block;
