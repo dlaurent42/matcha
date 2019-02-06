@@ -611,18 +611,30 @@ class User {
   }
 
   setSexualOrientation(userId, values) {
+    const valuesArr = (Array.isArray(values) && values.length > 1)
+      ? values.map(val => [userId, val]) : null
     return new Promise((resolve, reject) => (
       this.database.queries(USERS.DELETE_USER.SEXUAL_ORIENTATION, [userId])
-        .then(() => this.database.queries(USERS.ADD_SEXUAL_ORIENTATION, [userId, values]))
+        .then(() => (
+          (valuesArr)
+            ? this.database.queries(USERS.ADD_SEXUAL_ORIENTATION, [valuesArr])
+            : this.database.queries(USERS.ADD_SEXUAL_ORIENTATION, [userId, values])
+        ))
         .then(() => resolve())
         .catch(err => reject(err))
     ))
   }
 
   setInterests(userId, tags) {
+    const tagsArr = (Array.isArray(tags) && tags.length > 1)
+      ? tags.map(tag => [userId, tag]) : null
     return new Promise((resolve, reject) => (
       this.database.queries(USERS.DELETE_USER.INTERESTS, [userId])
-        .then(() => this.database.queries(USERS.ADD_INTERESTS, [userId, tags]))
+        .then(() => (
+          (tagsArr)
+            ? this.database.queries(USERS.ADD_INTERESTS, [tagsArr])
+            : this.database.queries(USERS.ADD_INTERESTS, [userId, tags])
+        ))
         .then(() => resolve())
         .catch(err => reject(err))
     ))
