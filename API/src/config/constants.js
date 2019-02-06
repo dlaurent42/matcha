@@ -239,7 +239,7 @@ const QUERIES = {
     GET_USERNAME_AND_EMAIL: 'SELECT `username`, `email` FROM `users` WHERE `id` = ?;',
     SET_ACCOUNT_CONFIRMED: 'UPDATE `users` SET `is_account_confirmed` = 1 WHERE `id` = ?;',
     SET_DISCONNECTED: 'UPDATE `users` SET `is_connected` = 0, `last_connection` = NOW() WHERE `id` = ?;',
-    SET_GENDER: 'UPDATE `users` SET `users`.`gender_id` = (SELECT `users_gender`.`id` FROM `users_gender` WHERE `users_gender`.`gender` = ?) WHERE `users`.`id` = ?;',
+    SET_GENDER: 'UPDATE `users` SET `users`.`id_gender` = (SELECT `users_gender`.`id` FROM `users_gender` WHERE `users_gender`.`gender` = ?) WHERE `users`.`id` = ?;',
     SET_GENERAL_INFO: 'UPDATE `users` SET ?? = ? WHERE `id` = ?;',
     SET_LESS_POPULARITY: 'UPDATE `users` SET `users`.`popularity` = IF (`users`.`popularity` - ? <= ?, ?, `users`.`popularity` - ?) WHERE `users`.`id` = ?;',
     SET_MORE_POPULARITY: 'UPDATE `users` SET `users`.`popularity` = IF (`users`.`popularity` + ? >= ?, ?, `users`.`popularity` + ?) WHERE `users`.`id` = ?;',
