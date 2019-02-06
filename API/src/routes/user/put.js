@@ -49,17 +49,17 @@ const verifyInput = (fields) => {
   return err
 }
 
-const fetchPromises = (userId, fields, userInstance) => {
+const fetchPromises = (userId, fields) => {
   const promises = []
   Object.keys(fields).forEach((key) => {
-    if (key === 'firstname') promises.push(userInstance.setGeneralInformation(userId, key, fields[key].charAt(0).toUpperCase() + fields[key].slice(1)))
-    else if (key === 'lastname') promises.push(userInstance.setGeneralInformation(userId, key, fields[key].toUpperCase()))
-    else if (key === 'gender') promises.push(userInstance.setGender(userId, fields[key]))
-    else if (key === 'sexualOrientation') promises.push(userInstance.setSexualOrientation(userId, fields[key]))
-    else if (key === 'connect') promises.push(userInstance.setGeneralInformation(userId, 'is_connected', 1))
-    else if (key === 'disconnect') promises.push(userInstance.setDisconnected(userId))
-    else if (key === 'interest') promises.push(userInstance.setInterests(userId, fields[key]))
-    else promises.push(userInstance.setGeneralInformation(userId, key, fields[key]))
+    if (key === 'firstname') promises.push(new User().setGeneralInformation(userId, key, fields[key].charAt(0).toUpperCase() + fields[key].slice(1)))
+    else if (key === 'lastname') promises.push(new User().setGeneralInformation(userId, key, fields[key].toUpperCase()))
+    else if (key === 'gender') promises.push(new User().setGender(userId, fields[key]))
+    else if (key === 'sexualOrientation') promises.push(new User().setSexualOrientation(userId, fields[key]))
+    else if (key === 'connect') promises.push(new User().setGeneralInformation(userId, 'is_connected', 1))
+    else if (key === 'disconnect') promises.push(new User().setDisconnected(userId))
+    else if (key === 'interest') promises.push(new User().setInterests(userId, fields[key]))
+    else promises.push(new User().setGeneralInformation(userId, key, fields[key]))
   })
   return promises
 }
@@ -68,13 +68,9 @@ router.put('/:id', (req, res) => {
   if (!isNumeric(req.params.id)) return res.sendStatus(404)
   if (isEmpty(req.body.fields)) return res.status(400).json({ err: ERRORS.DATA_MISSING })
   if (verifyInput(req.body.fields)) return res.status(400).json({ err: ERRORS.DATA_VALIDATION })
-  const userInstance = new User()
-  const promises = fetchPromises(req.params.id, req.body.fields, userInstance)
+  const promises = fetchPromises(req.params.id, req.body.fields)
   return Promise.all(promises)
-    .then(() => {
-      userInstance.closeDatabaseConnection()
-      userInstance.setProfileComplete(req.params.id)
-    })
+    .then(() => new User().setProfileComplete(req.params.id))
     .then(user => res.json({ user }))
     .catch(err => res.json({ err: err.message }))
 })
