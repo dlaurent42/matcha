@@ -83,6 +83,9 @@ export default {
       this.socket.on('connect', () => {
         this.socket.emit('loginUser', User.getID())
       })
+      this.socket.on('disconnect', () => {
+        this.socket.open()
+      })
     }
   }
 }

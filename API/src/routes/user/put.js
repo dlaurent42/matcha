@@ -42,8 +42,6 @@ const verifyInput = (fields) => {
     if (key === 'latitude' && !userIsLatitude(fields[key])) err = true
     if (key === 'longitude' && !userIsLongitude(fields[key])) err = true
     if (key === 'gender' && isEmpty(fields[key])) err = true
-    if (key === 'sexualOrientation' && isEmpty(fields[key])) err = true
-    if (key === 'interest' && isEmpty(fields[key])) err = true
     if (!possibleFields.includes(key)) err = true
   })
   return err

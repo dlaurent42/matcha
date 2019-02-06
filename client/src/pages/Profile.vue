@@ -61,7 +61,7 @@
             <b-form-input
               id="birthdayInput"
               type="date"
-              v-model="input.date"
+              v-model="input.birthday"
               required
               placeholder="Enter name"
             ></b-form-input>
@@ -69,14 +69,9 @@
           <b-form-group id="genderGroup" label="Gender:" label-for="genderInput">
             <b-form-select v-model="input.gender" :options="gender" class="mb-3"/>
           </b-form-group>
-          <b-form-group id="orientationGroup" label="Orientation:" label-for="orientationInput">
-            <b-form-input
-              id="orientationInput"
-              type="text"
-              v-model="input.orientation"
-              required
-              placeholder="Enter your orientation"
-            ></b-form-input>
+          <b-form-group label="Select your orientation">
+            <b-form-checkbox-group id="checkboxes1" name="flavour1" v-model="orientation" :options="getOrientation">
+            </b-form-checkbox-group>
           </b-form-group>
           <b-form-group
             id="biographyGroup"
@@ -121,7 +116,10 @@
               </b-col>
             </b-row>
           </b-form-group>
-          <b-button v-on:click="updateProfile" variant="dark">Update</b-button>
+          <b-button v-if="loadingProfile === 'false'" v-on:click="updateProfile" variant="dark">Update</b-button>
+          <b-button v-else-if="loadingProfile ==='complete'" variant="success">Update complete</b-button>
+          <b-button v-else-if="loadingProfile ==='error'" variant="danger">An error has occured, try again later</b-button>
+          <b-button v-else variant="dark"><font-awesome-icon icon="spinner" size="1x" pulse/> Updating...</b-button>
         </b-form>
       </b-card>
     </b-col>
@@ -162,12 +160,14 @@ export default {
   name: 'Profile',
   data () {
     return {
-      loadingInformation: '',
+      loadingInformation: false,
+      loadingProfile: false,
       url: null,
       file: null,
       gender: [{
         value: null, text: 'Please select your gender'
       }],
+      orientation: [],
       interest: [],
       input: {
         firstname: '',
@@ -176,7 +176,6 @@ export default {
         cpassword: '',
         birthday: '',
         gender: '',
-        orientation: [],
         biography: '',
         interest: ''
       },
@@ -186,19 +185,22 @@ export default {
   beforeMount () {
     if (this.authenticated === false) router.push('/')
     User.get()
-      .then(success => { this.input = success.data.user })
-    User.getGender()
       .then(success => {
-        this.gender = [...this.gender, ...success.data.genders]
+        this.input = success.data.user
+        this.input.birthday = this.input.birthday.replace(/\//gi, '-')
+        this.interest = _.isEmpty(success.data.user.interests) ? [] : success.data.user.interests
+        this.orientation = _.isEmpty(success.data.user.orientation) ? [] : success.data.user.orientation
       })
+    User.getGender()
+      .then(success => { this.gender = [...this.gender, ...success.data.genders] })
     this.loadingInformation = 'false'
+    this.loadingProfile = 'false'
   },
   mounted () {
   },
   computed: {
-    urlEmpty () {
-      return !_.isEmpty(this.url)
-    }
+    urlEmpty () { return !_.isEmpty(this.url) },
+    getOrientation () { return _.drop(this.gender) }
   },
   methods: {
     addPicture () {
@@ -211,9 +213,7 @@ export default {
       this.url = null
       this.file = ''
     },
-    onFileChange (e) {
-      this.url = URL.createObjectURL(e.target.files[0])
-    },
+    onFileChange (e) { this.url = URL.createObjectURL(e.target.files[0]) },
     updateInformation () {
       this.loadingInformation = 'true'
       User.update({
@@ -226,12 +226,10 @@ export default {
           this.input = success.data.user
           this.loadingInformation = 'complete'
         })
-        .catch(() => { this.loadingInformation = 'error' })
+        .catch(() => { setTimeout(() => { this.loadingInformation = 'error' }, 1500) })
         .finally(setTimeout(() => { this.loadingInformation = 'false' }, 2000))
     },
-    removeElement (index) {
-      this.interest.splice(index, 1)
-    },
+    removeElement (index) { this.interest.splice(index, 1) },
     addInterest () {
       if (!_.isEmpty(_.trim(this.input.interest))) {
         this.interest.push(_.trim(this.input.interest))
@@ -240,6 +238,7 @@ export default {
       }
     },
     updateProfile () {
+      this.loadingProfile = 'true'
       const data = (_.pickBy(
         this.input, (x, key) => {
           return !(_.isEmpty(x) ||
@@ -248,21 +247,21 @@ export default {
             key === 'username' ||
             key === 'fullname' ||
             key === 'email' ||
-            key === 'interest' ||
+            key === 'interests' ||
             key === 'pictures' ||
             key === 'profilePic' ||
+            key === 'orientation' ||
             key === 'registrationToken'
           )
         }
       ))
-      console.log(data)
+      if (!_.isEmpty(this.interest)) Object.assign(data, { interest: this.interest })
+      if (!_.isEmpty(this.orientation)) Object.assign(data, { sexualOrientation: this.orientation })
+      console.dir(data)
       User.update({ fields: data })
-        .then(success => {
-          console.dir(success)
-        })
-        .catch(err => {
-          console.dir(err)
-        })
+        .then(success => { setTimeout(() => { this.loadingProfile = 'complete' }, 1500) })
+        .catch(() => { this.loadingProfile = 'error' })
+        .finally(setTimeout(() => { this.loadingProfile = 'false' }, 3000))
     }
   }
 }
