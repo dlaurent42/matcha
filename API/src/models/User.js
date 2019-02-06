@@ -613,7 +613,7 @@ class User {
   setSexualOrientation(userId, values) {
     return new Promise((resolve, reject) => (
       this.database.queries(USERS.DELETE_USER.SEXUAL_ORIENTATION, [userId])
-        .then(() => this.database.query(USERS.ADD_SEXUAL_ORIENTATION, [userId, values]))
+        .then(() => this.database.queries(USERS.ADD_SEXUAL_ORIENTATION, [userId, values]))
         .then(() => resolve())
         .catch(err => reject(err))
     ))
@@ -622,7 +622,7 @@ class User {
   setInterests(userId, tags) {
     return new Promise((resolve, reject) => (
       this.database.queries(USERS.DELETE_USER.INTERESTS, [userId])
-        .then(() => this.database.queries(USERS.ADD_INTERESTS, [userId, [tags]]))
+        .then(() => this.database.queries(USERS.ADD_INTERESTS, [userId, tags]))
         .then(() => resolve())
         .catch(err => reject(err))
     ))
