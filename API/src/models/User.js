@@ -49,6 +49,10 @@ class User {
     }
   }
 
+  closeDatabaseConnection() {
+    this.database.close()
+  }
+
   add(user, redirectUri) {
     return new Promise((resolve, reject) => (
       this.database.query(USERS.GET_COUNT_BY_USERNAME_AND_EMAIL, [user.username, user.email])
@@ -570,7 +574,7 @@ class User {
 
   setDisconnected(id) {
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.SET_DISCONNECTED, [id])
+      this.database.queries(USERS.SET_DISCONNECTED, [id])
         .then((rows) => {
           if (isEmpty(rows)) throw new Error(ERRORS.USER_NO_USER)
           return resolve()
@@ -582,7 +586,7 @@ class User {
   setGeneralInformation(userId, key, value) {
     console.log(`id: ${userId}, key: ${key}, value: ${value}`)
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.SET_GENERAL_INFO, [key, value, userId])
+      this.database.queries(USERS.SET_GENERAL_INFO, [key, value, userId])
         .then(() => resolve())
         .catch(err => reject(err))
     ))
@@ -600,7 +604,7 @@ class User {
 
   setGender(userId, value) {
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.SET_GENDER, [value, userId])
+      this.database.queries(USERS.SET_GENDER, [value, userId])
         .then(() => resolve())
         .catch(err => reject(err))
     ))
@@ -608,7 +612,7 @@ class User {
 
   setSexualOrientation(userId, values) {
     return new Promise((resolve, reject) => (
-      this.database.query(USERS.DELETE_USER.SEXUAL_ORIENTATION, [userId])
+      this.database.queries(USERS.DELETE_USER.SEXUAL_ORIENTATION, [userId])
         .then(() => this.database.query(USERS.ADD_SEXUAL_ORIENTATION, [userId, values]))
         .then(() => resolve())
         .catch(err => reject(err))
