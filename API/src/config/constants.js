@@ -100,6 +100,7 @@ const QUERIES = {
   },
   USERS: {
     ADD_BLOCK: 'INSERT INTO `users_blocked` (`blocker_id`, `blocked_id`) VALUES (?, ?);',
+    ADD_INTERESTS: 'INSERT INTO `users_interests` (`user_id`, `tag`) VALUES (?, ?);',
     ADD_LIKE: 'INSERT INTO `users_likes` (`liker_id`, `liked_id`) VALUES (?, ?);',
     ADD_PICTURE: 'INSERT INTO `users_pictures` (`user_id`, `filename`, `is_profile_pic`) VALUES (?, ?, ?);',
     ADD_PASSWORD_RECOVERY_TOKEN: 'INSERT INTO `users_password_recovery` (`token`, `user_id`, `expiration_date`) VALUES (?, ?, NOW() + INTERVAL 1 DAY);',

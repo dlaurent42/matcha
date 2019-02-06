@@ -619,6 +619,15 @@ class User {
     ))
   }
 
+  setInterests(userId, tags) {
+    return new Promise((resolve, reject) => (
+      this.database.queries(USERS.DELETE_USER.INTERESTS, [userId])
+        .then(() => this.database.queries(USERS.ADD_INTERESTS, [userId, [tags]]))
+        .then(() => resolve())
+        .catch(err => reject(err))
+    ))
+  }
+
   verifyPasswordRecoveryToken(token) {
     console.log('token is ')
     console.log(token)
