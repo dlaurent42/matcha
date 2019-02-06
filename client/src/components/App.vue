@@ -1,47 +1,89 @@
 <template>
   <div id="wrapper">
-    <v-header class="fixed-value" v-bind:userLogged="userLogged" @clicked="logout"></v-header>
+    <v-header v-bind:logged="authenticated" class="fixed-value" @clicked="logout" v-bind:socket="socket"></v-header>
     <b-container class="fill-space" v-bind:style="{ 'background-image': 'url(' + image + ')' }" fluid>
-      <router-view/>
+      <router-view
+        @authenticated="setAuthenticated"
+        v-bind:authenticated="authenticated"
+        v-bind:socket="socket"
+      />
     </b-container>
+    <b-button @click='hello'>Hello</b-button>
     <v-footer class="fixed-value"></v-footer>
   </div>
 </template>
 
 <script>
 import User from '@/services/User'
-import Menu from '@/components/Menu.vue'
-import Footer from '@/components/Footer.vue'
-import Notif from '@/components/Notif.vue'
+import Menu from '@/components/Menu'
+import Footer from '@/components/Footer'
+import router from '@/router'
+import io from 'socket.io-client'
 import { isEmpty } from '@/utils/obj/isEmpty'
 
 export default {
   name: 'App',
   components: {
     'v-header': Menu,
-    'v-footer': Footer,
-    'v-notif': Notif
+    'v-footer': Footer
   },
   data () {
     return {
       image: require('../assets/backgrouds/headerbg.jpg'),
-      userLogged: false,
-      user: null
+      authenticated: false,
+      socket: null,
+      user: ''
     }
-  },
-  beforeMount () {
-    this.authentificate()
   },
   methods: {
-    async authentificate () {
-      const response = User.auth()
-      if (!isEmpty(response)) this.userLogged = true
+    setAuthenticated (response) {
+      this.authenticated = 'true'
+      this.user = response.data.user
+      sessionStorage.setItem('userLogged', true)
+      sessionStorage.setItem('userID', JSON.stringify(response.data.user.id))
+      if (this.socket === null) {
+        this.socket = io('http://localhost:8082')
+        this.socket.on('connect', () => {
+          this.socket.emit('loginUser', User.getID())
+        })
+      }
     },
-    async logout (value) {
+    logout () {
       User.logout()
+      this.authenticated = false
+      this.socket.emit('logoutUser')
+      sessionStorage.removeItem('userLogged')
+      sessionStorage.removeItem('userID')
+      this.socket.emit('logoutUser', User.getID())
+      router.push('/')
+    },
+    hello () {
+      const message = {
+        'emitter': 502,
+        'receiver': 501,
+        'message': 'Hey user number ' + Math.random(),
+        'content': 'Hey user number ' + Math.random()
+      }
+      this.socket.emit('message', message)
+      User.sendMessageFull(message)
+        .then(success => console.dir(success))
+        .catch(err => console.dir(err))
+    },
+    haha (msg) {
+      console.log('haha', msg)
     }
+
   },
-  mounted () {
+  beforeMount () {
+    User.auth()
+    const userLogged = sessionStorage.getItem('userLogged')
+    this.authenticated = (!isEmpty(userLogged) && userLogged)
+    if (this.socket === null && userLogged) {
+      this.socket = io('http://localhost:8082')
+      this.socket.on('connect', () => {
+        this.socket.emit('loginUser', User.getID())
+      })
+    }
   }
 }
 </script>

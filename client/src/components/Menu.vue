@@ -2,7 +2,7 @@
   <b-navbar toggleable="md" type="dark" variant="dark">
     <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
     <b-navbar-brand href="#">Matcha</b-navbar-brand>
-    <v-notif v-if="userLoggedMenu === true"></v-notif>
+    <v-notif v-if="logged === 'true'" v-bind:socket="socket"></v-notif>
     <b-collapse is-nav id="nav_collapse">
       <b-navbar-nav class="m-auto">
         <b-nav-item><router-link to="/" class="nav-link">Home</router-link></b-nav-item>
@@ -11,7 +11,7 @@
         <b-nav-item><router-link to="/Contact" class="nav-link">Contact</router-link></b-nav-item>
       </b-navbar-nav>
     </b-collapse>
-    <b-navbar-nav class="ml-auto" v-if="userLoggedMenu === true" id="profile">
+    <b-navbar-nav class="ml-auto" v-if="logged === 'true'" id="profile">
       <b-dropdown variant="link" size="lg" offset="-100" no-caret>
         <template slot="button-content">
           <font-awesome-icon icon="cog"/>
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import Notif from '@/components/Notif'
+import Notif from '@/components/Notifications'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faCog } from '@fortawesome/free-solid-svg-icons'
 
@@ -39,17 +39,13 @@ library.add(faCog)
 
 export default {
   name: 'Menu',
-  props: ['userLogged'],
+  props: ['logged', 'socket'],
   components: {
     'v-notif': Notif
   },
   data () {
     return {
-      userLoggedMenu: false
     }
-  },
-  beforeMount () {
-    this.userLoggedMenu = this.userLogged
   },
   methods: {
     logout (event) {
@@ -64,5 +60,8 @@ export default {
 }
 .btn-link:hover svg {
   color:#05728f;
+}
+.navbar-toggler {
+  margin-right: 10px;
 }
 </style>

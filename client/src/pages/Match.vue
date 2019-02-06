@@ -1,40 +1,23 @@
 <template>
     <b-row class="justify-content-md-center pt-5" v-bind:style="{ 'background-image': 'url(' + img + ')' }">
         <b-col col md="12" lg="10">
-            <b-card-group columns>
-                <b-card
-                    v-for="(person, index) in persons"
-                    v-bind:index="index"
-                    v-bind:key=index
-                    v-bind:item="person"
-                    v-bind:title="person.name.first"
-                    v-bind:subTitle="person.name.last"
-                    v-bind:img-src="person.picture.large"
-                    img-fluid
-                    img-alt="image"
-                    img-top
-                >
-                    <p class="card-text" >{{ person.name.first }} {{ person.name.last }}</p>
-                    <p class="card-text" ><strong>Location:</strong> {{ person.location.city }}, {{ person.location.state }}</p>
-                    <b-row class="justify-content-center">
-                      <b-col class="text-right">
-                        <b-button class="rounded-circle" variant="outline-danger">
-                          <font-awesome-icon :icon="['far', 'heart']"/>
-                        </b-button>
-                      </b-col>
-                      <b-col class="text-left">
-                        <b-button class="rounded-circle" variant="outline-warning">
-                          <font-awesome-icon :icon="['fas', 'times']"/>
-                        </b-button>
-                      </b-col>
-                    </b-row>
-                </b-card>
-            </b-card-group>
+          <transition-group name="list-complete" tag="div" class="card-columns">
+            <v-match
+              v-for="person in persons"
+              v-bind:key="person.id"
+              v-bind:person="person"
+              v-on:like="like"
+              v-on:block="block"
+              class="list-complete-item"
+            ></v-match>
+          </transition-group>
         </b-col>
     </b-row>
 </template>
 <script>
-import axios from 'axios'
+import User from '@/services/User'
+import router from '@/router'
+import MultiMatch from '@/components/MultiMatch'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { faHeart } from '@fortawesome/free-regular-svg-icons'
@@ -42,35 +25,75 @@ library.add([faHeart, faTimes])
 
 export default {
   name: 'Match',
+  components: {
+    'v-match': MultiMatch
+  },
+  props: ['authenticated'],
   data () {
     return {
+      matches: [],
       persons: [],
-      img: ''
+      img: '',
+      filters: {
+        age_min: '18',
+        age_max: '25',
+        distance_min: '',
+        distance_max: '',
+        popularity_min: '',
+        popularity_max: '',
+        interests: '',
+        matching_score_min: '',
+        matching_score_max: '',
+        is_match: '0'
+      },
+      sort: ''
     }
   },
   methods: {
-    getHeight () {
-      let e = document.documentElement
-      return e.scrollHeight - e.scrollTop === e.clientHeight
-    },
-    pushUser () {
-      axios.get(`https://randomuser.me/api/`).then(response => {
-        if (response !== undefined) this.persons.push(response.data.results[0])
-        if (this.getHeight()) { this.pushUser() }
-      })
-    },
     getInitialUsers () {
-      for (var i = 0; i < 5; i++) {
-        axios.get(`https://randomuser.me/api/`).then(response => {
-          this.persons.push(response.data.results[0])
+      User.getAll({ filters: this.filters, sort: this.sort })
+        .then(success => {
+          this.matches = [...success.data]
+          this.persons = this.matches.splice(0, 5)
         })
+    },
+    remove (id) {
+      this.persons = this.persons.filter(person => person.id !== id)
+    },
+    add () {
+      if (this.matches.length !== 0) {
+        const add = this.matches.shift()
+        this.persons.push(add)
       }
     },
+    like (id) {
+      const userID = sessionStorage.getItem('userID')
+      User.like(userID, id)
+        .then(success => {
+          this.remove(id)
+          this.add()
+        })
+        .catch(err => console.dir(err))
+    },
+    block (id) {
+      const userID = sessionStorage.getItem('userID')
+      User.block(userID, id)
+        .then(success => {
+          this.remove(id)
+          this.add()
+        })
+        .catch(err => console.dir(err))
+    },
+    getHeight () {
+      let e = document.documentElement
+      return e.scrollHeight - e.scrollTop - e.clientHeight < 50
+    },
     scroll (person) {
-      window.onscroll = () => { if (this.getHeight()) { this.pushUser() } }
+      window.onscroll = () => { if (this.getHeight()) { this.add() } }
     }
   },
   beforeMount () {
+    if (this.authenticated === false) router.push('/')
     this.getInitialUsers()
     this.img = 'http://getwallpapers.com/wallpaper/full/f/c/3/43246.jpg'
   },
@@ -80,14 +103,5 @@ export default {
 }
 </script>
 <style scoped>
-.rounded-circle {
-  height: 50px;
-  width: 50px;
-  font-size: 22px;
-  padding: 0;
-  margin: 0;
-}
-.btn-outline-warning:hover {
-  color:white;
-}
+
 </style>

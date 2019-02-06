@@ -19,6 +19,7 @@
               v-model="input.email"
               required
               placeholder="Enter email"
+              :state="verifyEmail"
             ></b-form-input>
           </b-form-group>
           <b-form-group
@@ -31,6 +32,7 @@
               id="exampleInput2"
               type="text"
               v-model="input.username"
+              :state="verifyUserName"
               required
               placeholder="Enter username"
             ></b-form-input>
@@ -44,6 +46,7 @@
               id="exampleInput3"
               type="text"
               v-model="input.firstname"
+              :state="verifyFirstName"
               required
               placeholder="Enter name"
             ></b-form-input>
@@ -53,6 +56,7 @@
               id="exampleInput4"
               type="text"
               v-model="input.lastname"
+              :state="verifyLastName"
               required
               placeholder="Enter lastname"
             ></b-form-input>
@@ -62,6 +66,7 @@
               id="exampleInput5"
               type="password"
               v-model="input.password"
+              :state="verifyPassword"
               required
               placeholder="Enter your password"
             ></b-form-input>
@@ -75,6 +80,7 @@
               id="exampleInput6"
               type="password"
               v-model="input.cpassword"
+              :state="verifyPassword"
               required
               placeholder="Enter your password again"
             ></b-form-input>
@@ -105,6 +111,14 @@ export default {
         password: '',
         cpassword: ''
       },
+      verified: {
+        username: null,
+        firstname: null,
+        lastname: null,
+        email: null,
+        password: null,
+        cpassword: null
+      },
       show: true
     }
   },
@@ -117,23 +131,23 @@ export default {
         isEmail(this.input.email) &&
         isPassword(this.input.password, this.input.cpassword)
       ) this.register()
-      else {
-        console.log(
-          isUsername(this.input.username),
-          isFirstname(this.input.firstname),
-          isLastname(this.input.lastname),
-          isEmail(this.input.email),
-          isPassword(this.input.password, this.input.cpassword)
-        )
-      }
     },
     async register () {
       await User.register({ user: this.input })
-        .then(
-          success => { console.log(success) },
-          error => { console.dir(error) }
-        )
+        .then((success) => {
+          console.log('Success add a redirection')
+          console.dir(success)
+        }, error => {
+          console.dir(error)
+        })
     }
+  },
+  computed: {
+    verifyEmail () { return (this.input.email === '' ? null : isEmail(this.input.email)) },
+    verifyUserName () { return this.input.username === '' ? null : isUsername(this.input.username) },
+    verifyFirstName () { return this.input.firstname === '' ? null : isFirstname(this.input.firstname) },
+    verifyLastName () { return this.input.lastname === '' ? null : isLastname(this.input.lastname) },
+    verifyPassword () { return this.input.password === '' && this.input.cpassword === '' ? null : isPassword(this.input.password, this.input.cpassword) }
   }
 }
 </script>
@@ -151,14 +165,15 @@ export default {
   justify-content: center;
   display: flex;
 }
+.form-control:not(:matches(.is-valid, .is-unvalid)) {
+  border: transparent;
+}
 .form-control {
   background-color: #ffffff2e;
-  border: 1px solid #dacece00;
-  color: #e6e6e6!important;
+  color: #e6e6e6;
 }
 .form-control:focus {
     color: #dae0e6;
-    border-color:transparent;
     outline: 0;
     -webkit-box-shadow: 0 0 0 0.2rem rgba(121, 121, 121, 0.25);
     box-shadow: 0 0 0 0.2rem rgba(121, 121, 121, 0.25);

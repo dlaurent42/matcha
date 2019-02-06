@@ -1,171 +1,179 @@
 <template>
-    <b-row class="justify-content-md-center bg-transparent">
-      <b-col col md="4" lg="3">
-        <b-card title="Edit Your Informations" class="bg-dark-transparent">
-          <b-form>
-            <b-form-group
-              id="firstnameGroup"
-              label="Firstname:"
-              label-for="firstnameInput"
-            >
-              <b-form-input
-                id="firstnameInput"
-                type="text"
-                v-model="input.firstname"
-                required
-                placeholder="Enter firstname"
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group
-              id="lastnameGroup"
-              label="Last Name:"
-              label-for="lastnameInput"
-            >
-              <b-form-input
-                id="lastnameInput"
-                type="text"
-                v-model="input.lastname"
-                required
-                placeholder="Enter lastname"
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group id="passwordGroup" label="Password:" label-for="passwordInput">
-              <b-form-input
-                id="passwordInput"
-                type="password"
-                v-model="input.password"
-                required
-                placeholder="Enter your password"
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group id="cpasswordGroup" label="Re-enter your password:" label-for="cpasswordInput">
-              <b-form-input
-                id="cpasswordInput"
-                type="password"
-                v-model="input.cpassword"
-                required
-                placeholder="Enter your password again"
-              ></b-form-input>
-            </b-form-group>
-            <b-button v-on:click="updateInformation()" variant="dark">Update</b-button>
-          </b-form>
-        </b-card>
-      </b-col>
-      <b-col col md="4" lg="4">
-        <b-card title="Edit Your Profile" class="bg-dark-transparent">
-          <b-form>
-            <b-form-group
-              id="ageGroup"
-              label="Age:"
-              label-for="ageInput"
-            >
-              <b-form-input
-                id="ageInput"
-                type="text"
-                v-model="input.age"
-                required
-                placeholder="Enter your age"
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group id="birthdayGroup" label="Birthday:" label-for="birthdayInput">
-              <b-form-input
-                id="birthdayInput"
-                type="date"
-                v-model="input.date"
-                required
-                placeholder="Enter name"
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group id="genderGroup" label="Last Name:" label-for="genderInput">
-              <b-form-input
-                id="genderInput"
-                type="text"
-                v-model="input.gender"
-                required
-                placeholder="Enter gender"
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group id="orientationGroup" label="Orientation:" label-for="orientationInput">
-              <b-form-input
-                id="orientationInput"
-                type="text"
-                v-model="input.orientation"
-                required
-                placeholder="Enter your orientation"
-              ></b-form-input>
-            </b-form-group>
-            <b-form-group
-              id="biographyGroup"
-              label="Biography:"
-              label-for="biographyInput"
-            >
-              <b-form-textarea
-                id="biographyInput"
-                type="text"
-                :rows="3"
-                :max-rows="6"
-                v-model="input.biography"
-                required
-                placeholder="This will be displayed on matching page"
-              ></b-form-textarea>
-            </b-form-group>
-            <b-form-group
-              id="interestGroup"
-              label="Interest:"
-              label-for="interestInput"
-            >
-              <b-form-input
-                id="interestInput"
-                type="text"
-                v-model="input.interest"
-                required
-                placeholder="Add interest to your profile"
-              ></b-form-input>
-            </b-form-group>
-            <b-button v-on:click="updateProfile()" variant="dark">Update</b-button>
-          </b-form>
-        </b-card>
-      </b-col>
-      <b-col col md="4" ld="4">
-        <b-card title="Add a profile picture" class="bg-dark-transparent">
-          <b-form-file
-            v-model="file"
-            @change="onFileChange"
-            :state="Boolean(file)"
-            placeholder='Choose a file...'
-            accept="image/jpeg, image/png, image/gif"
+  <b-row class="justify-content-md-center bg-transparent">
+    <b-col col md="4" lg="3">
+      <b-card title="Edit Your Informations" class="bg-dark-transparent">
+        <b-form>
+          <b-form-group
+            id="firstnameGroup"
+            label="Firstname:"
+            label-for="firstnameInput"
           >
-          </b-form-file>
+            <b-form-input
+              id="firstnameInput"
+              type="text"
+              v-model="input.firstname"
+              required
+              placeholder="Enter firstname"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group
+            id="lastnameGroup"
+            label="Last Name:"
+            label-for="lastnameInput"
+          >
+            <b-form-input
+              id="lastnameInput"
+              type="text"
+              v-model="input.lastname"
+              required
+              placeholder="Enter lastname"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group id="passwordGroup" label="Password:" label-for="passwordInput">
+            <b-form-input
+              id="passwordInput"
+              type="password"
+              v-model="input.password"
+              required
+              placeholder="Enter your password"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group id="cpasswordGroup" label="Re-enter your password:" label-for="cpasswordInput">
+            <b-form-input
+              id="cpasswordInput"
+              type="password"
+              v-model="input.cpassword"
+              required
+              placeholder="Enter your password again"
+            ></b-form-input>
+          </b-form-group>
+          <b-button v-if="loadingInformation === 'false'" v-on:click="updateInformation()" variant="dark">Update</b-button>
+          <b-button v-else-if="loadingInformation='complete'" variant="success">Update complete</b-button>
+          <b-button v-else-if="loadingInformation='error'" variant="danger">An error has occured, try again later</b-button>
+          <b-button v-else variant="dark"><font-awesome-icon icon="spinner" size="1x" pulse/> Updating...</b-button>
+        </b-form>
+      </b-card>
+    </b-col>
+    <b-col col md="4" lg="4">
+      <b-card title="Edit Your Profile" class="bg-dark-transparent">
+        <b-form>
+          <b-form-group id="birthdayGroup" label="Birthday:" label-for="birthdayInput">
+            <b-form-input
+              id="birthdayInput"
+              type="date"
+              v-model="input.date"
+              required
+              placeholder="Enter name"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group id="genderGroup" label="Gender:" label-for="genderInput">
+            <b-form-select v-model="input.gender" :options="gender" class="mb-3"/>
+          </b-form-group>
+          <b-form-group id="orientationGroup" label="Orientation:" label-for="orientationInput">
+            <b-form-input
+              id="orientationInput"
+              type="text"
+              v-model="input.orientation"
+              required
+              placeholder="Enter your orientation"
+            ></b-form-input>
+          </b-form-group>
+          <b-form-group
+            id="biographyGroup"
+            label="Biography:"
+            label-for="biographyInput"
+          >
+            <b-form-textarea
+              id="biographyInput"
+              type="text"
+              :rows="3"
+              :max-rows="6"
+              v-model="input.biography"
+              required
+              placeholder="This will be displayed on matching page"
+            ></b-form-textarea>
+          </b-form-group>
+          <b-form-group
+            id="interestGroup"
+            label="Interest:"
+            label-for="interestInput"
+          >
+            <b-badge
+              class="ml-1 mb-1"
+              v-for="(tags, index) in interest"
+              v-bind:key="tags"
+              @click="removeElement(index)"
+            >
+              {{ tags }}
+            </b-badge>
+            <b-row class="m-0 mt-2">
+              <b-col md="8" class="p-0">
+                <b-form-input
+                  id="interestInput"
+                  type="text"
+                  v-model="input.interest"
+                  required
+                  placeholder="Add interest"
+                />
+              </b-col>
+              <b-col md="4">
+                <b-button v-on:click="addInterest" variant="light">Add</b-button>
+              </b-col>
+            </b-row>
+          </b-form-group>
+          <b-button v-on:click="updateProfile" variant="dark">Update</b-button>
+        </b-form>
+      </b-card>
+    </b-col>
+    <b-col col md="4" ld="4">
+      <b-card title="Add a profile picture" class="bg-dark-transparent">
+        <b-form-file
+          v-model="file"
+          @change="onFileChange"
+          :state="Boolean(file)"
+          placeholder='Choose a file...'
+          accept="image/jpeg, image/png, image/gif"
+        >
+        </b-form-file>
+        <template v-if="urlEmpty">
           <div class="mt-3">Selected file: {{file && file.name}}</div>
-          <div id="preview" class="w-100 mb-2">
+          <div  d="preview" class="w-100 mb-2">
             <p>Preview :</p>
-            <img v-if="url" :src="url" class="w-100"/>
+            <img :src="url" class="w-100"/>
           </div>
-          <b-button v-if="url" variant="outline-info" v-on:click="addPicture">Add</b-button>
-          <b-button v-if="url" variant="outline-danger" v-on:click="resetPicture">Cancel</b-button>
-        </b-card>
-      </b-col>
-    </b-row>
+          <b-button variant="outline-info" v-on:click="addPicture">Add</b-button>
+          <b-button variant="outline-danger" v-on:click="resetPicture">Cancel</b-button>
+        </template>
+      </b-card>
+    </b-col>
+  </b-row>
 </template>
 
 <script>
 import User from '@/services/User'
-import { isEmpty } from '@/utils/obj/isEmpty'
+import router from '@/router'
+import _ from 'lodash' //eslint-disable-line
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+
+library.add(faSpinner)
 
 export default {
   name: 'Profile',
-  props: ['user'],
   data () {
     return {
+      loadingInformation: '',
       url: null,
       file: null,
+      gender: [{
+        value: null, text: 'Please select your gender'
+      }],
+      interest: [],
       input: {
-        username: '',
         firstname: '',
         lastname: '',
         password: '',
         cpassword: '',
-        age: '',
         birthday: '',
         gender: '',
         orientation: [],
@@ -176,11 +184,28 @@ export default {
     }
   },
   beforeMount () {
-    if (!isEmpty(this.user)) for (var k in this.user) this.input[k] = this.user[k]
+    if (this.authenticated === false) router.push('/')
+    User.get()
+      .then(success => { this.input = success.data.user })
+    User.getGender()
+      .then(success => {
+        this.gender = [...this.gender, ...success.data.genders]
+      })
+    this.loadingInformation = 'false'
+  },
+  mounted () {
+  },
+  computed: {
+    urlEmpty () {
+      return !_.isEmpty(this.url)
+    }
   },
   methods: {
     addPicture () {
-      return ''
+      User.addPicture(this.file)
+        .then(success => {
+          this.resetPicture()
+        })
     },
     resetPicture () {
       this.url = null
@@ -189,33 +214,55 @@ export default {
     onFileChange (e) {
       this.url = URL.createObjectURL(e.target.files[0])
     },
-    async updateInformation () {
-      const response = await User.update({
-        user: {
-          username: this.input.username,
+    updateInformation () {
+      this.loadingInformation = 'true'
+      User.update({
+        fields: {
           firstname: this.input.firstname,
-          lastname: this.input.lastname,
-          password: this.input.password,
-          cpassword: this.input.cpassword
+          lastname: this.input.lastname
         }
       })
-      console.log(
-        `Register - Response from server is: ${JSON.stringify(response.data)}`
-      )
+        .then(success => {
+          this.input = success.data.user
+          this.loadingInformation = 'complete'
+        })
+        .catch(() => { this.loadingInformation = 'error' })
+        .finally(setTimeout(() => { this.loadingInformation = 'false' }, 2000))
     },
-    async updateProfile () {
-      const response = await User.update({
-        user: {
-          username: this.input.username,
-          firstname: this.input.firstname,
-          lastname: this.input.lastname,
-          password: this.input.password,
-          cpassword: this.input.cpassword
+    removeElement (index) {
+      this.interest.splice(index, 1)
+    },
+    addInterest () {
+      if (!_.isEmpty(_.trim(this.input.interest))) {
+        this.interest.push(_.trim(this.input.interest))
+        this.interest = _.uniq(this.interest)
+        this.input.interest = ''
+      }
+    },
+    updateProfile () {
+      const data = (_.pickBy(
+        this.input, (x, key) => {
+          return !(_.isEmpty(x) ||
+            key === 'id' ||
+            key === 'creation' ||
+            key === 'username' ||
+            key === 'fullname' ||
+            key === 'email' ||
+            key === 'interest' ||
+            key === 'pictures' ||
+            key === 'profilePic' ||
+            key === 'registrationToken'
+          )
         }
-      })
-      console.log(
-        `Register - Response from server is: ${JSON.stringify(response.data)}`
-      )
+      ))
+      console.log(data)
+      User.update({ fields: data })
+        .then(success => {
+          console.dir(success)
+        })
+        .catch(err => {
+          console.dir(err)
+        })
     }
   }
 }

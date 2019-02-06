@@ -4,3 +4,8 @@ html, body {
 #wrapper {
     min-height: 100%;
 }
+.dropdown-menu.show {
+    max-height: 300px;
+    overflow-y: scroll;
+    color: black;
+  }

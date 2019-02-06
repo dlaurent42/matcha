@@ -1,12 +1,12 @@
 <template>
-  <div class="chat_list active_chat">
+  <div class="chat_list active_chat" v-on:click='refresh'>
     <div class="chat_people">
       <div class="chat_img">
-        <img v-bind:src="user.img">
+        <img v-bind:src="image">
       </div>
       <div class="chat_ib">
-        <h5> {{ user.firstname }} {{ user.lastname }}
-          <span class="chat_date">{{ message.date }}</span>
+        <h5> {{ user.username }}
+          <span class="chat_date">{{ getDate }}</span>
         </h5>
         <p>
           {{ message.content }}
@@ -16,11 +16,33 @@
   </div>
 </template>
 <script>
+import Format from '@/services/FormatDate'
+import User from '@/services/User'
 export default {
   name: 'lastMessage',
   props: ['user', 'message'],
   data () {
-    return {}
+    return {
+      image: 'https://ptetutorials.com/images/user-profile.png'
+    }
+  },
+  methods: {
+    getProfilePic () {
+      if (this.user.id !== undefined) {
+        User.getProfilePic(this.user.id)
+          .then(success => { this.image = success })
+          .catch(err => console.dir(err))
+      }
+    },
+    refresh () {
+      this.$emit('refresh', this.user.id)
+    }
+  },
+  computed: {
+    getDate () { return Format.fullDate(this.user.lastMessageDate) }
+  },
+  mounted () {
+    this.getProfilePic()
   }
 }
 </script>

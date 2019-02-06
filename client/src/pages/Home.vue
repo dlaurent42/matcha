@@ -68,7 +68,6 @@
     </b-container>
 </template>
 <script>
-import User from '@/services/User'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faHeart, faCode, faArchway } from '@fortawesome/free-solid-svg-icons'
 
@@ -77,26 +76,7 @@ library.add(faCode)
 library.add(faArchway)
 
 export default {
-  name: 'Home',
-  data () {
-    return {
-      userCount: 0
-    }
-  },
-  mounted () {
-  },
-  methods: {
-    async countUsers () {
-      await User.count()
-        .then((response) => {
-          console.log(response)
-          this.userCount = response
-        }, error => {
-          console.log(error)
-          this.userCount = 1
-        })
-    }
-  }
+  name: 'Home'
 }
 </script>
 <style scoped>

@@ -29,8 +29,10 @@ class Server {
       socket.on('loginUser', (uid) => {
         if (this.correlationTable[uid] === undefined) {
           Object.assign(this.correlationTable, { [uid]: [socket.id] })
+          console.log(this.correlationTable[uid], uid)
         } else {
           this.correlationTable[uid].push(socket.id)
+          console.log(this.correlationTable[uid], uid)
         }
       })
 
@@ -45,13 +47,15 @@ class Server {
         if (notification.type && NOTIFICATION_TYPES.indexOf(notification.type) > -1
         && notification.emitter && notification.receiver) {
           console.log('Notification is valid.')
-          if (this.correlationTable[notification.receiver]
-          || this.correlationTable[notification.receiver].length) {
+          if (this.correlationTable[notification.receiver] !== undefined
+          && this.correlationTable[notification.receiver].length) {
             this.correlationTable[notification.receiver].forEach((socketId) => {
               console.log('Notification receiver is online.')
-              this.io.sockets.socket(socketId).emit({
-                type: 'notification',
-                data: { type: notification.type, emitter: notification.emitter },
+              this.io.to(`${socketId}`).emit('notification', {
+                data: {
+                  type: notification.type,
+                  emitter: notification.emitter,
+                },
               })
             })
           } else {
@@ -69,8 +73,7 @@ class Server {
           && this.correlationTable[message.receiver].length) {
             console.log('Message receiver is online.')
             this.correlationTable[message.receiver].forEach((socketId) => {
-              this.io.sockets.socket(socketId).emit({
-                type: 'message',
+              this.io.to(`${socketId}`).emit('message', {
                 data: {
                   content: message.content,
                   emitter: message.emitter,
