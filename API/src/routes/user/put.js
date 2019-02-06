@@ -29,6 +29,7 @@ const verifyInput = (fields) => {
     'sexualOrientation',
     'connect',
     'disconnect',
+    'interest',
   ]
   Object.keys(fields).forEach((key) => {
     if (key === 'username' && !userIsUsername(fields[key])) err = true
@@ -42,6 +43,7 @@ const verifyInput = (fields) => {
     if (key === 'longitude' && !userIsLongitude(fields[key])) err = true
     if (key === 'gender' && isEmpty(fields[key])) err = true
     if (key === 'sexualOrientation' && isEmpty(fields[key])) err = true
+    if (key === 'interest' && isEmpty(fields[key])) err = true
     if (!possibleFields.includes(key)) err = true
   })
   return err
@@ -56,6 +58,7 @@ const fetchPromises = (userId, fields, userInstance) => {
     else if (key === 'sexualOrientation') promises.push(userInstance.setSexualOrientation(userId, fields[key]))
     else if (key === 'connect') promises.push(userInstance.setGeneralInformation(userId, 'is_connected', 1))
     else if (key === 'disconnect') promises.push(userInstance.setDisconnected(userId))
+    else if (key === 'interest') promises.push(userInstance.setInterests(userId, fields[key]))
     else promises.push(userInstance.setGeneralInformation(userId, key, fields[key]))
   })
   return promises
