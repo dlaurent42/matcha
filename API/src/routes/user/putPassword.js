@@ -25,14 +25,11 @@ router.put('/:id/password', (req, res) => {
     return res.status(400).json({ err: ERRORS.DATA_VALIDATION })
   }
   const user = new User()
-  console.log('/:id/password3')
   return new Database().query('SELECT * FROM `users` WHERE `id` = ?;', [req.params.id])
     .then((rows) => {
       if (isEmpty(rows)) return res.json({ err: ERRORS.USER_NO_USER })
-      console.log(rows[0].password, '\n', rows[0].salt)
       const currentPasswordHashed = hash(req.body.current_password, rows[0].salt)
       if (currentPasswordHashed !== rows[0].password) throw new Error(ERRORS.USER_WRONG_PASSWORD)
-      console.log('/:id/password1')
       return user.setPassword(req.params.id, req.body.new_password)
     })
     .then(() => user.setProfileComplete(req.params.id))

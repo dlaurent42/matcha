@@ -62,8 +62,6 @@ class Mail {
       subject: '[REPORT] User has been reported',
       text: `${emitter.username} [${emitter.email}] has reported ${receiver.username} [${receiver.email}] as fake user.`,
     }
-    console.log('Mail options:')
-    console.log(mailOptions)
     return this.send(mailOptions)
   }
 }

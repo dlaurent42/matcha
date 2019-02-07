@@ -17,8 +17,6 @@ router.get('/authenticate', (req, res) => {
   if (isEmpty(req.query.username) || isEmpty(req.query.password)) {
     return res.status(400).json({ err: ERRORS.DATA_MISSING })
   }
-  console.log(req.query.username)
-  console.log(req.query.password)
   // Check user data
   if (!dataCheck(req.query.username, req.query.password)) {
     return res.status(401).json({ err: ERRORS.DATA_VALIDATION })

@@ -57,7 +57,6 @@ class User {
     return new Promise((resolve, reject) => (
       this.database.query(USERS.GET_COUNT_BY_USERNAME_AND_EMAIL, [user.username, user.email])
         .then((rows) => {
-          console.log(rows)
           if (rows[0].count > 0) throw new Error(ERRORS.USER_ACCOUNT_EXISTS)
           const salt = random(255)
           const password = hash(user.password, salt)
@@ -118,6 +117,30 @@ class User {
           )
         })
         .then(() => resolve())
+        .catch(err => reject(err))
+    ))
+  }
+
+  addConfirmEmailToken(email, redirectUri) {
+    return new Promise((resolve, reject) => (
+      this.database.query(USERS.GET_USER_BY_CONDITION({ condition: 'email' }), [email])
+        .then((rows) => {
+          if (isEmpty(rows)) resolve()
+          this.user.id = rows[0].id
+          this.user.username = rows[0].username
+          this.user.lastname = rows[0].lastname
+          this.user.firstname = rows[0].firstname
+          this.user.fullname = this.user.firstname.concat(' ', this.user.lastname)
+          this.user.email = rows[0].email
+          this.user.registrationToken = random(255)
+          return this.database.query(USERS.ADD_REGISTRATION_TOKEN,
+            [this.user.registrationToken, this.user.id])
+        })
+        .then((rows) => {
+          if (isEmpty(rows)) throw new Error(ERRORS.GENERAL)
+          return this.mail.registration(this.user, redirectUri)
+        })
+        .then(() => resolve(this.user))
         .catch(err => reject(err))
     ))
   }
@@ -584,7 +607,6 @@ class User {
   }
 
   setGeneralInformation(userId, key, value) {
-    console.log(`id: ${userId}, key: ${key}, value: ${value}`)
     return new Promise((resolve, reject) => (
       this.database.queries(USERS.SET_GENERAL_INFO, [key, value, userId])
         .then(() => resolve())
@@ -618,7 +640,7 @@ class User {
             try {
               this.database.queries(USERS.ADD_SEXUAL_ORIENTATION, [userId, val])
             } catch (e) {
-              console.log(e)
+              console.errror(e)
             }
           })
           return resolve()
@@ -635,7 +657,7 @@ class User {
             try {
               this.database.queries(USERS.ADD_INTERESTS, [userId, tag])
             } catch (e) {
-              console.log(e)
+              console.error(e)
             }
           })
           return resolve()
@@ -645,13 +667,9 @@ class User {
   }
 
   verifyPasswordRecoveryToken(token) {
-    console.log('token is ')
-    console.log(token)
     return new Promise((resolve, reject) => (
       this.database.query(USERS.GET_PASSWORD_RECOVERY_TOKEN, [token])
         .then((rows) => {
-          console.log('rows are')
-          console.log(rows)
           if (isEmpty(rows)) throw new Error(ERRORS.USER_TOKEN_EXPIRED)
           return this.fetchInformationById(rows[0].user_id)
         })
