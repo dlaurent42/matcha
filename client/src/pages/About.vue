@@ -1,6 +1,7 @@
 <template>
-  <b-row>
-   <b-col col md="4" lg="4">
+  <b-container fluid class="h-100">
+    <b-row class="justify-content-md-center">
+      <b-col col md="6" lg="6">
         <b-card title="About us" sub-title="" class="bg-dark-transparent">
           <p class="card-text">
             Meeting Online singles has never been easier. Welcome to the simplest online dating site to date, flirt,
@@ -19,7 +20,8 @@
           </p>
         </b-card>
       </b-col>
-  </b-row>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
@@ -27,6 +29,11 @@ export default {
 }
 </script>
 <style scoped>
+.bg-dark-transparent {
+  background-color:#343a40ad;
+  color:rgba(255, 255, 255, 0.8);
+  height: 100%;
+}
 #a {
   flex: 1 100%;
 }

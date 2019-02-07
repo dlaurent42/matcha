@@ -3,6 +3,7 @@ import Router from 'vue-router'
 
 // Pages
 import Login from '@/pages/Login'
+import Confirmation from '@/pages/Confirmation'
 import Register from '@/pages/Register'
 import Home from '@/pages/Home'
 import About from '@/pages/About'
@@ -23,6 +24,11 @@ const router = new Router({
       path: '/',
       name: 'Home',
       component: Home
+    },
+    {
+      path: '/confirm-account',
+      name: 'Confirm',
+      component: Confirmation
     },
     {
       path: '/match',
