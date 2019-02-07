@@ -155,7 +155,7 @@ export default {
     })
   },
   register (user) {
-    const data = {'redirect_uri': 'http://localhost:8080/register'}
+    const data = {'redirect_uri': 'http://localhost:8080/confirm-account'}
     Object.assign(user, data)
     return new Promise((resolve, reject) => {
       this.authLogic().then(
@@ -169,6 +169,19 @@ export default {
             .catch(err => {
               reject(err)
             })
+        })
+    })
+  },
+  confirmAccount (body) {
+    return new Promise((resolve, reject) => {
+      Api().put('/user/confirm-account', body)
+        .then(success => {
+          resolve(success)
+        }, error => {
+          reject(error)
+        })
+        .catch(err => {
+          reject(err)
         })
     })
   },

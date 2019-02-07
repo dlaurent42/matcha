@@ -1,7 +1,13 @@
 <template>
   <b-row class="fill-space">
-    <b-col md="6" cols="12" class="left-space bg-dark">
+    <b-col
+      md="6"
+      cols="12"
+      class="left-space bg-dark"
+      v-bind:class="{ 'translate': registered }"
+    >
       <b-card
+        v-if="registered === false"
         class="text-white bg-dark my-auto col-md-8 border-info"
         title="Register"
         sub-title="Create your account to use our awesome services !"
@@ -88,6 +94,16 @@
           <b-button v-on:click="verify()" variant="info">Submit</b-button>
         </b-form>
       </b-card>
+      <b-card
+        v-else
+        class="text-white bg-dark my-auto col-md-8 border-info"
+        title="Register successful !"
+        sub-title="Thanks for creating an account"
+      >
+      <p class="card-text">
+        Check your email to set your account as confirmed
+      </p>
+      </b-card>
     </b-col>
   </b-row>
 </template>
@@ -103,6 +119,7 @@ export default {
   name: 'Register',
   data () {
     return {
+      registered: false,
       input: {
         username: '',
         firstname: '',
@@ -135,8 +152,7 @@ export default {
     async register () {
       await User.register({ user: this.input })
         .then((success) => {
-          console.log('Success add a redirection')
-          console.dir(success)
+          this.register = true
         }, error => {
           console.dir(error)
         })
@@ -153,6 +169,12 @@ export default {
 </script>
 
 <style scoped>
+@media screen and (min-width: 640px) {
+  .translate {
+    transform: translate(100%, 0);
+    transition: transform 2s, height 4s;
+  }
+}
 .bg-dark-transparent {
   background-color:#343a40ad;
   color:rgba(255, 255, 255, 0.8);
