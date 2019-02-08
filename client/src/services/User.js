@@ -278,47 +278,28 @@ export default {
       })
   },
   unlike (send, receiver) {
-    const body = {'emitter': send, 'receiver': receiver}
-    return Api().delete('/notification/like', body)
-      .then((response) => {
-        return response
-      })
-      .catch((err) => {
-        return err
-      })
+    const body = { 'emitter': parseInt(send, 10), 'receiver': parseInt(receiver, 10) }
+    return Api().post('/notification/unlike', body)
+      .then((response) => { return response })
+      .catch((err) => { return err })
   },
   block (send, receiver) {
     const body = { 'emitter': send, 'receiver': receiver }
     return Api().post('/user/block', body)
-      .then((response) => {
-        return response
-      })
-      .catch((err) => {
-        console.dir(err)
-        return err
-      })
+      .then((response) => { return response })
+      .catch((err) => { return err })
   },
   unblock (send, receiver) {
     const body = { 'emitter': send, 'receiver': receiver }
     return Api().delete('/user/block', { data: body })
-      .then((response) => {
-        return response
-      })
-      .catch((err) => {
-        console.dir(err)
-        return err
-      })
+      .then((response) => { return response })
+      .catch((err) => { return err })
   },
   sendMessageFull (message) {
     return new Promise((resolve, reject) => {
       Api().post('/chat/message', message)
-        .then((response) => {
-          resolve(response)
-        })
-        .catch((err) => {
-          console.dir(err)
-          reject(err)
-        })
+        .then((response) => { resolve(response) })
+        .catch((err) => { reject(err) })
     })
   },
   profileSeen (receiver) {

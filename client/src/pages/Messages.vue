@@ -84,8 +84,13 @@ export default {
         User.getConversation()
           .then(success => {
             const map = new Map()
-            success.data.conversations.forEach(a => map.set(a.id, a))
-            this.users = [...map.values()].reverse()
+            this.getMatched()
+              .then(users => {
+                if (users) users.data.users.forEach(a => map.set(a.id, a))
+                success.data.conversations.forEach(a => map.set(a.id, a))
+                this.users = [...map.values()].reverse()
+              })
+            console.dir(this.users)
             if (this.users[0] !== undefined) resolve(this.users[0])
             else reject(Error('no conversation'))
           })
@@ -104,6 +109,13 @@ export default {
           })
           .catch(err => { console.dir(err) })
       }
+    },
+    getMatched () {
+      return new Promise((resolve, reject) => {
+        User.getAll({ filters: { is_match: 1 } })
+          .then(success => { resolve(success) })
+          .catch(err => reject(err))
+      })
     },
     async getMessages (receiver) {
       try {

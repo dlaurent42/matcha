@@ -1,7 +1,7 @@
 <template>
   <div id="wrapper">
     <v-header v-bind:logged="authenticated" class="fixed-value" @clicked="logout" v-bind:socket="socket"></v-header>
-    <b-container class="fill-space" v-bind:style="{ 'background-image': 'url(' + image + ')' }" fluid>
+    <b-container v-bind:class="classBase" v-bind:style="{ 'background-image': 'url(' + image + ')' }" fluid>
       <router-view
         @authenticated="setAuthenticated"
         @profileComplete="setComplete"
@@ -32,6 +32,7 @@ export default {
   },
   data () {
     return {
+      classBase: 'fill-space',
       image: require('../assets/backgrouds/headerbg.jpg'),
       authenticated: false,
       profileComplete: false,
@@ -68,6 +69,7 @@ export default {
     }
   },
   mounted () {
+    if (this.$router.history.current.name === 'Liked') this.classBase = 'fill-space-horizontal'
     if (this.authenticated === 'true') {
       User.get()
         .then(success => {
@@ -106,6 +108,17 @@ export default {
   -webkit-box-direction: normal;
   -ms-flex-direction: column;
   flex-direction: column;
+  -ms-flex-pack: distribute;
+  justify-content: space-around;
+  flex: 1 100%;
+}
+.fill-space-horizontal {
+  flex:1;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: row;
   -ms-flex-pack: distribute;
   justify-content: space-around;
   flex: 1 100%;

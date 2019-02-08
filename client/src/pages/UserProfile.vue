@@ -86,7 +86,7 @@ export default {
   },
   beforeMount () {
     if (this.authenticated === false) router.push('/')
-    if (this.profileComplete === false) router.push('/Profile')
+    if (this.profileComplete === 'false') router.push('/Profile')
     this.updateUser()
     this.setButton()
   },
@@ -104,7 +104,7 @@ export default {
             this.user = success.data.user
             this.getProfilePic()
             this.profileSeen()
-          } else router.push('/')
+          }
         })
         .catch((err) => console.dir(err))
     },

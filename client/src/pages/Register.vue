@@ -129,7 +129,7 @@ export default {
   },
   data () {
     return {
-      loadingRegister: false,
+      loadingRegister: 'false',
       registered: false,
       input: {
         username: '',
@@ -167,6 +167,7 @@ export default {
           this.registered = true
         }, err => {
           this.loadingRegister = 'error'
+          setTimeout(() => { this.loadingRegister = 'false' }, 3000)
           console.dir(err)
         })
     }

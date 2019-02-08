@@ -3,21 +3,27 @@
     <b-row class="justify-content-md-center w-100 mb-2">
       <b-col md="8">
         <b-button
-          v-bind:class="{ 'btn-success active': !setPicture }"
+          v-bind:class="{ 'btn-success active': setPicture === false }"
           @click="setPicture = false"
         >
           Set Profile
         </b-button>
         <b-button
-          v-bind:class="{ 'btn-success active': setPicture }"
+          v-bind:class="{ 'btn-success active': setPicture === true }"
           @click="setPicture = true"
         >
           Add Picture
         </b-button>
+        <b-button
+          v-bind:class="{ 'btn-success active': setPicture === 'apikey' }"
+          @click="setPicture = 'apikey'"
+        >
+          Get Api key
+        </b-button>
         <div v-if="!input.isProfileComplete" class="bg-dark-transparent text-center mt-2 p-2"> Please fill all informations to start matching whith people</div>
       </b-col>
     </b-row>
-    <b-row v-if="!setPicture" class="justify-content-md-center w-100">
+    <b-row v-if="setPicture === true" class="justify-content-md-center w-100">
       <b-col col md="6" lg="4">
         <b-card title="Edit your informations" class="bg-dark-transparent mb-2">
           <b-form>
@@ -162,7 +168,7 @@
         </b-card>
       </b-col>
     </b-row>
-    <b-row v-if="setPicture" class="justify-content-md-center w-100 m-height-500">
+    <b-row v-if="setPicture === false" class="justify-content-md-center w-100 m-height-500">
       <b-col md="8">
         <b-row class="justify-content-md-center h-100 w-100">
           <b-col md="6">
@@ -188,6 +194,16 @@
           </b-col>
           <b-col md="6">
             <v-carousel isProfile="true" v-bind:pictures="input.pictures" v-on:deletePicture="deletePicture"></v-carousel>
+          </b-col>
+        </b-row>
+      </b-col>
+    </b-row>
+    <b-row v-if="setPicture === 'apikey'" class="justify-content-md-center w-100 m-height-500">
+      <b-col md="12">
+        <b-row class="justify-content-md-center h-100 w-100">
+          <b-col md="8">
+            <b-card title="Get your Api key" class="h-100 bg-dark-transparent">
+            </b-card>
           </b-col>
         </b-row>
       </b-col>

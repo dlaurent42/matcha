@@ -71,9 +71,9 @@ class Router {
       '/notification': [
         notifDelete,
         notifDeleteAll,
-        notifDeleteLike,
         notifGet,
         notifPostLike,
+        notifDeleteLike,
         notifPostProfile,
         notifPutAllViewed,
         notifPutViewed,
