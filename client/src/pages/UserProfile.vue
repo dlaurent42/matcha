@@ -63,7 +63,7 @@ export default {
     'v-btn': MatchButton,
     'v-carousel': Carousel
   },
-  props: ['socket'],
+  props: ['socket', 'authenticated', 'profileComplete'],
   data () {
     return {
       user: {
@@ -86,6 +86,7 @@ export default {
   },
   beforeMount () {
     if (this.authenticated === false) router.push('/')
+    if (this.profileComplete === false) router.push('/Profile')
     this.updateUser()
     this.setButton()
   },

@@ -32,7 +32,7 @@
             id="exampleInputGroup2"
             label="Username:"
             label-for="exampleInput2"
-            description="Your username must be alpha numeric and contain between 6 and 24 characters"
+            description="Your username must be alpha numeric and contain between 5 and 24 characters"
           >
             <b-form-input
               id="exampleInput2"
@@ -110,6 +110,7 @@
 
 <script>
 import User from '@/services/User'
+import router from '@/router'
 import isEmail from '@/utils/user/isEmail'
 import isUsername from '@/utils/user/isUsername'
 import isPassword from '@/utils/user/isPassword'
@@ -117,6 +118,7 @@ import isLastname from '@/utils/user/isLastname'
 import isFirstname from '@/utils/user/isFirstname'
 export default {
   name: 'Register',
+  props: ['authentificated'],
   data () {
     return {
       registered: false,
@@ -164,7 +166,8 @@ export default {
     verifyFirstName () { return this.input.firstname === '' ? null : isFirstname(this.input.firstname) },
     verifyLastName () { return this.input.lastname === '' ? null : isLastname(this.input.lastname) },
     verifyPassword () { return this.input.password === '' && this.input.cpassword === '' ? null : isPassword(this.input.password, this.input.cpassword) }
-  }
+  },
+  beforeMount () { if (this.authenticated === true) router.push('/') }
 }
 </script>
 

@@ -4,7 +4,10 @@
     <b-container class="fill-space" v-bind:style="{ 'background-image': 'url(' + image + ')' }" fluid>
       <router-view
         @authenticated="setAuthenticated"
+        @profileComplete="setComplete"
+        @profileNotComplete="setIncomplete"
         v-bind:authenticated="authenticated"
+        v-bind:profileComplete="profileComplete"
         v-bind:socket="socket"
       />
     </b-container>
@@ -31,14 +34,20 @@ export default {
     return {
       image: require('../assets/backgrouds/headerbg.jpg'),
       authenticated: false,
+      profileComplete: false,
       socket: null,
       user: ''
     }
   },
   methods: {
+    setComplete () {
+      this.profileComplete = true
+    },
+    setIncomplete () { this.profileComplete = false },
     setAuthenticated (response) {
       this.authenticated = 'true'
       this.user = response.data.user
+      this.profileComplete = response.data.user.isProfileComplete
       sessionStorage.setItem('userLogged', true)
       sessionStorage.setItem('userID', JSON.stringify(response.data.user.id))
       if (this.socket === null) {
@@ -56,6 +65,15 @@ export default {
       sessionStorage.removeItem('userID')
       this.socket.emit('logoutUser', User.getID())
       router.push('/')
+    }
+  },
+  mounted () {
+    if (this.authenticated === 'true') {
+      User.get()
+        .then(success => {
+          this.user = success.data.user
+          this.profileComplete = success.data.user.isProfileComplete
+        })
     }
   },
   beforeMount () {

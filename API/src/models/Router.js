@@ -42,7 +42,7 @@ const userGet = require('../routes/user/get')
 const userGetAll = require('../routes/user/getAll')
 const userGetAuthenticate = require('../routes/user/getAuthenticate')
 const userGetGenders = require('../routes/user/getGenders')
-const userGetRecoverPassword = require('../routes/user/getRecoverPassword')
+const userPutRecoverPassword = require('../routes/user/putRecoverPassword')
 const userPost = require('../routes/user/post')
 const userPostBlock = require('../routes/user/postBlock')
 const userPostEmailConfirmation = require('../routes/user/postEmailConfirmation')
@@ -96,7 +96,7 @@ class Router {
         userGetAll,
         userGetAuthenticate,
         userGetGenders,
-        userGetRecoverPassword,
+        userPutRecoverPassword,
         userPostBlock,
         userPostEmailConfirmation,
         userPostRecoverPassword,

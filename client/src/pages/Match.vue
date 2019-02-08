@@ -94,7 +94,7 @@ export default {
   components: {
     'v-match': MultiMatch
   },
-  props: ['authenticated', 'socket'],
+  props: ['authenticated', 'socket', 'profileComplete'],
   data () {
     return {
       matches: [],
@@ -177,6 +177,7 @@ export default {
   },
   beforeMount () {
     if (this.authenticated === false) router.push('/')
+    if (this.profileComplete === false) router.push('/Profile')
     this.getInitialUsers()
     this.img = 'http://getwallpapers.com/wallpaper/full/f/c/3/43246.jpg'
   },

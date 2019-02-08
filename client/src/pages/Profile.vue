@@ -14,6 +14,7 @@
         >
           Add Picture
         </b-button>
+        <div v-if="!input.isProfileComplete" class="bg-dark-transparent text-center mt-2 p-2"> Please fill all informations to start matching whith people</div>
       </b-col>
     </b-row>
     <b-row v-if="!setPicture" class="justify-content-md-center w-100">
@@ -96,6 +97,8 @@
               <b-form-input
                 id="birthdayInput"
                 type="date"
+                max="2001-01-02"
+                min="1919-01-02"
                 v-model="input.birthday"
                 required
                 placeholder="Enter name"
@@ -232,7 +235,8 @@ export default {
         birthday: '',
         gender: '',
         biography: '',
-        interest: ''
+        interest: '',
+        isProfileComplete: ''
       },
       show: true
     }
@@ -251,8 +255,6 @@ export default {
     this.loadingInformation = 'false'
     this.loadingProfile = 'false'
     this.loadingPassword = 'false'
-  },
-  mounted () {
   },
   computed: {
     urlEmpty () { return !_.isEmpty(this.url) },
@@ -324,6 +326,7 @@ export default {
           return !(_.isEmpty(x) ||
             key === 'id' ||
             key === 'oldPassword' ||
+            key === 'isProfileComplete' ||
             key === 'likes' ||
             key === 'liked' ||
             key === 'password' ||
@@ -342,12 +345,18 @@ export default {
       ))
       if (!_.isEmpty(this.interest)) Object.assign(data, { interest: this.interest })
       if (!_.isEmpty(this.orientation)) Object.assign(data, { sexualOrientation: this.orientation })
-      console.dir(data)
       User.update({ fields: data })
-        .then(success => { setTimeout(() => { this.loadingProfile = 'complete' }, 1500) })
+        .then(success => {
+          this.user = success.data.user
+          setTimeout(() => { this.loadingProfile = 'complete' }, 1500)
+        })
         .catch(() => { this.loadingProfile = 'error' })
         .finally(setTimeout(() => { this.loadingProfile = 'false' }, 3000))
     }
+  },
+  updated () {
+    if (this.input.isProfileComplete === true) this.$emit('profileComplete')
+    else this.$emit('profileNotComplete')
   }
 }
 </script>

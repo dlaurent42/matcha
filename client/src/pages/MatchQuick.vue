@@ -21,7 +21,7 @@ import router from '@/router'
 import SoloMatch from '@/components/SoloMatch'
 export default {
   name: 'Contact',
-  props: ['socket'],
+  props: ['socket', 'authenticated', 'profileComplete'],
   components: {
     'v-match': SoloMatch
   },
@@ -69,6 +69,7 @@ export default {
   },
   beforeMount () {
     if (this.authenticated === false) router.push('/')
+    if (this.profileComplete === false) router.push('/Profile')
     else this.getInitialUsers()
   }
 }

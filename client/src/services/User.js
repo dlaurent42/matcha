@@ -146,16 +146,14 @@ export default {
       this.authLogic().then(success => {
         Api().get('/user/authenticate', user)
           .then(data => {
+            if (parseInt(data.data.user.isAccountConfirmed) === 0) { reject(Error('Your account is not confirmed')) }
             sessionStorage.setItem('userID', JSON.stringify(data.data.user.id))
             this.getLocalisation()
               .then(success => console.dir(success))
               .catch(err => console.dir(err))
             resolve(data)
           })
-          .catch(err => {
-            console.dir(err)
-            reject(err.response.data.err)
-          })
+          .catch(err => { reject(Error(err.response.data.err)) })
       })
     })
   },

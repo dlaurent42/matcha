@@ -33,6 +33,7 @@
           </b-form-group>
           <b-button v-on:click="login()" variant="info">Login</b-button>
           <b-button v-on:click="resetPassword()" variant="dark">Forgot your password ?</b-button>
+          <p class="card-text text-danger mt-4">{{ myError.message }}</p>
           <b-card-footer class="mt-4">
             <p class="card-text">Not on Matcha yet ? <router-link to="/register" class="card-link">Sign up</router-link></p>
           </b-card-footer>
@@ -66,11 +67,16 @@
 <script>
 import User from '@/services/User'
 import router from '@/router'
+import _ from 'lodash'
 
 export default {
   name: 'Login',
   data () {
     return {
+      myError: {
+        value: false,
+        message: ''
+      },
       recovery: false,
       sent: false,
       input: {
@@ -82,14 +88,21 @@ export default {
     }
   },
   methods: {
-    async login () {
+    login () {
+      if (_.isEmpty(this.input.username) || _.isEmpty(this.input.username)) {
+        this.myError.message = 'Make sure all fields are filled in'
+        return null
+      }
       const data = { params: { username: this.input.username, password: this.input.password } }
       User.login(data)
         .then(success => {
           this.$emit('authenticated', success)
           router.push('/')
         })
-        .catch(error => console.dir(error))
+        .catch(err => {
+          this.myError.value = true
+          this.myError.message = err.message
+        })
     },
     reset () {
       User.resetPassword({ 'email': this.recover })
@@ -100,7 +113,8 @@ export default {
         .catch(err => console.log(err))
     },
     resetPassword () { this.recovery = !this.recovery }
-  }
+  },
+  beforeMount () { if (this.authenticated === true) router.push('/') }
 }
 </script>
 
