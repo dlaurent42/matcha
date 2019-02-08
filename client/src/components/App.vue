@@ -8,13 +8,13 @@
         v-bind:socket="socket"
       />
     </b-container>
-    <b-button @click='hello'>Hello</b-button>
     <v-footer class="fixed-value"></v-footer>
   </div>
 </template>
 
 <script>
 import User from '@/services/User'
+import axios from 'axios' //eslint-disable-line
 import Menu from '@/components/Menu'
 import Footer from '@/components/Footer'
 import router from '@/router'
@@ -56,23 +56,7 @@ export default {
       sessionStorage.removeItem('userID')
       this.socket.emit('logoutUser', User.getID())
       router.push('/')
-    },
-    hello () {
-      const message = {
-        'emitter': 502,
-        'receiver': 501,
-        'message': 'Hey user number ' + Math.random(),
-        'content': 'Hey user number ' + Math.random()
-      }
-      this.socket.emit('message', message)
-      User.sendMessageFull(message)
-        .then(success => console.dir(success))
-        .catch(err => console.dir(err))
-    },
-    haha (msg) {
-      console.log('haha', msg)
     }
-
   },
   beforeMount () {
     User.auth()

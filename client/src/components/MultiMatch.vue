@@ -1,17 +1,28 @@
 <template>
     <b-card
+      class="size-max-md"
       v-bind:title="person.fullname"
       v-bind:subTitle="person.age.toString()"
-      img-src="https://randomuser.me/api/portraits/women/65.jpg"
+      v-bind:img-src="profilePic"
       img-fluid
       img-alt="image"
       img-top
   >
       <p class="card-text" ><b-button v-bind:href="profilePath">View profile</b-button></p>
-      <p class="card-text" >{{ person.interests }}</p>
+      <div class="d-flex justify-content-around flex-wrap mb-2">
+        <b-badge
+          class="mb-2"
+          v-for="interest in interests"
+          v-bind:key="interest"
+          v-bind:variant="`${colors[parseInt((Math.random().toFixed(2) * 100)) % colors.length]}`"
+        >
+        {{ interest }}
+        </b-badge>
+      </div>
       <v-btn
         v-bind:id="person.id"
         v-on:like="like"
+        v-bind:socket="socket"
         v-on:block="block"
       />
   </b-card>
@@ -24,13 +35,26 @@ export default {
   components: {
     'v-btn': MatchButton
   },
-  props: ['person'],
+  props: ['person', 'socket'],
   data () {
-    return { }
+    return {
+      interests: [],
+      colors: [
+        'primary',
+        'secondary',
+        'info'
+      ]
+    }
+  },
+  beforeMount () {
+    this.interests = this.person.interests.slice(0, 5)
   },
   computed: {
-    profilePath: function () {
+    profilePath () {
       return '/Profile/' + this.person.id
+    },
+    profilePic () {
+      return 'http://localhost:8081/assets/' + this.person.profilePic
     }
   },
   methods: {
@@ -53,5 +77,8 @@ export default {
 }
 .btn-outline-warning:hover {
   color:white;
+}
+.size-max-md {
+  max-width: 20rem;
 }
 </style>

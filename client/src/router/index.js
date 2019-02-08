@@ -4,6 +4,7 @@ import Router from 'vue-router'
 // Pages
 import Login from '@/pages/Login'
 import Confirmation from '@/pages/Confirmation'
+import ConfirmationPassword from '@/pages/ConfirmationPassword'
 import Register from '@/pages/Register'
 import Home from '@/pages/Home'
 import About from '@/pages/About'
@@ -29,6 +30,11 @@ const router = new Router({
       path: '/confirm-account',
       name: 'Confirm',
       component: Confirmation
+    },
+    {
+      path: '/recover-password',
+      name: 'Reset password',
+      component: ConfirmationPassword
     },
     {
       path: '/match',

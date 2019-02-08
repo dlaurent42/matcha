@@ -152,7 +152,7 @@ export default {
     async register () {
       await User.register({ user: this.input })
         .then((success) => {
-          this.register = true
+          this.registered = true
         }, error => {
           console.dir(error)
         })

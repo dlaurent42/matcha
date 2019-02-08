@@ -6,7 +6,7 @@ const pictures = database => (
     const promises = []
     usersJsonList.forEach((user) => {
       const rdm = Math.floor(Math.random() * 3)
-      for (let i = 0; i < rdm; i += 1) {
+      for (let i = 0; i <= rdm; i += 1) {
         const isProfilePic = (i === 0) ? 1 : 0
         let filename
         if (user.gender === 1) filename = `male/image-${Math.floor(Math.random() * 116) + 1}.png`

@@ -1,7 +1,7 @@
 <template>
   <b-row class="fill-space">
     <b-col md="6" cols="12" class="right-space bg-dark">
-      <b-card
+      <b-card v-if="recovery === false"
         title="Login"
         sub-title="Log in to use our awesome services !"
         class="bg-dark-transparent border-info"
@@ -38,6 +38,27 @@
           </b-card-footer>
         </b-form>
       </b-card>
+       <b-card v-else
+          title="Recover Password"
+          sub-title="Enter your email to reset your password"
+          class="bg-dark-transparent border-info"
+        >
+          <b-form-group
+            id="exampleInputGroup1"
+            label-for="exampleInput1"
+          >
+            <b-form-input
+              id="exampleInput1"
+              type="text"
+              v-model="recover"
+              required
+              placeholder="Enter your email"
+            ></b-form-input>
+          </b-form-group>
+          <b-button v-on:click="reset" variant="info">Reset</b-button>
+          <b-button v-on:click="resetPassword" variant="dark">Go back to log in</b-button>
+          <p v-if="sent === true" class="card-text text-info mt-4">An email has been sent to your email address</p>
+       </b-card>
     </b-col>
   </b-row>
 </template>
@@ -50,10 +71,13 @@ export default {
   name: 'Login',
   data () {
     return {
+      recovery: false,
+      sent: false,
       input: {
         username: '',
         password: ''
       },
+      recover: '',
       show: true
     }
   },
@@ -61,17 +85,21 @@ export default {
     async login () {
       const data = { params: { username: this.input.username, password: this.input.password } }
       User.login(data)
-        .then(
-          success => {
-            this.$emit('authenticated', success)
-            router.push('/')
-          },
-          error => console.dir(error)
-        )
+        .then(success => {
+          this.$emit('authenticated', success)
+          router.push('/')
+        })
+        .catch(error => console.dir(error))
     },
-    async resetPassword () {
-      return null
-    }
+    reset () {
+      User.resetPassword({ 'email': this.recover })
+        .then(success => {
+          this.sent = true
+          setTimeout(() => { this.resetPassword() }, 2000)
+        })
+        .catch(err => console.log(err))
+    },
+    resetPassword () { this.recovery = !this.recovery }
   }
 }
 </script>

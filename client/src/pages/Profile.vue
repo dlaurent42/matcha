@@ -1,154 +1,201 @@
 <template>
   <b-row class="justify-content-md-center bg-transparent">
-    <b-col col md="4" lg="3">
-      <b-card title="Edit Your Informations" class="bg-dark-transparent">
-        <b-form>
-          <b-form-group
-            id="firstnameGroup"
-            label="Firstname:"
-            label-for="firstnameInput"
-          >
-            <b-form-input
-              id="firstnameInput"
-              type="text"
-              v-model="input.firstname"
-              required
-              placeholder="Enter firstname"
-            ></b-form-input>
-          </b-form-group>
-          <b-form-group
-            id="lastnameGroup"
-            label="Last Name:"
-            label-for="lastnameInput"
-          >
-            <b-form-input
-              id="lastnameInput"
-              type="text"
-              v-model="input.lastname"
-              required
-              placeholder="Enter lastname"
-            ></b-form-input>
-          </b-form-group>
-          <b-form-group id="passwordGroup" label="Password:" label-for="passwordInput">
-            <b-form-input
-              id="passwordInput"
-              type="password"
-              v-model="input.password"
-              required
-              placeholder="Enter your password"
-            ></b-form-input>
-          </b-form-group>
-          <b-form-group id="cpasswordGroup" label="Re-enter your password:" label-for="cpasswordInput">
-            <b-form-input
-              id="cpasswordInput"
-              type="password"
-              v-model="input.cpassword"
-              required
-              placeholder="Enter your password again"
-            ></b-form-input>
-          </b-form-group>
-          <b-button v-if="loadingInformation === 'false'" v-on:click="updateInformation()" variant="dark">Update</b-button>
-          <b-button v-else-if="loadingInformation='complete'" variant="success">Update complete</b-button>
-          <b-button v-else-if="loadingInformation='error'" variant="danger">An error has occured, try again later</b-button>
-          <b-button v-else variant="dark"><font-awesome-icon icon="spinner" size="1x" pulse/> Updating...</b-button>
-        </b-form>
-      </b-card>
-    </b-col>
-    <b-col col md="4" lg="4">
-      <b-card title="Edit Your Profile" class="bg-dark-transparent">
-        <b-form>
-          <b-form-group id="birthdayGroup" label="Birthday:" label-for="birthdayInput">
-            <b-form-input
-              id="birthdayInput"
-              type="date"
-              v-model="input.birthday"
-              required
-              placeholder="Enter name"
-            ></b-form-input>
-          </b-form-group>
-          <b-form-group id="genderGroup" label="Gender:" label-for="genderInput">
-            <b-form-select v-model="input.gender" :options="gender" class="mb-3"/>
-          </b-form-group>
-          <b-form-group label="Select your orientation">
-            <b-form-checkbox-group id="checkboxes1" name="flavour1" v-model="orientation" :options="getOrientation">
-            </b-form-checkbox-group>
-          </b-form-group>
-          <b-form-group
-            id="biographyGroup"
-            label="Biography:"
-            label-for="biographyInput"
-          >
-            <b-form-textarea
-              id="biographyInput"
-              type="text"
-              :rows="3"
-              :max-rows="6"
-              v-model="input.biography"
-              required
-              placeholder="This will be displayed on matching page"
-            ></b-form-textarea>
-          </b-form-group>
-          <b-form-group
-            id="interestGroup"
-            label="Interest:"
-            label-for="interestInput"
-          >
-            <b-badge
-              class="ml-1 mb-1"
-              v-for="(tags, index) in interest"
-              v-bind:key="tags"
-              @click="removeElement(index)"
-            >
-              {{ tags }}
-            </b-badge>
-            <b-row class="m-0 mt-2">
-              <b-col md="8" class="p-0">
-                <b-form-input
-                  id="interestInput"
-                  type="text"
-                  v-model="input.interest"
-                  required
-                  placeholder="Add interest"
-                />
-              </b-col>
-              <b-col md="4">
-                <b-button v-on:click="addInterest" variant="light">Add</b-button>
-              </b-col>
-            </b-row>
-          </b-form-group>
-          <b-button v-if="loadingProfile === 'false'" v-on:click="updateProfile" variant="dark">Update</b-button>
-          <b-button v-else-if="loadingProfile ==='complete'" variant="success">Update complete</b-button>
-          <b-button v-else-if="loadingProfile ==='error'" variant="danger">An error has occured, try again later</b-button>
-          <b-button v-else variant="dark"><font-awesome-icon icon="spinner" size="1x" pulse/> Updating...</b-button>
-        </b-form>
-      </b-card>
-    </b-col>
-    <b-col col md="4" ld="4">
-      <b-card title="Add a profile picture" class="bg-dark-transparent">
-        <b-form-file
-          v-model="file"
-          @change="onFileChange"
-          :state="Boolean(file)"
-          placeholder='Choose a file...'
-          accept="image/jpeg, image/png, image/gif"
+    <b-row class="justify-content-md-center w-100 mb-2">
+      <b-col md="8">
+        <b-button
+          v-bind:class="{ 'btn-success active': !setPicture }"
+          @click="setPicture = false"
         >
-        </b-form-file>
-        <template v-if="urlEmpty">
-          <div class="mt-3">Selected file: {{file && file.name}}</div>
-          <div  d="preview" class="w-100 mb-2">
-            <p>Preview :</p>
-            <img :src="url" class="w-100"/>
-          </div>
-          <b-button variant="outline-info" v-on:click="addPicture">Add</b-button>
-          <b-button variant="outline-danger" v-on:click="resetPicture">Cancel</b-button>
-        </template>
-      </b-card>
-    </b-col>
+          Set Profile
+        </b-button>
+        <b-button
+          v-bind:class="{ 'btn-success active': setPicture }"
+          @click="setPicture = true"
+        >
+          Add Picture
+        </b-button>
+      </b-col>
+    </b-row>
+    <b-row v-if="!setPicture" class="justify-content-md-center w-100">
+      <b-col col md="6" lg="4">
+        <b-card title="Edit your informations" class="bg-dark-transparent mb-2">
+          <b-form>
+            <b-form-group
+              id="firstnameGroup"
+              label="Firstname:"
+              label-for="firstnameInput"
+            >
+              <b-form-input
+                id="firstnameInput"
+                type="text"
+                v-model="input.firstname"
+                required
+                placeholder="Enter firstname"
+              ></b-form-input>
+            </b-form-group>
+            <b-form-group
+              id="lastnameGroup"
+              label="Last Name:"
+              label-for="lastnameInput"
+            >
+              <b-form-input
+                id="lastnameInput"
+                type="text"
+                v-model="input.lastname"
+                required
+                placeholder="Enter lastname"
+              ></b-form-input>
+            </b-form-group>
+            <v-load
+              v-bind:loadingState="loadingInformation"
+              v-on:update="updateInformation"
+              class="mb-3"
+            />
+          </b-form>
+        </b-card>
+        <b-card title="Change your password" class="bg-dark-transparent">
+          <b-form>
+           <b-form-group id="oldPasswordGroup" label="Old password:" label-for="oldPasswordInput">
+              <b-form-input
+                id="oldPasswordInput"
+                type="password"
+                v-model="input.oldPassword"
+                required
+                placeholder="Enter your old password"
+              ></b-form-input>
+            </b-form-group>
+            <b-form-group id="passwordGroup" label="Password:" label-for="passwordInput">
+              <b-form-input
+                id="passwordInput"
+                type="password"
+                v-model="input.password"
+                required
+                placeholder="Enter your password"
+              ></b-form-input>
+            </b-form-group>
+            <b-form-group id="cpasswordGroup" label="Re-enter your password:" label-for="cpasswordInput">
+              <b-form-input
+                id="cpasswordInput"
+                type="password"
+                v-model="input.cpassword"
+                required
+                placeholder="Enter your password again"
+              ></b-form-input>
+            </b-form-group>
+            <v-load
+              v-bind:loadingState="loadingPassword"
+              v-on:update="updatePassword"
+            />
+         </b-form>
+        </b-card>
+      </b-col>
+      <b-col col md="6" lg="4">
+        <b-card title="Edit your profile" class="bg-dark-transparent h-100">
+          <b-form>
+            <b-form-group id="birthdayGroup" label="Birthday:" label-for="birthdayInput">
+              <b-form-input
+                id="birthdayInput"
+                type="date"
+                v-model="input.birthday"
+                required
+                placeholder="Enter name"
+              ></b-form-input>
+            </b-form-group>
+            <b-form-group id="genderGroup" label="Gender:" label-for="genderInput">
+              <b-form-select v-model="input.gender" :options="gender" class="mb-3"/>
+            </b-form-group>
+            <b-form-group label="Select your orientation">
+              <b-form-checkbox-group id="checkboxes1" name="flavour1" v-model="orientation" :options="getOrientation">
+              </b-form-checkbox-group>
+            </b-form-group>
+            <b-form-group
+              id="biographyGroup"
+              label="Biography:"
+              label-for="biographyInput"
+            >
+              <b-form-textarea
+                id="biographyInput"
+                type="text"
+                :rows="3"
+                :max-rows="6"
+                v-model="input.biography"
+                required
+                placeholder="This will be displayed on matching page"
+              ></b-form-textarea>
+            </b-form-group>
+            <b-form-group
+              id="interestGroup"
+              label="Interest:"
+              label-for="interestInput"
+            >
+              <b-badge
+                class="ml-1 mb-1"
+                v-for="(tags, index) in interest"
+                v-bind:key="tags"
+                @click="removeElement(index)"
+              >
+                {{ tags }}
+              </b-badge>
+              <b-row class="m-0 mt-2">
+                <b-col md="8" class="p-0">
+                  <b-form-input
+                    id="interestInput"
+                    type="text"
+                    v-model="input.interest"
+                    required
+                    placeholder="Add interest"
+                  />
+                </b-col>
+                <b-col md="4">
+                  <b-button v-on:click="addInterest" variant="light">Add</b-button>
+                </b-col>
+              </b-row>
+            </b-form-group>
+            <b-button v-if="loadingProfile === 'false'" v-on:click="updateProfile" variant="dark">Update</b-button>
+            <b-button v-else-if="loadingProfile ==='complete'" variant="success">Update complete</b-button>
+            <b-button v-else-if="loadingProfile ==='error'" variant="danger">An error has occured, try again later</b-button>
+            <b-button v-else variant="dark"><font-awesome-icon icon="spinner" size="1x" pulse/> Updating...</b-button>
+          </b-form>
+        </b-card>
+      </b-col>
+    </b-row>
+    <b-row v-if="setPicture" class="justify-content-md-center w-100 m-height-500">
+      <b-col md="8">
+        <b-row class="justify-content-md-center h-100 w-100">
+          <b-col md="6">
+            <b-card title="Add a profile picture" class="h-100 bg-dark-transparent">
+              <b-form-file
+                v-model="file"
+                @change="onFileChange"
+                :state="Boolean(file)"
+                placeholder='Choose a file...'
+                accept="image/jpeg, image/png, image/gif"
+              >
+              </b-form-file>
+              <template v-if="urlEmpty">
+                <div class="mt-3">Selected file: {{file && file.name}}</div>
+                <div id="preview" class="w-100 mb-2">
+                  <p>Preview :</p>
+                  <img :src="url" class="w-100"/>
+                </div>
+                <b-button variant="outline-info" v-on:click="addPicture">Add</b-button>
+                <b-button variant="outline-danger" v-on:click="resetPicture">Cancel</b-button>
+              </template>
+            </b-card>
+          </b-col>
+          <b-col md="6">
+            <v-carousel isProfile="true" v-bind:pictures="input.pictures" v-on:deletePicture="deletePicture"></v-carousel>
+          </b-col>
+        </b-row>
+      </b-col>
+    </b-row>
   </b-row>
 </template>
 
 <script>
 import User from '@/services/User'
+import Carousel from '@/components/Carousel'
+import buttonLoading from '@/components/buttonLoading'
 import router from '@/router'
 import _ from 'lodash' //eslint-disable-line
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -158,10 +205,16 @@ library.add(faSpinner)
 
 export default {
   name: 'Profile',
+  components: {
+    'v-carousel': Carousel,
+    'v-load': buttonLoading
+  },
   data () {
     return {
       loadingInformation: false,
       loadingProfile: false,
+      loadingPassword: false,
+      setPicture: false,
       url: null,
       file: null,
       gender: [{
@@ -170,10 +223,12 @@ export default {
       orientation: [],
       interest: [],
       input: {
+        pictures: [],
         firstname: '',
         lastname: '',
         password: '',
         cpassword: '',
+        oldPassword: '',
         birthday: '',
         gender: '',
         biography: '',
@@ -187,7 +242,7 @@ export default {
     User.get()
       .then(success => {
         this.input = success.data.user
-        this.input.birthday = this.input.birthday.replace(/\//gi, '-')
+        this.input.birthday = _.isEmpty(this.input.birthday) ? '' : this.input.birthday.replace(/\//gi, '-')
         this.interest = _.isEmpty(success.data.user.interests) ? [] : success.data.user.interests
         this.orientation = _.isEmpty(success.data.user.orientation) ? [] : success.data.user.orientation
       })
@@ -195,6 +250,7 @@ export default {
       .then(success => { this.gender = [...this.gender, ...success.data.genders] })
     this.loadingInformation = 'false'
     this.loadingProfile = 'false'
+    this.loadingPassword = 'false'
   },
   mounted () {
   },
@@ -206,8 +262,16 @@ export default {
     addPicture () {
       User.addPicture(this.file)
         .then(success => {
+          console.log(this.file)
           this.resetPicture()
+          this.input = success.data.user
         })
+        .catch(err => console.dir(err))
+    },
+    deletePicture () {
+      User.get()
+        .then(success => { this.input = success.data.user })
+        .catch(err => console.dir(err))
     },
     resetPicture () {
       this.url = null
@@ -224,10 +288,26 @@ export default {
       })
         .then(success => {
           this.input = success.data.user
-          this.loadingInformation = 'complete'
+          setTimeout(() => { this.loadingInformation = 'complete' }, 1500)
         })
         .catch(() => { setTimeout(() => { this.loadingInformation = 'error' }, 1500) })
-        .finally(setTimeout(() => { this.loadingInformation = 'false' }, 2000))
+        .finally(setTimeout(() => { this.loadingInformation = 'false' }, 3000))
+    },
+    updatePassword () {
+      this.loadingPassword = 'true'
+      User.updatePassword({
+        data: {
+          'current_password': this.input.oldPassword,
+          'new_password': this.input.password,
+          'confirmed_new_password': this.input.cpassword
+        }
+      })
+        .then(success => {
+          this.input = success.data.user
+          setTimeout(() => { this.loadingPassword = 'complete' }, 1500)
+        })
+        .catch(() => { setTimeout(() => { this.loadingPassword = 'error' }, 1500) })
+        .finally(setTimeout(() => { this.loadingPassword = 'false' }, 3000))
     },
     removeElement (index) { this.interest.splice(index, 1) },
     addInterest () {
@@ -243,6 +323,11 @@ export default {
         this.input, (x, key) => {
           return !(_.isEmpty(x) ||
             key === 'id' ||
+            key === 'oldPassword' ||
+            key === 'likes' ||
+            key === 'liked' ||
+            key === 'password' ||
+            key === 'cpassword' ||
             key === 'creation' ||
             key === 'username' ||
             key === 'fullname' ||
@@ -268,10 +353,12 @@ export default {
 </script>
 
 <style scoped>
+.m-height-500 {
+  min-height: 500px;
+}
 .bg-dark-transparent {
   background-color:#343a40ad;
   color:rgba(255, 255, 255, 0.8);
-  height: 100%;
 }
 .form-control {
   background-color: #ffffff2e;
@@ -296,5 +383,8 @@ export default {
 }
 :-ms-input-placeholder {
     color:    rgb(148, 148, 148);
+}
+#preview {
+  max-width: 200px;
 }
 </style>

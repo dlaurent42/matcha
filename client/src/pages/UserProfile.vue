@@ -1,6 +1,6 @@
 <template>
-  <b-row class="fill-space">
-    <b-col md="6" cols="12" class="left-space bg-dark">
+  <b-row class="w-100 justify-content-md-center m-0">
+    <b-col md="6" cols="12" class="bg-dark left-space">
       <b-card
         class="bg-dark-transparent text-center"
         no-body
@@ -25,33 +25,53 @@
           </b-badge>
         </p>
         <v-btn
+          v-bind:liked="liked"
+          v-bind:blocked="blocked"
           v-bind:id="user.id"
           v-on:like="like"
+          v-on:unlike="unlike"
           v-on:block="block"
+          v-on:unblock="unblock"
           v-bind:socket="socket"
         />
       </b-card-body>
       </b-card>
     </b-col>
+    <b-col md="6" cols="12">
+        <b-card
+          class="bg-dark-transparent text-center"
+          no-body
+        >
+        <b-card-body>
+          <v-carousel v-bind:isProfile="false" v-bind:pictures="user.pictures"></v-carousel>
+        </b-card-body>
+        </b-card>
+      </b-col>
   </b-row>
 </template>
 
 <script>
 import User from '@/services/User'
+import _ from 'lodash'
+import Carousel from '@/components/Carousel'
 import router from '@/router'
 import MatchButton from '@/components/MatchButton'
 
 export default {
   name: 'UserProfile',
   components: {
-    'v-btn': MatchButton
+    'v-btn': MatchButton,
+    'v-carousel': Carousel
   },
   props: ['socket'],
   data () {
     return {
       user: {
-        id: this.$route.params.id
+        id: this.$route.params.id,
+        pictures: []
       },
+      liked: false,
+      blocked: false,
       image: 'https://randomuser.me/api/portraits/women/59.jpg',
       colors: [
         'primary',
@@ -67,25 +87,23 @@ export default {
   beforeMount () {
     if (this.authenticated === false) router.push('/')
     this.updateUser()
-  },
-  mounted () {
-    this.getProfilePic()
-    this.profileSeen()
+    this.setButton()
   },
   computed: {
     getTitle () { return this.user.fullname + ', ' + this.user.age }
   },
   watch: {
-    '$route' (to, from) {
-      this.updateUser()
-    }
+    '$route' (to, from) { this.updateUser() }
   },
   methods: {
     updateUser () {
       User.getUser(this.$route.params.id)
         .then((success) => {
-          this.user = success.data.user
-          console.log(success)
+          if (_.isEmpty(success.data.err)) {
+            this.user = success.data.user
+            this.getProfilePic()
+            this.profileSeen()
+          } else router.push('/')
         })
         .catch((err) => console.dir(err))
     },
@@ -94,12 +112,18 @@ export default {
         .then(success => { this.image = success })
         .catch(err => console.dir(err))
     },
+    unlike (id) {
+      const userID = sessionStorage.getItem('userID')
+      User.unlike(userID, id)
+        .then(success => { this.liked = false })
+        .catch(err => console.dir(err))
+    },
     like (id) {
       const userID = sessionStorage.getItem('userID')
       User.like(userID, id)
         .then(success => {
-          // this.remove(id)
-          // this.add()
+          this.liked = true
+          if (this.blocked === true) this.unblock(id)
         })
         .catch(err => console.dir(err))
     },
@@ -107,16 +131,32 @@ export default {
       const userID = sessionStorage.getItem('userID')
       User.block(userID, id)
         .then(success => {
-          // this.remove(id)
-          // this.add()
+          this.blocked = true
+          if (this.liked === true) this.unlike(id)
         })
+        .catch(err => console.dir(err))
+    },
+    unblock (id) {
+      const userID = sessionStorage.getItem('userID')
+      User.unblock(userID, id)
+        .then(success => { this.blocked = false })
         .catch(err => console.dir(err))
     },
     profileSeen () {
       const receiver = this.$route.params.id
-      User.profileSeen(receiver)
-      const notification = { 'receiver': receiver, emitter: User.getID(), type: 'profile' }
-      this.socket.emit('notification', notification)
+      if (parseInt(receiver, 10) !== parseInt(User.getID(), 10)) {
+        User.profileSeen(receiver)
+        const notification = { 'receiver': receiver, emitter: User.getID(), type: 'profile' }
+        this.socket.emit('notification', notification)
+      }
+    },
+    setButton () {
+      User.get().then(success => {
+        const likes = success.data.user.likes
+        _.each(likes, x => {
+          if (parseInt(x.id) === parseInt(this.user.id)) this.liked = true
+        })
+      })
     }
   }
 }

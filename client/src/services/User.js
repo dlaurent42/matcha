@@ -1,4 +1,5 @@
 import Api from './Api'
+import axios from 'axios'
 import { isEmpty } from '@/utils/obj/isEmpty'
 
 export default {
@@ -145,6 +146,10 @@ export default {
       this.authLogic().then(success => {
         Api().get('/user/authenticate', user)
           .then(data => {
+            sessionStorage.setItem('userID', JSON.stringify(data.data.user.id))
+            this.getLocalisation()
+              .then(success => console.dir(success))
+              .catch(err => console.dir(err))
             resolve(data)
           })
           .catch(err => {
@@ -161,33 +166,73 @@ export default {
       this.authLogic().then(
         () => {
           Api().post('/user/', user)
-            .then(success => {
-              resolve(success)
-            }, error => {
-              reject(error)
-            })
-            .catch(err => {
-              reject(err)
-            })
+            .then(success => { resolve(success) })
+            .catch(err => { reject(err) })
         })
+    })
+  },
+  resetPassword (data) {
+    Object.assign(data, {'redirect_uri': 'http://localhost:8080/recover-password'})
+    return new Promise((resolve, reject) => {
+      Api().post('/user/recover-password', data)
+        .then(success => { resolve(success) })
+        .catch(err => { reject(err) })
     })
   },
   confirmAccount (body) {
     return new Promise((resolve, reject) => {
-      Api().put('/user/confirm-account', body)
+      try {
+        Api().put('/user/confirm-account', body)
+          .then(success => { resolve(success) })
+          .catch(err => reject(err))
+      } catch (err) { reject(err) }
+    })
+  },
+  confirmPassword (token) {
+    return new Promise((resolve, reject) => {
+      try {
+        Api().get('/user/recover-password?token=' + token)
+          .then(success => { resolve(success) })
+          .catch(err => reject(err))
+      } catch (err) { reject(err) }
+    })
+  },
+  getLocalisation () {
+    return new Promise((resolve, reject) => {
+      axios.get('https://api.ipify.org?format=json')
         .then(success => {
-          resolve(success)
-        }, error => {
-          reject(error)
+          const ip = (success.data.ip)
+          axios.get('http://api.ipstack.com/' + ip +
+          '?access_key=' + '94458d5655ff0c82f8f8965c2837697e')
+            .then(succes => {
+              const body = {
+                fields: {
+                  latitude: parseFloat(succes.data.latitude),
+                  longitude: parseFloat(succes.data.longitude)
+                }
+              }
+              this.update(body)
+                .then((data) => resolve(data))
+                .catch(err => reject(err))
+            })
+            .catch(err => reject(err))
         })
-        .catch(err => {
-          reject(err)
-        })
+        .catch(err => reject(err))
     })
   },
   update (data) {
     const userID = sessionStorage.getItem('userID')
     return Api().put('/user/' + userID, data)
+      .then((response) => {
+        return response
+      })
+      .catch(err => {
+        console.dir(err)
+      })
+  },
+  updatePassword (data) {
+    const userID = sessionStorage.getItem('userID')
+    return Api().put('/user/' + userID + '/password', data)
       .then((response) => {
         return response
       })
@@ -234,9 +279,30 @@ export default {
         return err
       })
   },
+  unlike (send, receiver) {
+    const body = {'emitter': send, 'receiver': receiver}
+    return Api().delete('/notification/like', body)
+      .then((response) => {
+        return response
+      })
+      .catch((err) => {
+        return err
+      })
+  },
   block (send, receiver) {
     const body = { 'emitter': send, 'receiver': receiver }
     return Api().post('/user/block', body)
+      .then((response) => {
+        return response
+      })
+      .catch((err) => {
+        console.dir(err)
+        return err
+      })
+  },
+  unblock (send, receiver) {
+    const body = { 'emitter': send, 'receiver': receiver }
+    return Api().delete('/user/block', { data: body })
       .then((response) => {
         return response
       })
@@ -295,6 +361,19 @@ export default {
         .then((response) => {
           resolve(response)
         })
+        .catch((err) => {
+          console.dir(err)
+          reject(err)
+        })
+    })
+  },
+  deletePicture (body) {
+    const id = sessionStorage.getItem('userID')
+    Object.assign(body, { 'user_id': id })
+    return new Promise((resolve, reject) => {
+      if (isEmpty(id)) reject(Error('No user id'))
+      Api().delete('/picture/', { data: body })
+        .then((response) => { resolve(response) })
         .catch((err) => {
           console.dir(err)
           reject(err)

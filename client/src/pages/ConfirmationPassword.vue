@@ -2,7 +2,7 @@
   <b-container fluid class="h-100">
     <b-row class="justify-content-md-center">
       <b-col col md="6" lg="6">
-        <b-card title="Waiting confirmation of your account" sub-title="" class="bg-dark-transparent">
+        <b-card title="Waiting confirmation of your token" sub-title="" class="bg-dark-transparent">
           <p
             class="card-text"
             v-if="confirmed === false"
@@ -16,7 +16,7 @@
           </template>
           <template v-else>
             <p class="card-text" >
-              Your account is now verified !
+              Your password is now reset !
               Redirection in <span id="displayCount"></span>...
             </p>
             <router-link to="/login" class="nav-link">Or click here to log in</router-link>
@@ -41,12 +41,15 @@ export default {
   mounted () {
     const query = this.$router.history.current.query
     const token = _.isEmpty(query) ? null : query.token
-    User.confirmAccount({ 'token': token })
+    console.log(token)
+    User.confirmPassword(token)
       .then(success => {
+        console.dir(success)
         this.confirmed = true
         this.countDown(() => { router.push('login') })
       })
       .catch((err) => {
+        console.dir(err)
         this.confirmed = 'error'
         this.errorMessage = err.response.data.err
       })

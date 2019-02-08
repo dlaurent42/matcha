@@ -7,65 +7,38 @@
       indicators
       background="#ababab"
       :interval="4000"
-      img-width="1024"
-      img-height="480"
+      img-width="100%"
+      img-height="100%"
       v-model="slide"
       @sliding-start="onSlideStart"
       @sliding-end="onSlideEnd"
     >
-      <!-- Text slides with image -->
       <b-carousel-slide
-        caption="First slide"
-        text="Nulla vitae elit libero, a pharetra augue mollis interdum."
-        img-src="https://picsum.photos/1024/480/?image=52"
-      ></b-carousel-slide>
+        v-for="(pic, index) in pictures"
+        v-bind:key="index"
+        v-model="current"
+        v-bind:img-src="getPath(pic)"
+      >
 
-      <!-- Slides with custom text -->
-      <b-carousel-slide img-src="https://picsum.photos/1024/480/?image=54">
-        <h1>Hello world!</h1>
-      </b-carousel-slide>
-
-      <!-- Slides with image only -->
-      <b-carousel-slide img-src="https://picsum.photos/1024/480/?image=58"></b-carousel-slide>
-
-      <!-- Slides with img slot -->
-      <!-- Note the classes .d-block and .img-fluid to prevent browser default image alignment -->
-      <b-carousel-slide>
-        <img
-          slot="img"
-          class="d-block img-fluid w-100"
-          width="1024"
-          height="480"
-          src="https://picsum.photos/1024/480/?image=55"
-          alt="image slot"
-        >
-      </b-carousel-slide>
-
-      <!-- Slide with blank fluid image to maintain slide aspect ratio -->
-      <b-carousel-slide caption="Blank Image" img-blank img-alt="Blank image">
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-          eros felis, tincidunt a tincidunt eget, convallis vel est. Ut pellentesque
-          ut lacus vel interdum.
-        </p>
       </b-carousel-slide>
     </b-carousel>
-
-    <p class="mt-4">
-      Slide #: {{ slide }}
-      <br>
-      Sliding: {{ sliding }}
+    <p class="mt-4 text-white">
+      <b-button v-if="isProfile && pictures.length > 1" variant="danger" @click="deletePicture(pictures[slide])">X</b-button>
     </p>
   </div>
 </template>
 
 <script>
+import User from '@/services/User'
+import _ from 'lodash' //eslint-disable-line
 export default {
   name: 'Carousel',
+  props: ['pictures', 'isProfile'],
   data () {
     return {
       slide: 0,
-      sliding: null
+      sliding: null,
+      current: ''
     }
   },
   methods: {
@@ -74,7 +47,21 @@ export default {
     },
     onSlideEnd (slide) {
       this.sliding = false
-    }
+    },
+    deletePicture (pic) {
+      User.deletePicture({ 'filename': pic })
+        .then(success => { this.$emit('deletePicture') })
+        .catch(err => console.dir(err))
+    },
+    getPath (path) { return 'http://localhost:8081/assets/' + path }
   }
 }
 </script>
+<style>
+.carousel-caption {
+    right: 0;
+    top: -15px;
+    left: 65px;
+    text-align: left;
+}
+</style>

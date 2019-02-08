@@ -1,12 +1,18 @@
 <template>
   <b-row class="justify-content-center" id="match-btn">
     <b-col class="text-right">
-      <b-button class="rounded-circle" variant="outline-danger" v-on:click="like">
+      <b-button v-if="!liked" class="rounded-circle" variant="outline-danger" v-on:click="like">
+        <font-awesome-icon :icon="['far', 'heart']"/>
+      </b-button>
+      <b-button v-else class="rounded-circle" variant="danger" v-on:click="unlike">
         <font-awesome-icon :icon="['far', 'heart']"/>
       </b-button>
     </b-col>
     <b-col class="text-left">
-      <b-button class="rounded-circle" variant="outline-warning" v-on:click="block">
+      <b-button v-if="!blocked" class="rounded-circle" variant="outline-warning" v-on:click="block">
+        <font-awesome-icon :icon="['fas', 'times']"/>
+      </b-button>
+      <b-button v-else class="rounded-circle" variant="warning" v-on:click="unblock">
         <font-awesome-icon :icon="['fas', 'times']"/>
       </b-button>
     </b-col>
@@ -21,19 +27,26 @@ export default {
       type: [String, Number],
       required: true
     },
+    liked: {
+      type: Boolean,
+      default: false
+    },
+    blocked: {
+      type: Boolean,
+      default: false
+    },
     col: Boolean,
     socket: Object
   },
   methods: {
     like () {
-      console.log(this.socket)
       const notification = { receiver: this.id, emitter: User.getID(), type: 'like' }
       this.socket.emit('notification', notification)
-      // this.$emit('like', this.id)
+      this.$emit('like', this.id)
     },
-    block () {
-      this.$emit('block', this.id)
-    }
+    block () { this.$emit('block', this.id) },
+    unblock () { this.$emit('unblock', this.id) },
+    unlike () { this.$emit('unlike', this.id) }
   }
 }
 </script>

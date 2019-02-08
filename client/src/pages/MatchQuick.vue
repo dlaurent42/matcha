@@ -5,6 +5,7 @@
         v-for="person in persons"
         v-bind:key="person.id"
         v-bind:person="person"
+        v-bind:socket="socket"
         v-on:like="like"
         v-on:block="block"
         class="list-complete-item"
@@ -15,10 +16,12 @@
 
 <script>
 import User from '@/services/User'
+import _ from 'lodash'
 import router from '@/router'
 import SoloMatch from '@/components/SoloMatch'
 export default {
   name: 'Contact',
+  props: ['socket'],
   components: {
     'v-match': SoloMatch
   },
@@ -26,18 +29,7 @@ export default {
     return {
       match: [],
       persons: [],
-      filters: {
-        age_min: '18',
-        age_max: '25',
-        distance_min: '',
-        distance_max: '',
-        popularity_min: '',
-        popularity_max: '',
-        interests: '',
-        matching_score_min: '',
-        matching_score_max: '',
-        is_match: '0'
-      },
+      filters: { is_match: '0' },
       sort: ''
     }
   },
@@ -45,7 +37,7 @@ export default {
     getInitialUsers () {
       User.getAll({ filters: this.filters, sort: this.sort })
         .then(success => {
-          this.match = [...success.data]
+          this.match = _.shuffle([...success.data])
           this.persons = this.match.splice(0, 6)
         })
     },

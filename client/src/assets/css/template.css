@@ -8,4 +8,7 @@ html, body {
     max-height: 300px;
     overflow-y: scroll;
     color: black;
-  }
+}
+#matching-box .btn-group label {
+    margin-right: 10px;
+}

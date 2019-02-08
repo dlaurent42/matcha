@@ -1,7 +1,7 @@
 <template>
   <b-navbar toggleable="md" type="dark" variant="dark">
     <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-    <b-navbar-brand href="#">Matcha</b-navbar-brand>
+    <b-navbar-brand><router-link to="/" class="nav-link text-white">Matcha</router-link></b-navbar-brand>
     <v-notif v-if="logged === 'true'" v-bind:socket="socket"></v-notif>
     <b-collapse is-nav id="nav_collapse">
       <b-navbar-nav class="m-auto">

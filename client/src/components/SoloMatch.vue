@@ -1,13 +1,14 @@
 <template>
     <b-col lg="4" class="mt-5">
         <b-card class="box1">
-            <img src="https://randomuser.me/api/portraits/men/65.jpg" alt>
+            <img v-bind:src="getPicture()" alt>
             <div class="title">
               <p>{{ person.age }}</p>
               <p>{{ person.username }}</p>
             </div>
             <v-btn
               class="icon"
+              v-bind:socket="socket"
               v-bind:id="person.id"
               v-on:like="like"
               v-on:block="block"
@@ -23,7 +24,7 @@ export default {
   components: {
     'v-btn': MatchButton
   },
-  props: ['person'],
+  props: ['person', 'socket'],
   data () {
     return {
       user: []
@@ -31,7 +32,8 @@ export default {
   },
   methods: {
     like (id) { this.$emit('like', id) },
-    block (id) { this.$emit('block', id) }
+    block (id) { this.$emit('block', id) },
+    getPicture () { return 'http://localhost:8081/assets/' + this.person.profilePic }
   }
 }
 </script>
