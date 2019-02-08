@@ -11,6 +11,7 @@ import About from '@/pages/About'
 import Services from '@/pages/Services'
 import Contact from '@/pages/Contact'
 import Profile from '@/pages/Profile'
+import Liked from '@/pages/Liked.vue'
 import Match from '@/pages/Match'
 import MatchQuick from '@/pages/MatchQuick'
 import Messages from '@/pages/Messages'
@@ -25,6 +26,14 @@ const router = new Router({
       path: '/',
       name: 'Home',
       component: Home
+    },
+    {
+      path: '/liked',
+      name: 'Liked',
+      component: Liked,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/confirm-account',

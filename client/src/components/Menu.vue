@@ -18,7 +18,9 @@
         </template>
         <b-dropdown-item><router-link to="/Profile" class="nav-link text-dark">Profile</router-link></b-dropdown-item>
         <b-dropdown-item><router-link to="/Messages" class="nav-link text-dark">Messages</router-link></b-dropdown-item>
-        <b-dropdown-item><router-link to="/MatchQuick" class="nav-link text-dark">Match</router-link></b-dropdown-item>
+        <b-dropdown-item><router-link to="/MatchQuick" class="nav-link text-dark">Quick Match</router-link></b-dropdown-item>
+        <b-dropdown-item><router-link to="/Match" class="nav-link text-dark">Match</router-link></b-dropdown-item>
+        <b-dropdown-item><router-link to="/Liked" class="nav-link text-dark">Liked</router-link></b-dropdown-item>
         <b-dropdown-divider></b-dropdown-divider>
         <b-dropdown-item-button v-on:click="logout()">Logout</b-dropdown-item-button>
       </b-dropdown>

@@ -73,6 +73,7 @@ export default {
         .then(success => {
           this.user = success.data.user
           this.profileComplete = success.data.user.isProfileComplete
+          console.log(this.profileComplete)
         })
     }
   },

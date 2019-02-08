@@ -91,7 +91,11 @@
               placeholder="Enter your password again"
             ></b-form-input>
           </b-form-group>
-          <b-button v-on:click="verify()" variant="info">Submit</b-button>
+          <v-load
+              v-bind:loadingState="loadingRegister"
+              message="Register"
+              v-on:update="verify()"
+            />
         </b-form>
       </b-card>
       <b-card
@@ -110,6 +114,7 @@
 
 <script>
 import User from '@/services/User'
+import buttonLoading from '@/components/buttonLoading'
 import router from '@/router'
 import isEmail from '@/utils/user/isEmail'
 import isUsername from '@/utils/user/isUsername'
@@ -119,8 +124,12 @@ import isFirstname from '@/utils/user/isFirstname'
 export default {
   name: 'Register',
   props: ['authentificated'],
+  components: {
+    'v-load': buttonLoading
+  },
   data () {
     return {
+      loadingRegister: false,
       registered: false,
       input: {
         username: '',
@@ -152,11 +161,13 @@ export default {
       ) this.register()
     },
     async register () {
+      this.loadingRegister = true
       await User.register({ user: this.input })
         .then((success) => {
           this.registered = true
-        }, error => {
-          console.dir(error)
+        }, err => {
+          this.loadingRegister = 'error'
+          console.dir(err)
         })
     }
   },
@@ -167,7 +178,10 @@ export default {
     verifyLastName () { return this.input.lastname === '' ? null : isLastname(this.input.lastname) },
     verifyPassword () { return this.input.password === '' && this.input.cpassword === '' ? null : isPassword(this.input.password, this.input.cpassword) }
   },
-  beforeMount () { if (this.authenticated === true) router.push('/') }
+  beforeMount () {
+    if (this.authenticated === true) router.push('/')
+    this.loadingRegister = 'false'
+  }
 }
 </script>
 
