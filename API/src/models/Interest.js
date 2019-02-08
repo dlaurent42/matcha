@@ -11,10 +11,7 @@ class Interest {
     return new Promise((resolve, reject) => (
       this.database.query(INTERESTS.GET_TAGS, [])
         .then((tags) => {
-          Object.keys(tags).forEach((key) => {
-            console.log(tags[key].tag)
-            this.tags.push(tags[key].tag)
-          })
+          Object.keys(tags).forEach((key) => { this.tags.push(tags[key].tag) })
           return resolve(this.tags)
         })
         .catch(err => reject(err))
