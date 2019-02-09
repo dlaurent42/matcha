@@ -203,6 +203,18 @@
         <b-row class="justify-content-md-center h-100 w-100">
           <b-col md="8">
             <b-card title="Get your Api key" class="h-100 bg-dark-transparent">
+               <b-button variant="info">Get Apikey</b-button>
+              <b-form>
+                <b-form-group id="apikeyInputGroup" label="Api key:" label-for="apikeyInput">
+                  <b-form-input
+                    id="apikeyInput"
+                    type="text"
+                    v-model="apikey"
+                    required
+                    placeholder="Your Api key"
+                  ></b-form-input>
+                </b-form-group>
+              </b-form>
             </b-card>
           </b-col>
         </b-row>
@@ -230,6 +242,7 @@ export default {
   },
   data () {
     return {
+      apikey: '',
       loadingInformation: false,
       loadingProfile: false,
       loadingPassword: false,
