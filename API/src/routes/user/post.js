@@ -29,7 +29,10 @@ router.post('/', (req, res) => {
 
   return new User().add(req.body.user, req.body.redirect_uri)
     .then(user => res.json({ user }))
-    .catch(err => res.json({ err: err.message }))
+    .catch((err) => {
+      console.log(err)
+      return res.status(204).json({ err: err.message })
+    })
 })
 
 module.exports = router

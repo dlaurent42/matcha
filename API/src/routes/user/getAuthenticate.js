@@ -19,14 +19,14 @@ router.get('/authenticate', (req, res) => {
   }
   // Check user data
   if (!dataCheck(req.query.username, req.query.password)) {
-    return res.status(401).json({ err: ERRORS.DATA_VALIDATION })
+    return res.status(204).json({ err: ERRORS.DATA_VALIDATION })
   }
 
   const user = new User()
   return user.fetchInformationByUsernameAndPassword(req.query.username, req.query.password)
     .then(() => user.addIdentificationToken())
     .then(userData => res.json({ user: userData }))
-    .catch(err => res.status(401).send({ err: err.message }))
+    .catch(err =>res.status(204).send({ err: err.message }))
 })
 
 module.exports = router
