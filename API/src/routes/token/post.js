@@ -9,7 +9,7 @@ router.post('/', (req, res) => {
   return new JsonWebToken().create(req.body.data)
     .then((token) => {
       if (isEmpty(token)) return res.json({ err: ERRORS.GENERAL })
-      return res.json({ token, expire: JWT.DURATION })
+      return res.json({ token, createdAt: Date.now(), expireAt: Date.now() + JWT.DURATION * 1000 })
     })
     .catch(err => res.json({ err: err.message }))
 })

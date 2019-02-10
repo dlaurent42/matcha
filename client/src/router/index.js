@@ -9,7 +9,7 @@ import Register from '@/pages/Register'
 import Home from '@/pages/Home'
 import About from '@/pages/About'
 import Services from '@/pages/Services'
-import Contact from '@/pages/Contact'
+// import Contact from '@/pages/Contact'
 import Profile from '@/pages/Profile'
 import Liked from '@/pages/Liked.vue'
 import Match from '@/pages/Match'
@@ -86,11 +86,11 @@ const router = new Router({
       name: 'Services',
       component: Services
     },
-    {
-      path: '/contact',
-      name: 'Contact',
-      component: Contact
-    },
+    // {
+    //   path: '/contact',
+    //   name: 'Contact',
+    //   component: Contact
+    // },
     {
       path: '/profile',
       name: 'Profile',

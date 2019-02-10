@@ -24,7 +24,7 @@ const config = {
       ADMIN: process.env.MAIL_ADMIN || 'dlaurent@student.42.fr',
     },
     JWT: {
-      DURATION: '15m',
+      DURATION: 60 * 15,
       SECRET: process.env.SECRET_KEY,
     },
   },
@@ -45,7 +45,7 @@ const config = {
       ADMIN: process.env.MAIL_ADMIN || 'dlaurent@student.42.fr',
     },
     JWT: {
-      DURATION: '24h',
+      DURATION: 86400,
       SECRET: process.env.SECRET_KEY || 'ABFA422265CE21265CDECF71CD8DF',
     },
   },
@@ -66,7 +66,7 @@ const config = {
       ADMIN: process.env.MAIL_ADMIN || 'dlaurent@student.42.fr',
     },
     JWT: {
-      DURATION: '24h',
+      DURATION: 84600,
       SECRET: process.env.SECRET_KEY || 'ABFA422265CE21265CDECF71CD8DF',
     },
   },

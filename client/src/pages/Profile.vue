@@ -20,7 +20,7 @@
         >
           Get Api key
         </b-button>
-        <div v-if="!input.isProfileComplete" class="bg-dark-transparent text-center mt-2 p-2"> Please fill all informations to start matching whith people</div>
+        <div v-if="!input.isProfileComplete" class="bg-dark-transparent text-center mt-2 p-2"> Please fill all informations to start matching with people</div>
       </b-col>
     </b-row>
     <b-row v-if="setPicture === true" class="justify-content-md-center w-100">

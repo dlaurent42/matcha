@@ -54,6 +54,7 @@
   </div>
 </template>
 <script>
+import _ from 'lodash'
 import User from '@/services/User'
 import LastMessage from '@/components/lastMessage'
 import WrapperMessage from '@/components/WrapperMessage'
@@ -86,9 +87,11 @@ export default {
             const map = new Map()
             this.getMatched()
               .then(users => {
-                if (users) users.data.users.forEach(a => map.set(a.id, a))
-                success.data.conversations.forEach(a => map.set(a.id, a))
-                this.users = [...map.values()].reverse()
+                if (_.get(users, 'data.users')) {
+                  users.data.users.forEach(a => map.set(a.id, a))
+                  success.data.conversations.forEach(a => map.set(a.id, a))
+                  this.users = [...map.values()].reverse()
+                }
               })
             console.dir(this.users)
             if (this.users[0] !== undefined) resolve(this.users[0])
@@ -99,8 +102,8 @@ export default {
     },
     sendMessage (content) {
       const message = document.getElementById('sendMessage').value
-      const receiver = this.currentUser.id
-      if (message !== '' || message !== null || message !== undefined) {
+      const receiver = _.get(this.currentUser, 'id')
+      if (!_.isEmpty(message) && receiver) {
         User.sendMessage(receiver, message)
           .then(success => {
             this.socket.emit('message', { content: message, emitter: User.getID(), 'receiver': receiver })

@@ -68,6 +68,7 @@
 import User from '@/services/User'
 import router from '@/router'
 import _ from 'lodash'
+import isEmail from '@/utils/user/isEmail'
 
 export default {
   name: 'Login',
@@ -89,7 +90,7 @@ export default {
   },
   methods: {
     login () {
-      if (_.isEmpty(this.input.username) || _.isEmpty(this.input.username)) {
+      if (_.isEmpty(this.input.username) || _.isEmpty(this.input.password)) {
         this.myError.message = 'Make sure all fields are filled in'
         return null
       }
@@ -105,6 +106,7 @@ export default {
         })
     },
     reset () {
+      if (!isEmail(this.recover)) return null
       User.resetPassword({ 'email': this.recover })
         .then(success => {
           this.sent = true

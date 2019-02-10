@@ -1,7 +1,13 @@
 <template>
   <div id="wrapper">
     <v-header v-bind:logged="authenticated" class="fixed-value" @clicked="logout" v-bind:socket="socket"></v-header>
-    <b-container v-bind:class="classBase" v-bind:style="{ 'background-image': 'url(' + image + ')' }" fluid>
+    <b-container v-bind:class="classBase" v-bind:style="{
+      'background-image': 'url(' + image + ')',
+      'background-repeat': 'no-repeat',
+      'background-attachment': 'fixed',
+      'background-position': 'center',
+      'background-size': 'cover'
+    }" fluid>
       <router-view
         @authenticated="setAuthenticated"
         @profileComplete="setComplete"

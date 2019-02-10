@@ -6,6 +6,7 @@ const authCredentials = (req, res, next) => {
   if (isEmpty(bearerHeader)) return res.sendStatus(403)
   const jwt = new JsonWebToken()
   const bearerToken = bearerHeader.split(' ')[1]
+  console.log(`\nRoute: ${req.url}\n`)
   return jwt.check(bearerToken)
     .then((data) => {
       if (isEmpty(data)) return res.sendStatus(403)

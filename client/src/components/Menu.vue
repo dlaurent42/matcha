@@ -8,7 +8,6 @@
         <b-nav-item><router-link to="/" class="nav-link">Home</router-link></b-nav-item>
         <b-nav-item><router-link to="/About" class="nav-link">About</router-link></b-nav-item>
         <b-nav-item><router-link to="/Services" class="nav-link">Services</router-link></b-nav-item>
-        <b-nav-item><router-link to="/Contact" class="nav-link">Contact</router-link></b-nav-item>
       </b-navbar-nav>
     </b-collapse>
     <b-navbar-nav class="ml-auto" v-if="logged === 'true'" id="profile">

@@ -1,6 +1,7 @@
 import Api from './Api'
 import axios from 'axios'
 import { isEmpty } from '@/utils/obj/isEmpty'
+import _ from 'lodash'
 
 export default {
   authLogic () {
@@ -25,7 +26,14 @@ export default {
     return new Promise((resolve, reject) => {
       Api().get('/auth/', token)
         .then((response) => {
-          if (!isEmpty(response.data.token)) sessionStorage.setItem('jwt', response.data.token)
+          if (!isEmpty(response.data.token)) {
+            console.log(response.data.token)
+            console.log(Date.now())
+            console.log(Date.now() - response.data.createdAt + response.data.expireAt)
+            sessionStorage.setItem('authToken', response.data.token)
+            sessionStorage.setItem('authCreatedAt', Date.now())
+            sessionStorage.setItem('authExpireAt', Date.now() - response.data.createdAt + response.data.expireAt)
+          }
           resolve(response)
         })
         .catch((err) => reject(err))
@@ -146,14 +154,15 @@ export default {
       this.authLogic().then(success => {
         Api().get('/user/authenticate', user)
           .then(data => {
-            if (parseInt(data.data.user.isAccountConfirmed) === 0) { reject(Error('Your account is not confirmed')) }
+            if (data.data.err) return reject(Error(data.data.err))
+            if (parseInt(data.data.user.isAccountConfirmed) === 0) return reject(Error('Your account is not confirmed'))
             sessionStorage.setItem('userID', JSON.stringify(data.data.user.id))
             this.getLocalisation()
               .then(success => console.dir(success))
               .catch(err => console.dir(err))
-            resolve(data)
+            return resolve(data)
           })
-          .catch(err => { reject(Error(err.response.data.err)) })
+          .catch(err => reject(Error(_.get(err, 'response.data.err', 'An error occured.'))))
       })
     })
   },

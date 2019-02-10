@@ -18,7 +18,7 @@
                 </b-card>
             </b-col>
         </b-row>
-        <b-row class="justify-content-md-center">
+        <b-row class="justify-content-md-center margin-auto">
             <b-col col sm="12" class="text-center text-white mb-1">
                 <h2>Membership Perks</h2>
             </b-col>
@@ -56,8 +56,23 @@ export default {
 }
 </script>
 <style scoped>
+.margin-auto {
+  margin: auto;
+}
 .card {
   background-color: #343a40a6;
   color: #9a9da0;
+  -webkit-transition: color .2s ease-in;
+  -moz-transition: color .2s ease-in;
+  -o-transition: color .2s ease-in;
+  transition: color .2s ease-in;
+}
+.card:hover {
+  color: #eff2f7;
+  cursor: pointer;
+  -webkit-transition: color .2s ease-in;
+  -moz-transition: color .2s ease-in;
+  -o-transition: color .2s ease-in;
+  transition: color .2s ease-in;
 }
 </style>

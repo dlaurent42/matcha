@@ -113,6 +113,7 @@
 </template>
 
 <script>
+import _ from 'lodash'
 import User from '@/services/User'
 import buttonLoading from '@/components/buttonLoading'
 import router from '@/router'
@@ -157,15 +158,20 @@ export default {
         isFirstname(this.input.firstname) &&
         isLastname(this.input.lastname) &&
         isEmail(this.input.email) &&
+        !(_.isEmpty(this.input.cpassword)) &&
         isPassword(this.input.password, this.input.cpassword)
       ) this.register()
     },
-    async register () {
+    register () {
       this.loadingRegister = true
-      await User.register({ user: this.input })
+      User.register({ user: this.input })
         .then((success) => {
-          this.registered = true
-        }, err => {
+          if (success.data.err) {
+            this.loadingRegister = 'error'
+            setTimeout(() => { this.loadingRegister = 'false' }, 3000)
+          } else this.registered = true
+        })
+        .catch((err) => {
           this.loadingRegister = 'error'
           setTimeout(() => { this.loadingRegister = 'false' }, 3000)
           console.dir(err)
@@ -177,7 +183,9 @@ export default {
     verifyUserName () { return this.input.username === '' ? null : isUsername(this.input.username) },
     verifyFirstName () { return this.input.firstname === '' ? null : isFirstname(this.input.firstname) },
     verifyLastName () { return this.input.lastname === '' ? null : isLastname(this.input.lastname) },
-    verifyPassword () { return this.input.password === '' && this.input.cpassword === '' ? null : isPassword(this.input.password, this.input.cpassword) }
+    verifyPassword () {
+      return this.input.password === '' && this.input.cpassword === '' ? null : !_.isEmpty(this.input.cpassword) && isPassword(this.input.password, this.input.cpassword)
+    }
   },
   beforeMount () {
     if (this.authenticated === true) router.push('/')

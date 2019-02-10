@@ -43,10 +43,14 @@ export default {
     const token = _.isEmpty(query) ? null : query.token
     User.confirmAccount({ 'token': token })
       .then(success => {
+        console.log('success')
+        console.log(success)
         this.confirmed = true
         this.countDown(() => { router.push('login') })
       })
       .catch((err) => {
+        console.log('err')
+        console.log(err)
         this.confirmed = 'error'
         this.errorMessage = err.response.data.err
       })
