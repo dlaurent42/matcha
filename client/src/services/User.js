@@ -1,5 +1,6 @@
 import Api from './Api'
 import axios from 'axios'
+import token from '@/services/Token'
 import { isEmpty } from '@/utils/obj/isEmpty'
 import _ from 'lodash'
 
@@ -172,12 +173,19 @@ export default {
             if (data.data.err) return reject(Error(data.data.err))
             if (parseInt(data.data.user.isAccountConfirmed) === 0) return reject(Error('Your account is not confirmed'))
             localStorage.setItem('userID', JSON.stringify(data.data.user.id))
-            // Add localisation here
-            /*
-            this.getLocalisation()
+            token.getToken(data)
+              .then(tokenUser => {
+                console.log(tokenUser)
+                token.post(tokenUser)
+                  .then(success => { console.log(success) })
+                  .catch(err => reject(Error(_.get(err, 'response.data.err', 'An error occured.'))))
+              })
+              .catch(err => reject(Error(_.get(err, 'response.data.err', 'An error occured.'))))
+              /* Add localisation here
+              this.getLocalisation()
               .then(success => console.dir(success))
               .catch(err => console.dir(err))
-            */
+              */
             return resolve(data)
           })
           .catch(err => reject(Error(_.get(err, 'response.data.err', 'An error occured.'))))
