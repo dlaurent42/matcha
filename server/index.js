@@ -70,13 +70,16 @@ class Server {
       })
 
       // Handle if a given user is connected or not
-      socket.on('isOnline', (userId) => {
-        const uid = parseInt(userId, 10)
-        let isOnline = false
-        Object.keys(this.correlationTable).forEach((key) => {
-          if (parseInt(key, 10) === uid) isOnline = true
+      socket.on('isOnline', (userIds) => {
+        const onlineUsers = userIds.map((userId) => {
+          const id = parseInt(userId, 10)
+          let isOnline = false
+          Object.keys(this.correlationTable).forEach((key) => {
+            if (parseInt(key, 10) === id) isOnline = true
+          })
+          return { id, isOnline }
         })
-        return isOnline
+        this.io.to(`${socket.id}`).emit('isOnline', { data: { onlineUsers } })
       })
 
       // Handle chat messages
