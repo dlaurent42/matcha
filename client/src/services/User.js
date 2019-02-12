@@ -13,8 +13,7 @@ export default {
     })
   },
   auth () {
-    const token =
-    {
+    const token = {
       params: {
         client_id: 'A968DCBAE348712A843CB15423E49953D7A0883F0D74E6E18044773F07393D0D',
         client_secret: 'D1BE2ECDFDC4850CF5AEAE16A6F9481EB97FD6988CCF7A9195002BF577F292EA'
@@ -34,20 +33,20 @@ export default {
     })
   },
   getID () {
-    return localStorage.getItem('userID')
-  },
-  async get () {
-    const userID = localStorage.getItem('userID')
-    const promise = new Promise((resolve, reject) => {
-      if (isEmpty(userID)) reject(Error('No user id'))
-      this.authLogic().then(() => {
-        Api().get('/user/' + userID)
-          .then(data => resolve(data))
-          .catch(err => reject(err.response.data.err))
+    const uid = localStorage.getItem('usr')
+    return Api().get(`/token?token=${uid}`)
+      .then((data) => {
+        if (isEmpty(data.data) || isEmpty(data.data.uid)) throw new Error('Invalid data.')
+        return data.data.uid
       })
-    })
-    await promise
-    return promise
+      .catch(err => console.dir(err))
+  },
+  get () {
+    return this.authLogic()
+      .then(() => this.getID())
+      .then(uid => Api().get(`/user/${uid}`))
+      .then(data => data)
+      .catch((err) => new Error(_.get(err, 'response.data.err') || err))
   },
   getUser (id) {
     return new Promise((resolve, reject) => {
@@ -72,122 +71,108 @@ export default {
     })
   },
   getAll (filters, sort) {
-    const userID = localStorage.getItem('userID')
-    let param = { user_id: userID }
-    Object.assign(param, filters, sort)
-    console.dir(param)
-    return new Promise((resolve, reject) => {
-      if (isEmpty(userID)) reject(Error('No user id'))
-      this.authLogic().then(() => {
-        Api().get('/user/all/', { params: param })
-          .then(data => {
-            resolve(data)
-          })
-          .catch(err => {
-            console.dir(err)
-            reject(err.response.data.err)
-          })
-      })
-    })
+    return new Promise((resolve, reject) => (
+      this.authLogic()
+        .then(() => this.getID())
+        .then((uid) => {
+          const params = { user_id: uid }
+          Object.assign(params, filters, sort)
+          return Api().get('/user/all/', { params })
+        })
+        .then(data => resolve(data))
+        .catch(err => {
+          console.dir(err)
+          reject(err.response.data.err)
+        })
+    ))
   },
   getMatched () {
-    const userID = localStorage.getItem('userID')
-    let param = {
-      user_id: userID,
-      filters: {
-        is_match: 1
-      }
-    }
-    return new Promise((resolve, reject) => {
-      if (isEmpty(userID)) reject(Error('No user id'))
-      this.authLogic().then(() => {
-        Api().get('/user/all/', { params: param })
-          .then(data => {
-            resolve(data)
-          })
-          .catch(err => {
-            console.dir(err)
-            reject(err.response.data.err)
-          })
-      })
-    })
+    return new Promise((resolve, reject) => (
+      this.authLogic()
+        .then(() => this.getID())
+        .then(uid => Api().get('/user/all/', { params: {
+          user_id: uid,
+          filters: {
+            is_match: 1
+          }
+        }}))
+        .then(data => resolve(data))
+        .catch(err => {
+          console.dir(err)
+          return reject(err.response.data.err)
+        })
+    ))
   },
   postApikey () {
-    const userID = localStorage.getItem('userID')
-    return new Promise((resolve, reject) => {
-      if (isEmpty(userID)) reject(Error('No user id'))
-      this.authLogic().then(() => {
-        Api().post('/auth/credentials/', {id: userID})
-          .then(success => { resolve(success.data) })
-          .catch(err => { reject(err.response.data.err) })
-      })
-    })
+    return new Promise((resolve, reject) => (
+      this.authLogic()
+        .then(() => this.getID())
+        .then(uid => Api().post('/auth/credentials/', { id: uid }))
+        .then(success => resolve(success.data))
+        .catch(err => reject(err.response.data.err))
+    ))
   },
   getApikey () {
-    const userID = localStorage.getItem('userID')
-    return new Promise((resolve, reject) => {
-      if (isEmpty(userID)) reject(Error('No user id'))
-      this.authLogic().then(() => {
-        Api().get('/auth/credentials/' + userID)
-          .then(data => { resolve(data) })
-          .catch(err => { reject(err.response.data.err) })
-      })
-    })
+    return new Promise((resolve, reject) => (
+      this.authLogic()
+        .then(() => this.getID())
+        .then(uid => Api().get(`/auth/credentials/${uid}`))
+        .then(data => resolve(data))
+        .catch(err => reject(err.response.data.err))
+    ))
   },
   getConversation () {
-    const userID = localStorage.getItem('userID')
-    let param = { user_id: userID }
-    return new Promise((resolve, reject) => {
-      if (isEmpty(userID)) reject(Error('No user id'))
-      this.authLogic().then(() => {
-        Api().get('/chat/conversation', { params: param })
-          .then(data => {
-            resolve(data)
-          })
-          .catch(err => {
-            console.dir(err)
-            reject(err.response.data.err)
-          })
-      })
-    })
+    return new Promise((resolve, reject) => (
+      this.authLogic()
+        .then(() => this.getID())
+        .then(uid => Api().get('/chat/conversation', { params: { user_id: uid } }))
+        .then(data => resolve(data))
+        .catch(err => {
+          console.dir(err)
+          reject(err.response.data.err)
+        })
+    ))
   },
   getMessages (receiver) {
-    const userID = localStorage.getItem('userID')
-    let param = { emitter: userID, 'receiver': receiver }
-    return new Promise((resolve, reject) => {
-      if (isEmpty(userID)) reject(Error('No user id'))
-      this.authLogic().then(() => {
-        Api().get('/chat/message', { params: param })
-          .then(data => {
-            resolve(data)
-          })
-          .catch(err => {
-            console.dir(err)
-            reject(err.response.data.err)
-          })
-      })
-    })
+    return new Promise((resolve, reject) => (
+      this.authLogic()
+        .then(() => this.getID())
+        .then(uid => Api().get('/chat/message', { params: { emitter: uid, receiver } }))
+        .then(data => resolve(data))
+        .catch(err => {
+          console.dir(err)
+          reject(err.response.data.err)
+        })
+    ))
   },
   login (user) {
+    let uid = null
+    let dataToBeReturned = null
     return new Promise((resolve, reject) => {
-      this.authLogic().then(() => {
-        Api().get('/user/authenticate', user)
-          .then(data => {
-            if (data.data.err) return reject(Error(data.data.err))
-            if (parseInt(data.data.user.isAccountConfirmed) === 0) return reject(Error('Your account is not confirmed'))
-            localStorage.setItem('userID', JSON.stringify(data.data.user.id))
-            token.createToken({ 'token': data.data.user.registrationToken })
-              .then(tokenUser => { localStorage.setItem('authClient', tokenUser.data.token) })
-              .catch(err => { console.dir(err) })
-              /* Add localisation here
-              this.getLocalisation()
-              .then(success => console.dir(success))
-              .catch(err => console.dir(err))
-              */
-            return resolve(data)
-          })
-          .catch(err => reject(Error(_.get(err, err.data.err, 'An error occured.'))))
-      })
+      this.authLogic()
+        .then(() => Api().get('/user/authenticate', user))
+        .then(data => {
+          dataToBeReturned = data
+          if (data.data.err) return reject(Error(data.data.err))
+          if (parseInt(data.data.user.isAccountConfirmed) === 0) return reject(Error('Your account is not confirmed'))
+          uid = data.data.user.id
+          return token.createToken({ 'token': data.data.user.registrationToken })
+        })
+        .then((tokenUser) => {
+          localStorage.setItem('authClient', tokenUser.data.token)
+          return Api().post('/token', { data: { uid } })
+        })
+        .then((data) => {
+          console.log(data)
+          localStorage.setItem('usr', data.data.token)
+          return resolve(dataToBeReturned)
+        })
+        .catch(err => reject(Error(_.get(err, err.data.err, 'An error occured.'))))
+        /* Add localisation here
+        this.getLocalisation()
+        .then(success => console.dir(success))
+        .catch(err => console.dir(err))
+        */
     })
   },
   register (user) {
@@ -254,8 +239,8 @@ export default {
     })
   },
   update (data) {
-    const userID = localStorage.getItem('userID')
-    return Api().put('/user/' + userID, data)
+    return this.getID()
+      .then(uid => Api().put(`/user/${uid}`, data))
       .then((response) => {
         return response
       })
@@ -264,8 +249,8 @@ export default {
       })
   },
   updatePassword (data) {
-    const userID = localStorage.getItem('userID')
-    return Api().put('/user/' + userID + '/password', data)
+    return this.getID()
+      .then(uid => Api().put(`/user/${uid}/password`, data))
       .then((response) => {
         return response
       })
@@ -274,13 +259,15 @@ export default {
       })
   },
   addPicture (file) {
-    const userID = localStorage.getItem('userID')
-    let formData = new FormData()
-    formData.append('user_id', userID)
-    formData.append('picture', file)
-    const config = { headers: { 'content-type': 'multipart/form-data' } }
-    return Api().post('/picture/', formData, config)
-      .then((response) => { return response })
+    return this.getID()
+      .then((uid) => {
+        const formData = new FormData()
+        formData.append('user_id', uid)
+        formData.append('picture', file)
+        const config = { headers: { 'content-type': 'multipart/form-data' } }
+        return Api().post('/picture/', formData, config)
+      })
+      .then(response => response)
       .catch(err => {
         console.dir(err)
       })
@@ -288,7 +275,7 @@ export default {
   logout () {
     // const token = localStorage.getItem('authClient')
     localStorage.removeItem('userLogged')
-    localStorage.removeItem('userID')
+    localStorage.removeItem('usr')
     localStorage.removeItem('authClient')
     // Api().delete('/token/', { token })
     //  .catch(err => console.dir(err))
@@ -349,61 +336,50 @@ export default {
     })
   },
   profileSeen (receiver) {
-    const emitter = localStorage.getItem('userID')
-    const body = { 'emitter': emitter, 'receiver': receiver }
-    return new Promise((resolve, reject) => {
-      if (isEmpty(emitter)) reject(Error('No user id'))
-      Api().post('/notification/profile', body)
-        .then((response) => {
-          resolve(response)
-        })
+    return new Promise((resolve, reject) => (
+      this.getID()
+        .then(uid => Api().post('/notification/profile', { emitter: uid, receiver }))
+        .then(response => resolve(response))
         .catch((err) => {
           console.dir(err)
           reject(err)
         })
-    })
+    ))
   },
-  sendMessage (receiver, content) {
-    const emitter = localStorage.getItem('userID')
-    const body = { 'emitter': emitter, 'receiver': receiver, 'message': content }
-    return new Promise((resolve, reject) => {
-      if (isEmpty(emitter)) reject(Error('No user id'))
-      Api().post('/chat/message', body)
-        .then((response) => {
-          resolve(response)
-        })
+  sendMessage (receiver, message) {
+    return new Promise((resolve, reject) => (
+      this.getID()
+        .then(uid => Api().post('/chat/message', { emitter: uid, receiver, message }))
+        .then(response => resolve(response))
         .catch((err) => {
           console.dir(err)
           reject(err)
         })
-    })
+    ))
   },
   getNotifications () {
-    const id = localStorage.getItem('userID')
-    return new Promise((resolve, reject) => {
-      if (isEmpty(id)) reject(Error('No user id'))
-      Api().get('/notification/?user_id=' + id)
-        .then((response) => {
-          resolve(response)
-        })
+    return new Promise((resolve, reject) => (
+      this.getID()
+        .then(uid => Api().get(`/notification/?user_id=${uid}`))
+        .then(response => resolve(response))
         .catch((err) => {
           console.dir(err)
           reject(err)
         })
-    })
+    ))
   },
   deletePicture (body) {
-    const id = localStorage.getItem('userID')
-    Object.assign(body, { 'user_id': id })
-    return new Promise((resolve, reject) => {
-      if (isEmpty(id)) reject(Error('No user id'))
-      Api().delete('/picture/', { data: body })
-        .then((response) => { resolve(response) })
+    return new Promise((resolve, reject) => (
+      this.getID()
+        .then((uid) => {
+          Object.assign(body, { 'user_id': uid })
+          return Api().delete('/picture/', { data: body })
+        })
         .catch((err) => {
           console.dir(err)
           reject(err)
         })
-    })
+    ))
   },
   suppressNotification (id) {
     return new Promise((resolve, reject) => {
