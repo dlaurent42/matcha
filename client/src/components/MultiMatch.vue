@@ -8,7 +8,11 @@
       img-alt="image"
       img-top
   >
-      <p class="card-text" ><b-button v-bind:href="profilePath">View profile</b-button></p>
+      <p class="card-text" >
+        <b-button v-bind:href="profilePath">View profile</b-button>
+        <b-badge v-if="person.isOnline === true" variant="success">Online</b-badge>
+        <b-badge v-else >{{ person.last_connection }}</b-badge>
+      </p>
       <div class="d-flex justify-content-around flex-wrap mb-2">
         <b-badge
           class="mb-2"
@@ -47,6 +51,7 @@ export default {
     }
   },
   beforeMount () {
+    console.log(this.person)
     this.interests = this.person.interests.slice(0, 5)
   },
   computed: {

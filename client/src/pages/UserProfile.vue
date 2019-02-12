@@ -15,7 +15,9 @@
             {{ user.biography }}
         </p>
         <p class="card-text">
-            Popularity: {{ user.popularity }}
+          <b-badge v-if="user.isOnline === true" variant="success">Online</b-badge>
+          <b-badge v-else >{{ user.last_connection }}</b-badge>
+          Popularity: {{ user.popularity }}
         </p>
         <p class="card-text profile-tags">
           <b-badge
@@ -85,6 +87,7 @@ export default {
     return {
       user: {
         id: this.$route.params.id,
+        isOnline: '',
         pictures: []
       },
       loadingReport: 'false',
@@ -113,6 +116,17 @@ export default {
         }
       })
       .catch(err => console.dir(err))
+  },
+  mounted () {
+    this.socket.on('isOnline', data => {
+      if (!_.isEmpty(data.data.onlineUsers)) {
+        data.data.onlineUsers.forEach(user => {
+          if (parseInt(user.id, 10) === parseInt(this.user.id, 10) &&
+          user.isOnline === true) this.user.isOnline = true
+        })
+      }
+    })
+    this.socket.emit('isOnline', [parseInt(this.user.id)])
   },
   computed: {
     getTitle () { return this.user.fullname + ', ' + this.user.age }
@@ -205,6 +219,10 @@ export default {
   justify-content: center;
   -ms-flex: 1;
   display: flex;
+}
+img.rounded-circle {
+  max-width: 100px;
+  max-height: 100px;
 }
 .bg-dark-transparent {
   background-color:#343a40ad;
