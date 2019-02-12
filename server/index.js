@@ -32,10 +32,10 @@ class Server {
         if (!_.isEmpty(uid)) {
           if (this.correlationTable[uid] === undefined) {
             Object.assign(this.correlationTable, { [uid]: [socket.id] })
-            console.log(this.correlationTable[uid], uid)
+            console.log(this.correlationTable)
           } else {
             this.correlationTable[uid].push(socket.id)
-            console.log(this.correlationTable[uid], uid)
+            console.log(this.correlationTable)
           }
         }
       })
@@ -67,6 +67,16 @@ class Server {
             console.log('Notification receiver is offline.')
           }
         } else console.log('Notification is invalid.')
+      })
+
+      // Handle if a given user is connected or not
+      socket.on('isOnline', (userId) => {
+        const uid = parseInt(userId, 10)
+        let isOnline = false
+        Object.keys(this.correlationTable).forEach((key) => {
+          if (parseInt(key, 10) === uid) isOnline = true
+        })
+        return isOnline
       })
 
       // Handle chat messages
