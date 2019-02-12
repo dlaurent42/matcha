@@ -2,7 +2,7 @@
   <b-navbar toggleable="md" type="dark" variant="dark">
     <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
     <b-navbar-brand><router-link to="/" class="nav-link text-white">Matcha</router-link></b-navbar-brand>
-    <v-notif v-if="logged === 'true'" v-bind:socket="socket"></v-notif>
+    <v-notif v-if="logged === true" v-bind:socket="socket"></v-notif>
     <b-collapse is-nav id="nav_collapse">
       <b-navbar-nav class="m-auto">
         <b-nav-item> <router-link to="/" class="nav-link">Home</router-link> </b-nav-item>
@@ -10,7 +10,7 @@
         <b-nav-item><router-link to="/Services" class="nav-link">Services</router-link></b-nav-item>
       </b-navbar-nav>
     </b-collapse>
-    <b-navbar-nav class="ml-auto" v-if="logged === 'true'" id="profile">
+    <b-navbar-nav class="ml-auto" v-if="logged === true" id="profile">
       <b-dropdown variant="link" size="lg" offset="-100" no-caret>
         <template slot="button-content">
           <font-awesome-icon icon="cog"/>
@@ -36,7 +36,7 @@ import Notif from '@/components/Notifications'
 
 export default {
   name: 'Menu',
-  props: ['logged', 'socket'],
+  props: ['logged', 'socket', 'profileComplete'],
   components: {
     'v-notif': Notif
   },
@@ -53,6 +53,9 @@ export default {
         quickmatch: { name: 'QuickMatch', to: '/QuickMatch' }
       }
     }
+  },
+  mounted () {
+    console.log(this.socket)
   },
   methods: {
     logout () { this.$emit('logout') }

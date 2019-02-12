@@ -66,7 +66,6 @@
 
 <script>
 import User from '@/services/User'
-import token from '@/services/Token'
 import router from '@/router'
 import _ from 'lodash'
 import isEmail from '@/utils/user/isEmail'
@@ -98,7 +97,6 @@ export default {
       const data = { params: { username: this.input.username, password: this.input.password } }
       User.login(data)
         .then(success => {
-          localStorage.setItem('authClient', token.createToken(success))
           this.$emit('authenticated', success)
           router.push('/')
         })

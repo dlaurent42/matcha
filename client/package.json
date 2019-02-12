@@ -25,7 +25,7 @@
     "jquery": "^3.3.1",
     "lodash": "^4.17.11",
     "npm": "^6.5.0",
-    "socket.io-client": "^2.2.0",
+    "socket.io-client": "2.0.3",
     "vue": "^2.5.2",
     "vue-lodash": "^2.0.0",
     "vue-router": "^3.0.1"

@@ -2,6 +2,7 @@
   <div id="wrapper">
     <v-header
       v-bind:logged="authenticated"
+      v-bind:profileComplete="profileComplete"
       @logout="logout"
       class="fixed-value"
       v-bind:socket="socket"
@@ -32,14 +33,18 @@ import User from '@/services/User'
 
 import Footer from '@/components/Footer'
 import Menu from '@/components/Menu'
-import token from '@/services/Token'
+import token from '@/services/Token' //eslint-disable-line
 import router from '@/router'
 
 import io from 'socket.io-client'
-import _ from 'lodash'
+import _ from 'lodash' //eslint-disable-line
 
 import { isEmpty } from '@/utils/obj/isEmpty'
 import { library } from '@fortawesome/fontawesome-svg-core'
+
+import {
+  faHeart as farHeart
+} from '@fortawesome/free-regular-svg-icons'
 
 import {
   faPaperPlane, faSpinner, faCog,
@@ -48,7 +53,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add([
-  faHeart, faTimes, faArrowDown, faArrowUp,
+  faHeart, farHeart, faTimes, faArrowDown, faArrowUp,
   faSpinner, faArchway, faCode,
   faPaperPlane, faCog, faBell
 ])
@@ -74,8 +79,7 @@ export default {
     setIncomplete () { this.profileComplete = false },
     setNull () {
       this.authenticated = false
-      if (!_.isEmpty(this.socket)) { this.socket.close() }
-      this.socket = null
+      this.profileComplete = false
       localStorage.removeItem('userLogged')
       localStorage.removeItem('userID')
     },
@@ -85,58 +89,86 @@ export default {
       return (!isEmpty(userLogged) && userLogged && !isEmpty(userID))
     },
     setAuthenticated (response) {
-      this.authenticated = 'true'
+      this.authenticated = true
       this.user = response.data.user
-      this.profileComplete = response.data.user.isProfileComplete
+      this.profileComplete = response.data.user.isProfileComplete !== 0
       localStorage.setItem('userLogged', true)
       localStorage.setItem('userID', JSON.stringify(response.data.user.id))
-      if (this.socket === null) {
-        this.socket = io('http://localhost:8082')
-        this.socket.on('connect', () => {
-          this.socket.emit('loginUser', User.getID())
-        })
-      }
+      this.setSockets()
     },
     logout () {
+      if (!_.isEmpty(this.socket)) {
+        this.socket.emit('logoutUser', User.getID())
+        this.socket = null
+      }
       User.logout()
       this.setNull()
       router.push('/')
-    }
-  },
-  mounted () {
-    if (this.$router.history.current.name === 'Liked') this.classBase = 'fill-space-horizontal'
-  },
-  beforeMount () {
-    User.auth()
-    this.authenticated = this.verifyValues()
-    if (this.authenticated === true) {
-      User.get()
+    },
+    setSockets () {
+      console.log('set Socket')
+      if (_.isEmpty(this.socket)) {
+        this.socket = io('http://localhost:8082')
+        this.socket.emit('loginUser', User.getID())
+        this.socket.on('logout', () => {
+          this.setNull()
+          if (!_.isEmpty(this.socket)) {
+            console.log('destroy socket')
+            this.socket.close()
+            this.socket = null
+          }
+          router.push('/')
+        })
+      }
+    },
+    async getUser () {
+      await User.get()
         .then(success => {
-          if (token.createToken(success) === localStorage.getItem('authClient')) {
-            this.user = success.data.user
-            this.profileComplete = success.data.user.isProfileComplete
-          } // else { alert('FAIAIIAIAIAIAIAILELELELLEELELELE') }
+          this.user = success.data.user
+          this.profileComplete = (success.data.user.isProfileComplete === 1)
+          this.setSockets()
+          console.log(this.profileComplete)
         })
         .catch(err => {
           console.dir(err)
           this.setNull()
         })
-      if (this.socket === null && this.verifyValues()) {
-        this.socket = io('http://localhost:8082')
-        this.socket.on('connect', () => {
-          this.socket.emit('loginUser', User.getID())
-        })
-        this.socket.on('logout', () => {
-          this.authenticated = false
-          this.socket.close()
-          this.socket = null
-        })
-        this.socket.on('disconnect', () => {
-          this.socket.close()
-          this.socket = null
-        })
-      }
     }
+  },
+  mounted () {
+    if (this.$router.history.current.name === 'Liked' ||
+        this.$router.history.current.name === 'Match'
+    ) this.classBase = 'fill-space-horizontal'
+  },
+  beforeRouteEnter (to, from, next) {
+    this.authenticated = this.verifyValues()
+    if (this.authenticated === true) {
+      this.getUser()
+      next()
+    } else next()
+  },
+  beforeMount () {
+    this.authenticated = this.verifyValues()
+    if (this.authenticated) this.setSockets()
+    console.log('app authenticated', this.authenticated)
+    console.log('app socket', this.socket)
+    /*
+    User.auth()
+    this.authenticated = this.verifyValues()
+    if (this.authenticated === true) {
+      User.get()
+        .then(success => {
+          this.user = success.data.user
+          this.profileComplete = (success.data.user.isProfileComplete === 1)
+          console.log(this.profileComplete)
+        })
+        .catch(err => {
+          console.dir(err)
+          this.setNull()
+        })
+      if (this.socket === null && this.verifyValues()) this.setSockets()
+    }
+    */
   }
 }
 </script>

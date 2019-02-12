@@ -263,7 +263,7 @@ export default {
         gender: '',
         biography: '',
         interest: '',
-        isProfileComplete: ''
+        isProfileComplete: true
       },
       show: true
     }

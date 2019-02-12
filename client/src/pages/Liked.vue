@@ -32,11 +32,12 @@
 
 <script>
 import User from '@/services/User'
+import router from '@/router'
 import MatchButton from '@/components/MatchButton'
 import _ from 'lodash'
 export default {
   name: 'Liked',
-  props: ['socket'],
+  props: ['socket', 'isProfileComplete'],
   components: {
     'v-button': MatchButton
   },
@@ -76,7 +77,9 @@ export default {
     }
   },
   beforeMount () {
-    this.getUsersLiked()
+    if (this.authenticated === false) router.push('/')
+    if (this.profileComplete === false) router.push('/Profile')
+    else this.getUsersLiked()
   }
 }
 </script>

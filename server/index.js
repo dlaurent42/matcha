@@ -24,26 +24,27 @@ class Server {
     this.io = require('socket.io')(this.http) // eslint-disable-line
     this.correlationTable = {}
     this.io.sockets.on('connection', (socket) => {
-      console.log(Object.keys(this.io.sockets.sockets))
-      console.log(this.correlationTable)
       console.log(`New connection: ${socket.id}`)
       // Add correlation UserId - SocketId when login event is triggered
       socket.on('loginUser', (uid) => {
         if (!_.isEmpty(uid)) {
           if (this.correlationTable[uid] === undefined) {
             Object.assign(this.correlationTable, { [uid]: [socket.id] })
-            console.log(this.correlationTable)
-          } else {
-            this.correlationTable[uid].push(socket.id)
-            console.log(this.correlationTable)
-          }
+          } else this.correlationTable[uid].push(socket.id)
         }
+        console.log(this.correlationTable)
       })
 
       // Remove all sockets Id when user logs out
       socket.on('logoutUser', (uid) => {
-        this.correlationTable[uid] = []
-        socket.disconnect()
+        console.log('delog user', uid)
+        if (!_.isEmpty(this.correlationTable[uid])) {
+          this.correlationTable[uid].forEach((socketId) => {
+            console.log('Emit to', socketId, 'disconnect message')
+            this.io.to(`${socketId}`).emit('logout')
+          })
+          console.log(this.correlationTable)
+        }
       })
 
       // Handle notifications
@@ -75,7 +76,7 @@ class Server {
           const id = parseInt(userId, 10)
           let isOnline = false
           Object.keys(this.correlationTable).forEach((key) => {
-            if (parseInt(key, 10) === id) isOnline = true
+            if (parseInt(key, 10) === id && !_.isEmpty(this.correlationTable[key])) isOnline = true
           })
           return { id, isOnline }
         })

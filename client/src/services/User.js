@@ -36,9 +36,9 @@ export default {
   getID () {
     return localStorage.getItem('userID')
   },
-  get () {
+  async get () {
     const userID = localStorage.getItem('userID')
-    return new Promise((resolve, reject) => {
+    const promise = new Promise((resolve, reject) => {
       if (isEmpty(userID)) reject(Error('No user id'))
       this.authLogic().then(() => {
         Api().get('/user/' + userID)
@@ -46,6 +46,8 @@ export default {
           .catch(err => reject(err.response.data.err))
       })
     })
+    await promise
+    return promise
   },
   getUser (id) {
     return new Promise((resolve, reject) => {
@@ -167,21 +169,15 @@ export default {
   },
   login (user) {
     return new Promise((resolve, reject) => {
-      this.authLogic().then(success => {
+      this.authLogic().then(() => {
         Api().get('/user/authenticate', user)
           .then(data => {
             if (data.data.err) return reject(Error(data.data.err))
             if (parseInt(data.data.user.isAccountConfirmed) === 0) return reject(Error('Your account is not confirmed'))
             localStorage.setItem('userID', JSON.stringify(data.data.user.id))
-            /*
-            token.createToken(data.data)
-              .then(tokenUser => {
-                console.log(tokenUser)
-                token.post(tokenUser)
-                  .then(success => { console.log(success) })
-                  .catch(err => console.dir(err))
-              })
-              .catch(err => console.dir(err))
+            token.createToken({ 'token': data.data.user.registrationToken })
+              .then(tokenUser => { localStorage.setItem('authClient', tokenUser.data.token) })
+              .catch(err => { console.dir(err) })
               /* Add localisation here
               this.getLocalisation()
               .then(success => console.dir(success))
@@ -190,7 +186,6 @@ export default {
             return resolve(data)
           })
           .catch(err => reject(Error(_.get(err, err.data.err, 'An error occured.'))))
-          // .catch(err => console.dir(err))
       })
     })
   },
@@ -290,7 +285,12 @@ export default {
       })
   },
   logout () {
-    localStorage.removeItem('jwt')
+    // const token = localStorage.getItem('authClient')
+    localStorage.removeItem('userLogged')
+    localStorage.removeItem('userID')
+    localStorage.removeItem('authClient')
+    // Api().delete('/token/', { token })
+    //  .catch(err => console.dir(err))
   },
   getGender () {
     return new Promise((resolve, reject) => {
@@ -325,6 +325,12 @@ export default {
   block (send, receiver) {
     const body = { 'emitter': send, 'receiver': receiver }
     return Api().post('/user/block', body)
+      .then((response) => { return response })
+      .catch((err) => { return err })
+  },
+  report (send, receiver) {
+    const body = { 'emitter': send, 'receiver': receiver }
+    return Api().post('/user/report', body)
       .then((response) => { return response })
       .catch((err) => { return err })
   },

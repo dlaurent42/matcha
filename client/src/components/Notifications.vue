@@ -51,8 +51,7 @@ export default {
         _.each(notification, notif => {
           promiseStack.push(User.suppressNotification(notif.notifid))
         })
-        Promise.all(promiseStack)
-          .then(this.getNotifications)
+        Promise.all(promiseStack).then(this.getNotifications)
       })
     },
     getNotifications () {

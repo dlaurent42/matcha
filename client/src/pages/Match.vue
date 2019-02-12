@@ -77,6 +77,13 @@
             </transition-group>
           </b-col>
         </b-row>
+        <b-row v-if="persons.length == 0" class="justify-content-sm-center w-100 pt-5 m-0">
+          <b-col col md="12" lg="10" class="m-0 px-0">
+            <b-jumbotron header="No user found">
+              <p>Please change your filters</p>
+            </b-jumbotron>
+          </b-col>
+        </b-row>
     </b-row>
 </template>
 <script>
@@ -106,9 +113,10 @@ export default {
       },
       sorts: [
         { name: 'age', active: false },
-        { name: 'popularity', active: true },
+        { name: 'popularity', active: false },
         { name: 'distance', active: false },
-        { name: 'interests', active: false }
+        { name: 'interests', active: false },
+        { name: 'default', active: true }
       ]
     }
   },
@@ -166,16 +174,23 @@ export default {
       let e = document.documentElement
       return e.scrollHeight - e.scrollTop - e.clientHeight < 50
     },
-    getSort () { return _.find(this.sorts, o => o.active === true).name },
+    getSort () {
+      const sort = _.find(this.sorts, o => o.active === true).name
+      return sort === undefined ? '' : sort
+    },
     scroll () { window.onscroll = () => { if (this.getHeight()) { this.add(2) } } },
     getMin (key) { return (key === 'age_min' || key === 'age_max') ? 18 : 0 },
     getMax (key) { return (key === 'age_min' || key === 'age_max') ? 99 : 10000 }
   },
   beforeMount () {
+    console.log(this.authenticated)
+    console.log('Profile complete:', this.profileComplete)
     if (this.authenticated === false) router.push('/')
     if (this.profileComplete === false) router.push('/Profile')
-    this.getInitialUsers()
-    this.img = 'http://getwallpapers.com/wallpaper/full/f/c/3/43246.jpg'
+    else {
+      this.getInitialUsers()
+      this.img = 'http://getwallpapers.com/wallpaper/full/f/c/3/43246.jpg'
+    }
   },
   mounted () {
     this.scroll(this.person)

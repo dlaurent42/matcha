@@ -14,6 +14,9 @@
         <p class="card-text">
             {{ user.biography }}
         </p>
+        <p class="card-text">
+            Popularity: {{ user.popularity }}
+        </p>
         <p class="card-text profile-tags">
           <b-badge
             class="ml-3"
@@ -38,15 +41,27 @@
       </b-card>
     </b-col>
     <b-col md="6" cols="12">
-        <b-card
-          class="bg-dark-transparent text-center"
-          no-body
-        >
-        <b-card-body>
-          <v-carousel v-bind:isProfile="false" v-bind:pictures="user.pictures"></v-carousel>
-        </b-card-body>
-        </b-card>
-      </b-col>
+      <b-card
+        class="bg-dark-transparent text-center"
+        no-body
+      >
+      <b-card-body>
+        <v-carousel v-bind:isProfile="false" v-bind:pictures="user.pictures"></v-carousel>
+      </b-card-body>
+      </b-card>
+    </b-col>
+    <b-col cols="12">
+      <b-row>
+        <b-col md="6">
+          <v-load
+              v-bind:loadingState="loadingReport"
+              message="Report user"
+              variant="danger"
+              v-on:update="report"
+          />
+        </b-col>
+      </b-row>
+    </b-col>
   </b-row>
 </template>
 
@@ -56,12 +71,14 @@ import _ from 'lodash'
 import Carousel from '@/components/Carousel'
 import router from '@/router'
 import MatchButton from '@/components/MatchButton'
+import loadingButton from '@/components/buttonLoading'
 
 export default {
   name: 'UserProfile',
   components: {
     'v-btn': MatchButton,
-    'v-carousel': Carousel
+    'v-carousel': Carousel,
+    'v-load': loadingButton
   },
   props: ['socket', 'authenticated', 'profileComplete'],
   data () {
@@ -70,6 +87,7 @@ export default {
         id: this.$route.params.id,
         pictures: []
       },
+      loadingReport: 'false',
       liked: false,
       blocked: false,
       image: 'https://randomuser.me/api/portraits/women/59.jpg',
@@ -87,8 +105,10 @@ export default {
   beforeMount () {
     if (this.authenticated === false) router.push('/')
     if (this.profileComplete === false) router.push('/Profile')
-    this.updateUser()
-    this.setButton()
+    else {
+      this.updateUser()
+      this.setButton()
+    }
   },
   computed: {
     getTitle () { return this.user.fullname + ', ' + this.user.age }
@@ -112,6 +132,17 @@ export default {
       User.getProfilePic(this.user.id)
         .then(success => { this.image = success })
         .catch(err => console.dir(err))
+    },
+    report () {
+      this.loadingReport = 'true'
+      const userID = localStorage.getItem('userID')
+      User.report(userID, this.user.id)
+        .then(success => {
+          this.input = success.data.user
+          setTimeout(() => { this.loadingReport = 'complete' }, 1500)
+        })
+        .catch(() => { setTimeout(() => { this.loadingReport = 'error' }, 1500) })
+        .finally(setTimeout(() => { this.loadingReport = 'false' }, 3000))
     },
     unlike (id) {
       const userID = localStorage.getItem('userID')
