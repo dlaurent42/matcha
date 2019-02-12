@@ -115,7 +115,7 @@ export default {
           if (token.createToken(success) === localStorage.getItem('authClient')) {
             this.user = success.data.user
             this.profileComplete = success.data.user.isProfileComplete
-          } else { alert('FAIAIIAIAIAIAIAILELELELLEELELELE') }
+          } // else { alert('FAIAIIAIAIAIAIAILELELELLEELELELE') }
         })
         .catch(err => {
           console.dir(err)
