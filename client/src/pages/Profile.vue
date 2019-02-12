@@ -385,10 +385,6 @@ export default {
         .catch(() => { this.loadingProfile = 'error' })
         .finally(setTimeout(() => { this.loadingProfile = 'false' }, 3000))
     }
-  },
-  updated () {
-    if (this.input.isProfileComplete === true) this.$emit('profileComplete')
-    else this.$emit('profileNotComplete')
   }
 }
 </script>

@@ -8,16 +8,6 @@
             <div class="recent_heading">
               <h4>Recent</h4>
             </div>
-            <div class="srch_bar">
-              <div class="stylish-input-group">
-                <input type="text" class="search-bar" placeholder="Search">
-                <span class="input-group-addon">
-                  <button type="button">
-                    <i class="fa fa-search" aria-hidden="true"></i>
-                  </button>
-                </span>
-              </div>
-            </div>
           </div>
           <div class="inbox_chat">
             <v-message
@@ -84,15 +74,15 @@ export default {
             const map = new Map()
             this.getMatched()
               .then(users => {
-                if (_.get(users, 'data.users')) {
-                  users.data.users.forEach(a => map.set(a.id, a))
+                if (!_.isEmpty(users.data)) users.data.forEach(a => map.set(a.id, a))
+                if (!_.isEmpty(success.data.conversations)) {
                   success.data.conversations.forEach(a => map.set(a.id, a))
-                  this.users = [...map.values()].reverse()
                 }
+                this.users = [...map.values()].reverse()
+                console.log(this.users)
+                if (this.users[0] !== undefined) resolve(this.users[0])
+                else reject(Error('no conversation'))
               })
-            console.dir(this.users)
-            if (this.users[0] !== undefined) resolve(this.users[0])
-            else reject(Error('no conversation'))
           })
           .catch(err => { reject(err) })
       })
@@ -113,7 +103,9 @@ export default {
     getMatched () {
       return new Promise((resolve, reject) => {
         User.getAll({ filters: { is_match: 1 } })
-          .then(success => { resolve(success) })
+          .then(success => {
+            resolve(success)
+          })
           .catch(err => reject(err))
       })
     },
@@ -134,7 +126,7 @@ export default {
     }
   },
   computed: {
-    getID () { return User.getID() }
+    getID () { return parseInt(User.getID()) }
   },
   updated () {
     const box = document.getElementById('msg-box')

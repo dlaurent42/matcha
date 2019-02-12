@@ -183,17 +183,38 @@ export default {
     getMax (key) { return (key === 'age_min' || key === 'age_max') ? 99 : 10000 }
   },
   beforeMount () {
-    console.log(this.authenticated)
-    console.log('Profile complete:', this.profileComplete)
     if (this.authenticated === false) router.push('/')
-    if (this.profileComplete === false) router.push('/Profile')
-    else {
-      this.getInitialUsers()
-      this.img = 'http://getwallpapers.com/wallpaper/full/f/c/3/43246.jpg'
-    }
+    User.get()
+      .then(success => {
+        if (success.data.user.isProfileComplete === 0) router.push('/Profile')
+        else {
+          this.getInitialUsers()
+          this.img = 'http://getwallpapers.com/wallpaper/full/f/c/3/43246.jpg'
+        }
+      })
+      .catch(err => console.dir(err))
   },
   mounted () {
     this.scroll(this.person)
+    console.log('Mount')
+  },
+  beforeCreated () {
+    console.log('beforeCreated')
+  },
+  created () {
+    console.log('Created')
+  },
+  beforeUpdated () {
+    console.log('beforeUpdated')
+  },
+  updated () {
+    console.log('Updated')
+  },
+  destroyed () {
+    console.log('destroy')
+  },
+  beforeDestroyed () {
+    console.log('before destroy')
   }
 }
 </script>

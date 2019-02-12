@@ -54,9 +54,6 @@ export default {
       }
     }
   },
-  mounted () {
-    console.log(this.socket)
-  },
   methods: {
     logout () { this.$emit('logout') }
   }

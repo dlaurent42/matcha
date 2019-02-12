@@ -75,6 +75,7 @@ export default {
     const userID = localStorage.getItem('userID')
     let param = { user_id: userID }
     Object.assign(param, filters, sort)
+    console.dir(param)
     return new Promise((resolve, reject) => {
       if (isEmpty(userID)) reject(Error('No user id'))
       this.authLogic().then(() => {

@@ -69,8 +69,12 @@ export default {
   },
   beforeMount () {
     if (this.authenticated === false) router.push('/')
-    if (this.profileComplete === false) router.push('/Profile')
-    else this.getInitialUsers()
+    User.get()
+      .then(success => {
+        if (success.data.user.isProfileComplete === 0) router.push('/Profile')
+        else this.getInitialUsers()
+      })
+      .catch(err => console.dir(err))
   }
 }
 </script>

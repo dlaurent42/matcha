@@ -17,6 +17,7 @@
 </template>
 <script>
 import Format from '@/services/FormatDate'
+import _ from 'lodash'
 import User from '@/services/User'
 export default {
   name: 'lastMessage',
@@ -39,7 +40,9 @@ export default {
     }
   },
   computed: {
-    getDate () { return Format.fullDate(this.user.lastMessageDate) }
+    getDate () {
+      return _.isEmpty(this.user.lastMessageDate) ? 'No Message Baby' : Format.fullDate(this.user.lastMessageDate)
+    }
   },
   mounted () {
     this.getProfilePic()

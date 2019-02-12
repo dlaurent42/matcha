@@ -125,7 +125,7 @@ import isLastname from '@/utils/user/isLastname'
 import isFirstname from '@/utils/user/isFirstname'
 export default {
   name: 'Register',
-  props: ['authentificated'],
+  props: ['authenticated'],
   components: {
     'v-load': buttonLoading
   },

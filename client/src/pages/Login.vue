@@ -72,6 +72,7 @@ import isEmail from '@/utils/user/isEmail'
 
 export default {
   name: 'Login',
+  props: ['authenticated'],
   data () {
     return {
       myError: {

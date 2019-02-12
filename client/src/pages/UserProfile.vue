@@ -104,11 +104,15 @@ export default {
   },
   beforeMount () {
     if (this.authenticated === false) router.push('/')
-    if (this.profileComplete === false) router.push('/Profile')
-    else {
-      this.updateUser()
-      this.setButton()
-    }
+    User.get()
+      .then(success => {
+        if (success.data.user.isProfileComplete === 0) router.push('/Profile')
+        else {
+          this.updateUser()
+          this.setButton()
+        }
+      })
+      .catch(err => console.dir(err))
   },
   computed: {
     getTitle () { return this.user.fullname + ', ' + this.user.age }
@@ -124,7 +128,7 @@ export default {
             this.user = success.data.user
             this.getProfilePic()
             this.profileSeen()
-          }
+          } else router.push('/home')
         })
         .catch((err) => console.dir(err))
     },

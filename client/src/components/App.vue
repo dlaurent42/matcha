@@ -106,14 +106,12 @@ export default {
       router.push('/')
     },
     setSockets () {
-      console.log('set Socket')
       if (_.isEmpty(this.socket)) {
         this.socket = io('http://localhost:8082')
         this.socket.emit('loginUser', User.getID())
         this.socket.on('logout', () => {
           this.setNull()
           if (!_.isEmpty(this.socket)) {
-            console.log('destroy socket')
             this.socket.close()
             this.socket = null
           }
@@ -121,13 +119,12 @@ export default {
         })
       }
     },
-    async getUser () {
-      await User.get()
+    getUser () {
+      User.get()
         .then(success => {
           this.user = success.data.user
           this.profileComplete = (success.data.user.isProfileComplete === 1)
           this.setSockets()
-          console.log(this.profileComplete)
         })
         .catch(err => {
           console.dir(err)
@@ -141,34 +138,12 @@ export default {
     ) this.classBase = 'fill-space-horizontal'
   },
   beforeRouteEnter (to, from, next) {
-    this.authenticated = this.verifyValues()
-    if (this.authenticated === true) {
-      this.getUser()
-      next()
-    } else next()
+    next(this.getUser())
   },
   beforeMount () {
     this.authenticated = this.verifyValues()
     if (this.authenticated) this.setSockets()
-    console.log('app authenticated', this.authenticated)
-    console.log('app socket', this.socket)
-    /*
-    User.auth()
-    this.authenticated = this.verifyValues()
-    if (this.authenticated === true) {
-      User.get()
-        .then(success => {
-          this.user = success.data.user
-          this.profileComplete = (success.data.user.isProfileComplete === 1)
-          console.log(this.profileComplete)
-        })
-        .catch(err => {
-          console.dir(err)
-          this.setNull()
-        })
-      if (this.socket === null && this.verifyValues()) this.setSockets()
-    }
-    */
+    if (this.authenticated) this.getUser()
   }
 }
 </script>
