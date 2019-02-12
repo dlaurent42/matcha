@@ -8,6 +8,13 @@ export default {
         .catch(error => { reject(error) })
     })
   },
+  postToken (token) {
+    return new Promise((resolve, reject) => {
+      Api().post('/token/', token)
+        .then(success => { resolve(success) })
+        .catch(error => { reject(error) })
+    })
+  },
   destroyToken (token) {
     return new Promise((resolve, reject) => {
       Api().del('/token/', token)

@@ -1,7 +1,8 @@
 import Api from './Api'
 import axios from 'axios'
+import token from '@/services/Token' //eslint-disable-line
 import { isEmpty } from '@/utils/obj/isEmpty'
-import _ from 'lodash'
+import _ from 'lodash' //eslint-disable-line
 
 export default {
   authLogic () {
@@ -172,15 +173,24 @@ export default {
             if (data.data.err) return reject(Error(data.data.err))
             if (parseInt(data.data.user.isAccountConfirmed) === 0) return reject(Error('Your account is not confirmed'))
             localStorage.setItem('userID', JSON.stringify(data.data.user.id))
-            // Add localisation here
             /*
-            this.getLocalisation()
+            token.createToken(data.data)
+              .then(tokenUser => {
+                console.log(tokenUser)
+                token.post(tokenUser)
+                  .then(success => { console.log(success) })
+                  .catch(err => console.dir(err))
+              })
+              .catch(err => console.dir(err))
+              /* Add localisation here
+              this.getLocalisation()
               .then(success => console.dir(success))
               .catch(err => console.dir(err))
-            */
+              */
             return resolve(data)
           })
-          .catch(err => reject(Error(_.get(err, 'response.data.err', 'An error occured.'))))
+          .catch(err => reject(Error(_.get(err, err.data.err, 'An error occured.'))))
+          // .catch(err => console.dir(err))
       })
     })
   },
