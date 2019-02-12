@@ -84,10 +84,6 @@ import User from '@/services/User'
 import _ from 'lodash'
 import router from '@/router'
 import MultiMatch from '@/components/MultiMatch'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faTimes, faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons'
-import { faHeart } from '@fortawesome/free-regular-svg-icons'
-library.add([faHeart, faTimes, faArrowDown, faArrowUp])
 
 export default {
   name: 'Match',
@@ -143,7 +139,7 @@ export default {
       this.getInitialUsers()
     },
     like (id) {
-      const userID = sessionStorage.getItem('userID')
+      const userID = localStorage.getItem('userID')
       User.like(userID, id)
         .then(success => {
           this.remove(id)
@@ -158,7 +154,7 @@ export default {
       }
     },
     block (id) {
-      const userID = sessionStorage.getItem('userID')
+      const userID = localStorage.getItem('userID')
       User.block(userID, id)
         .then(success => {
           this.remove(id)
@@ -177,8 +173,7 @@ export default {
   },
   beforeMount () {
     if (this.authenticated === false) router.push('/')
-    console.log(this.profileComplete)
-    if (this.profileComplete === 'false') router.push('/Profile')
+    if (this.profileComplete === false) router.push('/Profile')
     this.getInitialUsers()
     this.img = 'http://getwallpapers.com/wallpaper/full/f/c/3/43246.jpg'
   },

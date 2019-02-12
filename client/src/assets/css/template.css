@@ -5,8 +5,6 @@ html, body {
     min-height: 100%;
 }
 .dropdown-menu.show {
-    max-height: 300px;
-    overflow-y: scroll;
     color: black;
 }
 #matching-box .btn-group label {

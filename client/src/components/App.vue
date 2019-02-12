@@ -1,6 +1,11 @@
 <template>
   <div id="wrapper">
-    <v-header v-bind:logged="authenticated" class="fixed-value" @clicked="logout" v-bind:socket="socket"></v-header>
+    <v-header
+      v-bind:logged="authenticated"
+      @logout="logout"
+      class="fixed-value"
+      v-bind:socket="socket"
+    />
     <b-container v-bind:class="classBase" v-bind:style="{
       'background-image': 'url(' + image + ')',
       'background-repeat': 'no-repeat',
@@ -12,6 +17,7 @@
         @authenticated="setAuthenticated"
         @profileComplete="setComplete"
         @profileNotComplete="setIncomplete"
+        @logout="logout"
         v-bind:authenticated="authenticated"
         v-bind:profileComplete="profileComplete"
         v-bind:socket="socket"
@@ -23,12 +29,29 @@
 
 <script>
 import User from '@/services/User'
-import axios from 'axios' //eslint-disable-line
-import Menu from '@/components/Menu'
+
 import Footer from '@/components/Footer'
+import Menu from '@/components/Menu'
+import token from '@/services/Token'
 import router from '@/router'
+
 import io from 'socket.io-client'
+import _ from 'lodash'
+
 import { isEmpty } from '@/utils/obj/isEmpty'
+import { library } from '@fortawesome/fontawesome-svg-core'
+
+import {
+  faPaperPlane, faSpinner, faCog,
+  faHeart, faCode, faArchway, faBell,
+  faTimes, faArrowDown, faArrowUp
+} from '@fortawesome/free-solid-svg-icons'
+
+library.add([
+  faHeart, faTimes, faArrowDown, faArrowUp,
+  faSpinner, faArchway, faCode,
+  faPaperPlane, faCog, faBell
+])
 
 export default {
   name: 'App',
@@ -47,16 +70,26 @@ export default {
     }
   },
   methods: {
-    setComplete () {
-      this.profileComplete = true
-    },
+    setComplete () { this.profileComplete = true },
     setIncomplete () { this.profileComplete = false },
+    setNull () {
+      this.authenticated = false
+      if (!_.isEmpty(this.socket)) { this.socket.close() }
+      this.socket = null
+      localStorage.removeItem('userLogged')
+      localStorage.removeItem('userID')
+    },
+    verifyValues () {
+      const userLogged = localStorage.getItem('userLogged')
+      const userID = localStorage.getItem('userID')
+      return (!isEmpty(userLogged) && userLogged && !isEmpty(userID))
+    },
     setAuthenticated (response) {
       this.authenticated = 'true'
       this.user = response.data.user
       this.profileComplete = response.data.user.isProfileComplete
-      sessionStorage.setItem('userLogged', true)
-      sessionStorage.setItem('userID', JSON.stringify(response.data.user.id))
+      localStorage.setItem('userLogged', true)
+      localStorage.setItem('userID', JSON.stringify(response.data.user.id))
       if (this.socket === null) {
         this.socket = io('http://localhost:8082')
         this.socket.on('connect', () => {
@@ -66,37 +99,47 @@ export default {
     },
     logout () {
       User.logout()
-      this.authenticated = false
-      this.socket.emit('logoutUser')
-      sessionStorage.removeItem('userLogged')
-      sessionStorage.removeItem('userID')
-      this.socket.emit('logoutUser', User.getID())
+      this.setNull()
       router.push('/')
     }
   },
   mounted () {
     if (this.$router.history.current.name === 'Liked') this.classBase = 'fill-space-horizontal'
-    if (this.authenticated === 'true') {
-      User.get()
-        .then(success => {
-          this.user = success.data.user
-          this.profileComplete = success.data.user.isProfileComplete
-          console.log(this.profileComplete)
-        })
-    }
   },
   beforeMount () {
     User.auth()
-    const userLogged = sessionStorage.getItem('userLogged')
-    this.authenticated = (!isEmpty(userLogged) && userLogged)
-    if (this.socket === null && userLogged) {
-      this.socket = io('http://localhost:8082')
-      this.socket.on('connect', () => {
-        this.socket.emit('loginUser', User.getID())
-      })
-      this.socket.on('disconnect', () => {
-        this.socket.open()
-      })
+    this.authenticated = this.verifyValues()
+    if (this.authenticated === true) {
+      User.get()
+        .then(success => {
+          if (token.createToken(success) == localStorage.getItem('authClient'))
+          {
+            this.user = success.data.user
+            this.profileComplete = success.data.user.isProfileComplete
+          }
+          else {
+            alert('FAIAIIAIAIAIAIAILELELELLEELELELE');
+          }
+        })
+        .catch(err => {
+          console.dir(err)
+          this.setNull()
+        })
+      if (this.socket === null && this.verifyValues()) {
+        this.socket = io('http://localhost:8082')
+        this.socket.on('connect', () => {
+          this.socket.emit('loginUser', User.getID())
+        })
+        this.socket.on('logout', () => {
+          this.authenticated = false
+          this.socket.close()
+          this.socket = null
+        })
+        this.socket.on('disconnect', () => {
+          this.socket.close()
+          this.socket = null
+        })
+      }
     }
   }
 }

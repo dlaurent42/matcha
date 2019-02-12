@@ -68,16 +68,7 @@
     </b-container>
 </template>
 <script>
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faHeart, faCode, faArchway } from '@fortawesome/free-solid-svg-icons'
-
-library.add(faHeart)
-library.add(faCode)
-library.add(faArchway)
-
-export default {
-  name: 'Home'
-}
+export default { name: 'Home' }
 </script>
 <style scoped>
 h4 {

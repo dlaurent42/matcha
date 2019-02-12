@@ -22,10 +22,6 @@
 import User from '@/services/User'
 import _ from 'lodash'
 import Notif from '@/components/Notification'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faBell } from '@fortawesome/free-solid-svg-icons'
-
-library.add(faBell)
 
 export default {
   name: 'Notifications',

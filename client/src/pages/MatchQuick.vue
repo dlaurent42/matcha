@@ -49,7 +49,7 @@ export default {
       this.persons.push(add)
     },
     like (id) {
-      const userID = sessionStorage.getItem('userID')
+      const userID = localStorage.getItem('userID')
       User.like(userID, id)
         .then(success => {
           this.remove(id)
@@ -58,7 +58,7 @@ export default {
         .catch(err => console.dir(err))
     },
     block (id) {
-      const userID = sessionStorage.getItem('userID')
+      const userID = localStorage.getItem('userID')
       User.block(userID, id)
         .then(success => {
           this.remove(id)
@@ -69,7 +69,7 @@ export default {
   },
   beforeMount () {
     if (this.authenticated === false) router.push('/')
-    if (this.profileComplete === 'false') router.push('/Profile')
+    if (this.profileComplete === false) router.push('/Profile')
     else this.getInitialUsers()
   }
 }

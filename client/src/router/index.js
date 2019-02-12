@@ -112,8 +112,8 @@ const router = new Router({
 })
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (sessionStorage.getItem('userID') === null ||
-    sessionStorage.getItem('userID') === undefined) {
+    if (localStorage.getItem('userID') === null ||
+    localStorage.getItem('userID') === undefined) {
       next({
         path: '/'
       })

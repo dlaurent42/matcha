@@ -86,7 +86,7 @@ export default {
   },
   beforeMount () {
     if (this.authenticated === false) router.push('/')
-    if (this.profileComplete === 'false') router.push('/Profile')
+    if (this.profileComplete === false) router.push('/Profile')
     this.updateUser()
     this.setButton()
   },
@@ -114,13 +114,13 @@ export default {
         .catch(err => console.dir(err))
     },
     unlike (id) {
-      const userID = sessionStorage.getItem('userID')
+      const userID = localStorage.getItem('userID')
       User.unlike(userID, id)
         .then(success => { this.liked = false })
         .catch(err => console.dir(err))
     },
     like (id) {
-      const userID = sessionStorage.getItem('userID')
+      const userID = localStorage.getItem('userID')
       User.like(userID, id)
         .then(success => {
           this.liked = true
@@ -129,7 +129,7 @@ export default {
         .catch(err => console.dir(err))
     },
     block (id) {
-      const userID = sessionStorage.getItem('userID')
+      const userID = localStorage.getItem('userID')
       User.block(userID, id)
         .then(success => {
           this.blocked = true
@@ -138,7 +138,7 @@ export default {
         .catch(err => console.dir(err))
     },
     unblock (id) {
-      const userID = sessionStorage.getItem('userID')
+      const userID = localStorage.getItem('userID')
       User.unblock(userID, id)
         .then(success => { this.blocked = false })
         .catch(err => console.dir(err))

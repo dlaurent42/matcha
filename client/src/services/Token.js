@@ -1,36 +1,25 @@
 import Api from '@/services/Api'
-import { isEmpty } from '@/utils/obj/isEmpty'
 
 export default {
-  setToken (token) {
-    if (!isEmpty(token)) sessionStorage.setItem('jwt', token)
-  },
-  getToken () {
-    if (!isEmpty(sessionStorage.getItem('jwt'))) {
-      return sessionStorage.getItem('jwt')
-    }
-    return null
-  },
   createToken (data) {
-    Api().post('/token', data)
-      .then(
-        success => { return success }
-      )
-    return null
+    return new Promise((resolve, reject) => {
+      Api().post('/token', data)
+        .then(success => { resolve(success) })
+        .catch(error => { reject(error) })
+    })
   },
   destroyToken (token) {
-    Api().del('/token/', token)
-      .then(() => { return true })
-    return false
+    return new Promise((resolve, reject) => {
+      Api().del('/token/', token)
+        .then(success => { resolve(success) })
+        .catch(error => { reject(error) })
+    })
   },
   decodeToken (token) {
-    const param = {
-      params: { 'token': token }
-    }
-    Api().get('/token/', param)
-      .then(
-        success => { return success },
-        err => { return err }
-      )
+    return new Promise((resolve, reject) => {
+      Api().get('/token', token)
+        .then(success => { resolve(success) })
+        .catch(error => { reject(error) })
+    })
   }
 }

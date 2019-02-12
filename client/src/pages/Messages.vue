@@ -57,11 +57,8 @@
 import _ from 'lodash'
 import User from '@/services/User'
 import LastMessage from '@/components/lastMessage'
+import router from '@/router'
 import WrapperMessage from '@/components/WrapperMessage'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
-
-library.add(faPaperPlane)
 
 export default {
   name: 'Message',
@@ -149,7 +146,12 @@ export default {
         this.currentUser = success
         this.getMessages(success.id)
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        if (err.message === 'No user id') {
+          this.$emit('logout')
+          router.push('/')
+        }
+      })
     this.socket.on('message', data => {
       if (parseInt(data.data.emitter) === this.currentUser.id) this.getMessages(this.currentUser.id)
     })

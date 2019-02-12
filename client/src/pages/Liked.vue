@@ -42,13 +42,13 @@ export default {
   },
   methods: {
     unlike (id) {
-      const userID = sessionStorage.getItem('userID')
+      const userID = localStorage.getItem('userID')
       User.unlike(userID, id)
         .then(success => { this.getUsersLiked() })
         .catch(err => console.dir(err))
     },
     block (id) {
-      const userID = sessionStorage.getItem('userID')
+      const userID = localStorage.getItem('userID')
       User.block(userID, id)
         .then(success => { this.unlike(id) })
         .catch(err => console.dir(err))

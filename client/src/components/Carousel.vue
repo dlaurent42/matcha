@@ -30,7 +30,6 @@
 
 <script>
 import User from '@/services/User'
-import _ from 'lodash' //eslint-disable-line
 export default {
   name: 'Carousel',
   props: ['pictures', 'isProfile'],

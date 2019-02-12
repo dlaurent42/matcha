@@ -24,21 +24,26 @@ class Server {
     this.io = require('socket.io')(this.http) // eslint-disable-line
     this.correlationTable = {}
     this.io.sockets.on('connection', (socket) => {
+      console.log(Object.keys(this.io.sockets.sockets))
+      console.log(this.correlationTable)
       console.log(`New connection: ${socket.id}`)
       // Add correlation UserId - SocketId when login event is triggered
       socket.on('loginUser', (uid) => {
-        if (this.correlationTable[uid] === undefined) {
-          Object.assign(this.correlationTable, { [uid]: [socket.id] })
-          console.log(this.correlationTable[uid], uid)
-        } else {
-          this.correlationTable[uid].push(socket.id)
-          console.log(this.correlationTable[uid], uid)
+        if (!_.isEmpty(uid)) {
+          if (this.correlationTable[uid] === undefined) {
+            Object.assign(this.correlationTable, { [uid]: [socket.id] })
+            console.log(this.correlationTable[uid], uid)
+          } else {
+            this.correlationTable[uid].push(socket.id)
+            console.log(this.correlationTable[uid], uid)
+          }
         }
       })
 
       // Remove all sockets Id when user logs out
       socket.on('logoutUser', (uid) => {
         this.correlationTable[uid] = []
+        socket.disconnect()
       })
 
       // Handle notifications
@@ -89,8 +94,9 @@ class Server {
 
       // [PRESET EVENT] remove socket Id from correlationTable
       socket.on('disconnect', () => {
+        console.log(`Disconnect triggered for user ${socket.id}`)
         const key = _.findKey(this.correlationTable, socketIds => (
-          socketIds.indexOf(socket.id) === 0
+          socketIds.indexOf(socket.id) > -1
         ))
         _.remove(this.correlationTable[key], el => el === socket.id)
       })

@@ -7,12 +7,8 @@ export default {
   authLogic () {
     return new Promise((resolve, reject) => {
       this.auth()
-        .then(success => {
-          resolve(success)
-        })
-        .catch((err) => {
-          reject(err)
-        })
+        .then(success => { resolve(success) })
+        .catch((err) => { reject(err) })
     })
   },
   auth () {
@@ -27,12 +23,9 @@ export default {
       Api().get('/auth/', token)
         .then((response) => {
           if (!isEmpty(response.data.token)) {
-            console.log(response.data.token)
-            console.log(Date.now())
-            console.log(Date.now() - response.data.createdAt + response.data.expireAt)
-            sessionStorage.setItem('authToken', response.data.token)
-            sessionStorage.setItem('authCreatedAt', Date.now())
-            sessionStorage.setItem('authExpireAt', Date.now() - response.data.createdAt + response.data.expireAt)
+            localStorage.setItem('authToken', response.data.token)
+            localStorage.setItem('authCreatedAt', Date.now())
+            localStorage.setItem('authExpireAt', Date.now() - response.data.createdAt + response.data.expireAt)
           }
           resolve(response)
         })
@@ -40,10 +33,10 @@ export default {
     })
   },
   getID () {
-    return sessionStorage.getItem('userID')
+    return localStorage.getItem('userID')
   },
   get () {
-    const userID = sessionStorage.getItem('userID')
+    const userID = localStorage.getItem('userID')
     return new Promise((resolve, reject) => {
       if (isEmpty(userID)) reject(Error('No user id'))
       this.authLogic().then(() => {
@@ -76,7 +69,7 @@ export default {
     })
   },
   getAll (filters, sort) {
-    const userID = sessionStorage.getItem('userID')
+    const userID = localStorage.getItem('userID')
     let param = { user_id: userID }
     Object.assign(param, filters, sort)
     return new Promise((resolve, reject) => {
@@ -94,7 +87,7 @@ export default {
     })
   },
   getMatched () {
-    const userID = sessionStorage.getItem('userID')
+    const userID = localStorage.getItem('userID')
     let param = {
       user_id: userID,
       filters: {
@@ -115,8 +108,30 @@ export default {
       })
     })
   },
+  postApikey () {
+    const userID = localStorage.getItem('userID')
+    return new Promise((resolve, reject) => {
+      if (isEmpty(userID)) reject(Error('No user id'))
+      this.authLogic().then(() => {
+        Api().post('/auth/credentials/', {id: userID})
+          .then(success => { resolve(success.data) })
+          .catch(err => { reject(err.response.data.err) })
+      })
+    })
+  },
+  getApikey () {
+    const userID = localStorage.getItem('userID')
+    return new Promise((resolve, reject) => {
+      if (isEmpty(userID)) reject(Error('No user id'))
+      this.authLogic().then(() => {
+        Api().get('/auth/credentials/' + userID)
+          .then(data => { resolve(data) })
+          .catch(err => { reject(err.response.data.err) })
+      })
+    })
+  },
   getConversation () {
-    const userID = sessionStorage.getItem('userID')
+    const userID = localStorage.getItem('userID')
     let param = { user_id: userID }
     return new Promise((resolve, reject) => {
       if (isEmpty(userID)) reject(Error('No user id'))
@@ -133,7 +148,7 @@ export default {
     })
   },
   getMessages (receiver) {
-    const userID = sessionStorage.getItem('userID')
+    const userID = localStorage.getItem('userID')
     let param = { emitter: userID, 'receiver': receiver }
     return new Promise((resolve, reject) => {
       if (isEmpty(userID)) reject(Error('No user id'))
@@ -156,10 +171,13 @@ export default {
           .then(data => {
             if (data.data.err) return reject(Error(data.data.err))
             if (parseInt(data.data.user.isAccountConfirmed) === 0) return reject(Error('Your account is not confirmed'))
-            sessionStorage.setItem('userID', JSON.stringify(data.data.user.id))
+            localStorage.setItem('userID', JSON.stringify(data.data.user.id))
+            // Add localisation here
+            /*
             this.getLocalisation()
               .then(success => console.dir(success))
               .catch(err => console.dir(err))
+            */
             return resolve(data)
           })
           .catch(err => reject(Error(_.get(err, 'response.data.err', 'An error occured.'))))
@@ -188,11 +206,13 @@ export default {
   },
   confirmAccount (body) {
     return new Promise((resolve, reject) => {
-      try {
-        Api().put('/user/confirm-account', body)
-          .then(success => { resolve(success) })
-          .catch(err => reject(err))
-      } catch (err) { reject(err) }
+      this.authLogic()
+        .then(() => {
+          Api().put('/user/confirm-account', body)
+            .then(success => { resolve(success) })
+            .catch(err => reject(err))
+        })
+        .catch(err => reject(err))
     })
   },
   confirmPassword (token) {
@@ -228,7 +248,7 @@ export default {
     })
   },
   update (data) {
-    const userID = sessionStorage.getItem('userID')
+    const userID = localStorage.getItem('userID')
     return Api().put('/user/' + userID, data)
       .then((response) => {
         return response
@@ -238,7 +258,7 @@ export default {
       })
   },
   updatePassword (data) {
-    const userID = sessionStorage.getItem('userID')
+    const userID = localStorage.getItem('userID')
     return Api().put('/user/' + userID + '/password', data)
       .then((response) => {
         return response
@@ -248,7 +268,7 @@ export default {
       })
   },
   addPicture (file) {
-    const userID = sessionStorage.getItem('userID')
+    const userID = localStorage.getItem('userID')
     let formData = new FormData()
     formData.append('user_id', userID)
     formData.append('picture', file)
@@ -260,7 +280,7 @@ export default {
       })
   },
   logout () {
-    sessionStorage.removeItem('jwt')
+    localStorage.removeItem('jwt')
   },
   getGender () {
     return new Promise((resolve, reject) => {
@@ -312,7 +332,7 @@ export default {
     })
   },
   profileSeen (receiver) {
-    const emitter = sessionStorage.getItem('userID')
+    const emitter = localStorage.getItem('userID')
     const body = { 'emitter': emitter, 'receiver': receiver }
     return new Promise((resolve, reject) => {
       if (isEmpty(emitter)) reject(Error('No user id'))
@@ -327,7 +347,7 @@ export default {
     })
   },
   sendMessage (receiver, content) {
-    const emitter = sessionStorage.getItem('userID')
+    const emitter = localStorage.getItem('userID')
     const body = { 'emitter': emitter, 'receiver': receiver, 'message': content }
     return new Promise((resolve, reject) => {
       if (isEmpty(emitter)) reject(Error('No user id'))
@@ -342,7 +362,7 @@ export default {
     })
   },
   getNotifications () {
-    const id = sessionStorage.getItem('userID')
+    const id = localStorage.getItem('userID')
     return new Promise((resolve, reject) => {
       if (isEmpty(id)) reject(Error('No user id'))
       Api().get('/notification/?user_id=' + id)
@@ -356,7 +376,7 @@ export default {
     })
   },
   deletePicture (body) {
-    const id = sessionStorage.getItem('userID')
+    const id = localStorage.getItem('userID')
     Object.assign(body, { 'user_id': id })
     return new Promise((resolve, reject) => {
       if (isEmpty(id)) reject(Error('No user id'))

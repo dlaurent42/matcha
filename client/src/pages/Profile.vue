@@ -20,10 +20,10 @@
         >
           Get Api key
         </b-button>
-        <div v-if="!input.isProfileComplete" class="bg-dark-transparent text-center mt-2 p-2"> Please fill all informations to start matching with people</div>
+        <div v-if="!input.isProfileComplete" class="bg-dark-transparent bg-warning text-center mt-2 p-2"> Please fill all informations to start matching with people</div>
       </b-col>
     </b-row>
-    <b-row v-if="setPicture === true" class="justify-content-md-center w-100">
+    <b-row v-if="setPicture === false" class="justify-content-md-center w-100">
       <b-col col md="6" lg="4">
         <b-card title="Edit your informations" class="bg-dark-transparent mb-2">
           <b-form>
@@ -168,7 +168,7 @@
         </b-card>
       </b-col>
     </b-row>
-    <b-row v-if="setPicture === false" class="justify-content-md-center w-100 m-height-500">
+    <b-row v-if="setPicture === true" class="justify-content-md-center w-100 m-height-500">
       <b-col md="8">
         <b-row class="justify-content-md-center h-100 w-100">
           <b-col md="6">
@@ -177,6 +177,7 @@
                 v-model="file"
                 @change="onFileChange"
                 :state="Boolean(file)"
+                ref="fileinput"
                 placeholder='Choose a file...'
                 accept="image/jpeg, image/png, image/gif"
               >
@@ -192,19 +193,20 @@
               </template>
             </b-card>
           </b-col>
-          <b-col md="6">
+          <b-col md="6" v-if="input.pictures.length > 0">
             <v-carousel isProfile="true" v-bind:pictures="input.pictures" v-on:deletePicture="deletePicture"></v-carousel>
           </b-col>
         </b-row>
       </b-col>
     </b-row>
     <b-row v-if="setPicture === 'apikey'" class="justify-content-md-center w-100 m-height-500">
-      <b-col md="12">
+      <b-col md="8">
         <b-row class="justify-content-md-center h-100 w-100">
-          <b-col md="8">
+          <b-col md="12">
             <b-card title="Get your Api key" class="h-100 bg-dark-transparent">
                <b-button variant="info">Get Apikey</b-button>
-              <b-form>
+               <b-button variant="primary"><a class="text-white" target="_blank" href="https://documenter.getpostman.com/view/5992585/RznEKyLB">Documentation</a></b-button>
+              <b-form class="mt-2">
                 <b-form-group id="apikeyInputGroup" label="Api key:" label-for="apikeyInput">
                   <b-form-input
                     id="apikeyInput"
@@ -229,10 +231,6 @@ import Carousel from '@/components/Carousel'
 import buttonLoading from '@/components/buttonLoading'
 import router from '@/router'
 import _ from 'lodash' //eslint-disable-line
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faSpinner } from '@fortawesome/free-solid-svg-icons'
-
-library.add(faSpinner)
 
 export default {
   name: 'Profile',
@@ -293,7 +291,6 @@ export default {
     addPicture () {
       User.addPicture(this.file)
         .then(success => {
-          console.log(this.file)
           this.resetPicture()
           this.input = success.data.user
         })
@@ -305,8 +302,9 @@ export default {
         .catch(err => console.dir(err))
     },
     resetPicture () {
+      this.$refs.fileinput.reset()
       this.url = null
-      this.file = ''
+      this.file = null
     },
     onFileChange (e) { this.url = URL.createObjectURL(e.target.files[0]) },
     updateInformation () {
@@ -347,6 +345,11 @@ export default {
         this.interest = _.uniq(this.interest)
         this.input.interest = ''
       }
+    },
+    getApikey () {
+      User.getApikey()
+        .then(success => { console.dir(success) })
+        .catch(err => console.dir(err))
     },
     updateProfile () {
       this.loadingProfile = 'true'

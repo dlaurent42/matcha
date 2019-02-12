@@ -31,8 +31,8 @@
               placeholder="Enter password"
             ></b-form-input>
           </b-form-group>
-          <b-button v-on:click="login()" variant="info">Login</b-button>
-          <b-button v-on:click="resetPassword()" variant="dark">Forgot your password ?</b-button>
+          <b-button v-on:click="login" variant="info">Login</b-button>
+          <b-button v-on:click="resetPassword" variant="dark">Forgot your password ?</b-button>
           <p class="card-text text-danger mt-4">{{ myError.message }}</p>
           <b-card-footer class="mt-4">
             <p class="card-text">Not on Matcha yet ? <router-link to="/register" class="card-link">Sign up</router-link></p>
@@ -66,6 +66,7 @@
 
 <script>
 import User from '@/services/User'
+import token from '@/services/Token'
 import router from '@/router'
 import _ from 'lodash'
 import isEmail from '@/utils/user/isEmail'
@@ -97,6 +98,7 @@ export default {
       const data = { params: { username: this.input.username, password: this.input.password } }
       User.login(data)
         .then(success => {
+          localStorage.setItem('authClient', token.createToken(success))
           this.$emit('authenticated', success)
           router.push('/')
         })

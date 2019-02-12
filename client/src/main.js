@@ -17,14 +17,6 @@ Vue.use(BootstrapVue)
 const options = { name: 'lodash' } // customize the way you want to call it
 Vue.use(_, options) // options is optional
 
-/*
-Vue.use(VueGoogleMaps, {
-  load: {
-    key: 'AIzaSyBU8b3Mp6W4aoR7Kfe85uLZEL5lVLzzFVs',
-    libraries: 'places'
-  }
-})
-*/
 // Important css
 require('./assets/css/template.css')
 Vue.component('font-awesome-icon', FontAwesomeIcon)

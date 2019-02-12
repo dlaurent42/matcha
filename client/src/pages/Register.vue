@@ -86,13 +86,14 @@
               id="exampleInput6"
               type="password"
               v-model="input.cpassword"
-              :state="verifyPassword"
+              :state="verifycPassword"
               required
               placeholder="Enter your password again"
             ></b-form-input>
           </b-form-group>
           <v-load
               v-bind:loadingState="loadingRegister"
+              v-bind:errorMessage="errorMessage"
               message="Register"
               v-on:update="verify()"
             />
@@ -131,6 +132,7 @@ export default {
   data () {
     return {
       loadingRegister: 'false',
+      errorMessage: 'Please verify that all fields are filled in',
       registered: false,
       input: {
         username: '',
@@ -159,8 +161,13 @@ export default {
         isLastname(this.input.lastname) &&
         isEmail(this.input.email) &&
         !(_.isEmpty(this.input.cpassword)) &&
-        isPassword(this.input.password, this.input.cpassword)
+        isPassword(this.input.password, this.input.cpassword) &&
+        this.input.cpassword !== ''
       ) this.register()
+      else {
+        this.loadingRegister = 'error'
+        setTimeout(() => { this.loadingRegister = 'false' }, 3000)
+      }
     },
     register () {
       this.loadingRegister = true
@@ -183,9 +190,8 @@ export default {
     verifyUserName () { return this.input.username === '' ? null : isUsername(this.input.username) },
     verifyFirstName () { return this.input.firstname === '' ? null : isFirstname(this.input.firstname) },
     verifyLastName () { return this.input.lastname === '' ? null : isLastname(this.input.lastname) },
-    verifyPassword () {
-      return this.input.password === '' && this.input.cpassword === '' ? null : !_.isEmpty(this.input.cpassword) && isPassword(this.input.password, this.input.cpassword)
-    }
+    verifyPassword () { return this.input.password === '' ? null : isPassword(this.input.password) },
+    verifycPassword () { return this.input.password === '' ? null : this.input.cpassword === this.input.password }
   },
   beforeMount () {
     if (this.authenticated === true) router.push('/')
