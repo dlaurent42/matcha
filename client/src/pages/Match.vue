@@ -196,25 +196,22 @@ export default {
   },
   mounted () {
     this.scroll(this.person)
-    console.log('Mount')
-  },
-  beforeCreated () {
-    console.log('beforeCreated')
-  },
-  created () {
-    console.log('Created')
-  },
-  beforeUpdated () {
-    console.log('beforeUpdated')
+    this.socket.on('isOnline', data => {
+      if (!_.isEmpty(data.onlineUsers)) {
+        data.onlineUsers.forEach(user => {
+          this.persons.forEach(p => {
+            if (parseInt(p.id, 10) === parseInt(user.id, 10)) p.isOnline = true
+          })
+        })
+      }
+    })
   },
   updated () {
-    console.log('Updated')
-  },
-  destroyed () {
-    console.log('destroy')
-  },
-  beforeDestroyed () {
-    console.log('before destroy')
+    if (!_.isEmpty(this.persons)) {
+      const check = []
+      this.persons.forEach(x => { check.push(x.id) })
+      this.socket.emit('isOnline', check)
+    }
   }
 }
 </script>

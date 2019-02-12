@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="max-height-600">
     <b-carousel
       id="carousel1"
       style="text-shadow: 1px 1px 2px #333;"
@@ -18,8 +18,8 @@
         v-bind:key="index"
         v-model="current"
         v-bind:img-src="getPath(pic)"
+        class="max-height-600"
       >
-
       </b-carousel-slide>
     </b-carousel>
     <p class="mt-4 text-white">
@@ -58,9 +58,13 @@ export default {
 </script>
 <style>
 .carousel-caption {
+    height: 60px;
     right: 0;
     top: -15px;
     left: 65px;
     text-align: left;
+}
+.max-height-600 {
+  max-height: 600px;
 }
 </style>
