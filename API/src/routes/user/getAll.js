@@ -1,4 +1,5 @@
 const router = require('express').Router()
+const _ = require('lodash')
 const User = require('../../models/User')
 const {
   dynamicSort,
@@ -13,9 +14,10 @@ const { ERRORS } = require('../../config/constants').RESPONSES
 const overrideUsers = (users, currentUser) => (
   users.map((user) => {
     let link = 'Let\'s match !'
-    if (user.link && !currentUser.likes.includes(user.id)) link = `It seems you like ${user.username} !`
-    else if (user.link && currentUser.likes.includes(user.id)) link = 'It is a match !'
-    else if (!user.link && currentUser.likes.includes(user.id)) link = `${user.username} likes you ! Let's match !`
+    const included = _.findKey(currentUser.likes, like => like.id === user.id)
+    if (user.link && included === undefined) link = `It seems you like ${user.username} !`
+    else if (user.link && included !== undefined) link = 'It is a match !'
+    else if (!user.link && included !== undefined) link = `${user.username} likes you ! Let's match !`
     Object.assign(user, {
       link,
       distance: userGetDistFromCoord(currentUser, user),
@@ -47,6 +49,7 @@ const filterUsers = (users, params) => {
   if (isEmpty(users) || isEmpty(params)) return users
   const filters = JSON.parse(params)
   return users.filter((user) => {
+    if (user.id === 24) console.log(user)
     if (!isEmpty(filters.age_min) && (isEmpty(user.age) || user.age < filters.age_min)) return false
     if (!isEmpty(filters.age_max) && (isEmpty(user.age) || user.age > filters.age_max)) return false
     if (!isEmpty(filters.distance_min) && (isEmpty(user.distance) || user.distance < filters.distance_min)) return false // eslint-disable-line max-len
