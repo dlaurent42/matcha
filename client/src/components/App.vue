@@ -136,6 +136,7 @@ export default {
     if (this.$router.history.current.name === 'Liked' ||
         this.$router.history.current.name === 'Match'
     ) this.classBase = 'fill-space-horizontal'
+    else this.classBase = 'fill-space'
   },
   beforeRouteEnter (to, from, next) {
     next(this.getUser())

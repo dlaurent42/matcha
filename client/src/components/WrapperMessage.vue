@@ -7,7 +7,7 @@
         v-bind:last="last"
       />
       <v-receive
-        v-else
+        v-else-if="this.logic !== null"
         v-bind:message="message"
         v-bind:user="user"
         v-bind:last="last"
@@ -31,8 +31,9 @@ export default {
   },
   props: ['user', 'message', 'last'],
   beforeMount () {
-    const userId = User.getID()
-    this.logic = parseInt(userId) === this.message.emitter_id
+    User.getID()
+      .then(success => { this.logic = success === this.message.emitter_id })
+      .catch(err => { this.logic = err })
   }
 }
 </script>

@@ -107,9 +107,14 @@ export default {
     return new Promise((resolve, reject) => (
       this.authLogic()
         .then(() => this.getID())
-        .then(uid => Api().post('/auth/credentials/', { id: uid }))
+        .then(uid => {
+          if (!_.isEmpty(uid)) {
+            console.log(uid)
+            Api().post('/auth/credentials/', { id: uid })
+          }
+        })
         .then(success => resolve(success.data))
-        .catch(err => reject(err.response.data.err))
+        .catch(err => { reject(err) })
     ))
   },
   getApikey () {

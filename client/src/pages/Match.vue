@@ -188,6 +188,7 @@ export default {
       .then(success => {
         if (success.data.user.isProfileComplete === 0) router.push('/Profile')
         else {
+          this.$emit('authenticated', success)
           this.getInitialUsers()
           this.img = 'http://getwallpapers.com/wallpaper/full/f/c/3/43246.jpg'
         }

@@ -204,19 +204,16 @@
         <b-row class="justify-content-md-center h-100 w-100">
           <b-col md="12">
             <b-card title="Get your Api key" class="h-100 bg-dark-transparent">
-               <b-button variant="info">Get Apikey</b-button>
-               <b-button variant="primary"><a class="text-white" target="_blank" href="https://documenter.getpostman.com/view/5992585/RznEKyLB">Documentation</a></b-button>
-              <b-form class="mt-2">
-                <b-form-group id="apikeyInputGroup" label="Api key:" label-for="apikeyInput">
-                  <b-form-input
-                    id="apikeyInput"
-                    type="text"
-                    v-model="apikey"
-                    required
-                    placeholder="Your Api key"
-                  ></b-form-input>
-                </b-form-group>
-              </b-form>
+              <b-button variant="info" @click="postApikey">Get new apikey</b-button>
+              <b-button variant="primary"><a class="text-white" target="_blank" href="https://documenter.getpostman.com/view/5992585/RznEKyLB">Documentation</a></b-button>
+              <div class="card-text">
+                <p
+                  v-for="(key, index) in apikeys"
+                  v-bind:key="index"
+                >
+                  {{ key }}
+                </p>
+              </div>
             </b-card>
           </b-col>
         </b-row>
@@ -240,7 +237,7 @@ export default {
   },
   data () {
     return {
-      apikey: '',
+      apikeys: [],
       loadingInformation: false,
       loadingProfile: false,
       loadingPassword: false,
@@ -272,13 +269,14 @@ export default {
     if (this.authenticated === false) router.push('/')
     User.get()
       .then(success => {
+        this.$emit('authenticated', success)
         this.input = success.data.user
         this.input.birthday = _.isEmpty(this.input.birthday) ? '' : this.input.birthday.replace(/\//gi, '-')
         this.interest = _.isEmpty(success.data.user.interests) ? [] : success.data.user.interests
         this.orientation = _.isEmpty(success.data.user.orientation) ? [] : success.data.user.orientation
+        User.getGender().then(success => { this.gender = [...this.gender, ...success.data.genders] })
       })
-    User.getGender()
-      .then(success => { this.gender = [...this.gender, ...success.data.genders] })
+      .catch(() => { router.push('/') })
     this.loadingInformation = 'false'
     this.loadingProfile = 'false'
     this.loadingPassword = 'false'
@@ -348,6 +346,11 @@ export default {
     },
     getApikey () {
       User.getApikey()
+        .then(success => { console.dir(success) })
+        .catch(err => console.dir(err))
+    },
+    postApikey () {
+      User.postApikey()
         .then(success => { console.dir(success) })
         .catch(err => console.dir(err))
     },

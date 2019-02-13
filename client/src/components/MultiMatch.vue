@@ -51,7 +51,6 @@ export default {
     }
   },
   beforeMount () {
-    console.log(this.person)
     this.interests = this.person.interests.slice(0, 5)
   },
   computed: {

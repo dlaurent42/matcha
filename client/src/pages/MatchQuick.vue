@@ -72,7 +72,10 @@ export default {
     User.get()
       .then(success => {
         if (success.data.user.isProfileComplete === 0) router.push('/Profile')
-        else this.getInitialUsers()
+        else {
+          this.$emit('authenticated', success)
+          this.getInitialUsers()
+        }
       })
       .catch(err => console.dir(err))
   }

@@ -6,23 +6,35 @@
         v-for="person in userLiked"
         v-bind:key="person.id"
       >
-        <b-card v-bind:title="person.username" sub-title="" class="bg-dark-transparent">
+        <b-card class="bg-dark-transparent">
           <b-row>
-            <div class="card-text text-center col-md-6" >
-              <b-button v-bind:href="profilePath(person.id)">
-                View profile
-              </b-button>
-            </div>
-            <div class="card-text col-md-6 mb-2">
-              <v-button
-                v-bind:liked="true"
-                v-bind:blocked="false"
-                v-bind:id="person.id"
-                v-on:unlike="unlike"
-                v-on:block="block"
-                v-bind:socket="socket"
-              />
-            </div>
+            <b-col md="4">
+              <b-img v-bind:src="profilePicture(person.profilePic)" fluid alt="Fluid image" />
+            </b-col>
+            <b-col md="8">
+              <b-row>
+                <b-col md="12">
+                  <h4>
+                    {{ person.username }}
+                  </h4>
+                </b-col>
+                <b-col md="6" class="card-text text-left">
+                  <b-button v-bind:href="profilePath(person.id)">
+                    View profile
+                  </b-button>
+                </b-col>
+                <b-col md="6" class="card-text mb-2">
+                  <v-button
+                    v-bind:liked="true"
+                    v-bind:blocked="false"
+                    v-bind:id="person.id"
+                    v-on:unlike="unlike"
+                    v-on:block="block"
+                    v-bind:socket="socket"
+                  />
+                </b-col>
+              </b-row>
+            </b-col>
           </b-row>
         </b-card>
       </b-col>
@@ -65,6 +77,9 @@ export default {
             .then(success => { this.userLiked = _.map(success, array => { return array.data.user }) })
         })
         .catch(err => console.dir(err))
+    },
+    profilePicture (path) {
+      return 'http://localhost:8081/assets/' + path
     },
     profilePath (path) {
       return '/Profile/' + path

@@ -54,11 +54,11 @@
     </b-col>
     <b-col cols="12">
       <b-row>
-        <b-col md="6">
+        <b-col md="6" class="p-0 mt-2">
           <v-load
               v-bind:loadingState="loadingReport"
               message="Report user"
-              variant="danger"
+              variant="warning"
               v-on:update="report"
           />
         </b-col>
@@ -111,6 +111,7 @@ export default {
       .then(success => {
         if (success.data.user.isProfileComplete === 0) router.push('/Profile')
         else {
+          this.$emit('authenticated', success)
           this.updateUser()
           this.setButton()
         }
