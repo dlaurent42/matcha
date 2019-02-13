@@ -21,7 +21,7 @@ class Server {
     this.http = http.Server(this.app)
 
     // Sockets handler
-    this.io = require('socket.io')(this.http) // eslint-disable-line
+    this.io = require('socket.io')(this.http, { pingTimeout: 60000 }) // eslint-disable-line
     this.correlationTable = {}
     this.io.sockets.on('connection', (socket) => {
       console.log(`New connection: ${socket.id}`)
