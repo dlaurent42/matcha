@@ -204,14 +204,20 @@
         <b-row class="justify-content-md-center h-100 w-100">
           <b-col md="12">
             <b-card title="Get your Api key" class="h-100 bg-dark-transparent">
-              <b-button variant="info" @click="postApikey">Get new apikey</b-button>
+              <v-load
+                v-bind:loadingState="loadingPostApikey"
+                v-on:update="postApikey"
+                message="Get new Apikey"
+              />
+              <b-button variant="info" @click="getApikey">Show Apikeys</b-button>
               <b-button variant="primary"><a class="text-white" target="_blank" href="https://documenter.getpostman.com/view/5992585/RznEKyLB">Documentation</a></b-button>
-              <div class="card-text">
+              <div class="card-text pt-5">
                 <p
                   v-for="(key, index) in apikeys"
                   v-bind:key="index"
                 >
-                  {{ key }}
+                  Client id: {{ key.client_id }} <br>
+                  Client secret: {{ key.client_secret }}
                 </p>
               </div>
             </b-card>
@@ -239,6 +245,7 @@ export default {
     return {
       apikeys: [],
       loadingInformation: false,
+      loadingPostApikey: false,
       loadingProfile: false,
       loadingPassword: false,
       setPicture: false,
@@ -280,6 +287,7 @@ export default {
     this.loadingInformation = 'false'
     this.loadingProfile = 'false'
     this.loadingPassword = 'false'
+    this.loadingPostApikey = 'false'
   },
   computed: {
     urlEmpty () { return !_.isEmpty(this.url) },
@@ -346,13 +354,23 @@ export default {
     },
     getApikey () {
       User.getApikey()
-        .then(success => { console.dir(success) })
+        .then(success => {
+          this.apikeys = success.data.credentials
+        })
         .catch(err => console.dir(err))
     },
     postApikey () {
       User.postApikey()
-        .then(success => { console.dir(success) })
-        .catch(err => console.dir(err))
+        .then(success => {
+          setTimeout(() => {
+            this.loadingPostApikey = 'complete'
+            const data = {client_id: success.clientId, client_secret: success.clientSecret}
+            this.apikeys.push(data)
+            this.apikeys.slice()
+          }, 1500)
+        })
+        .catch(() => { setTimeout(() => { this.loadingPostApikey = 'error' }, 1500) })
+        .finally(setTimeout(() => { this.loadingPostApikey = 'false' }, 3000))
     },
     updateProfile () {
       this.loadingProfile = 'true'
@@ -362,6 +380,7 @@ export default {
             key === 'id' ||
             key === 'oldPassword' ||
             key === 'isProfileComplete' ||
+            key === 'last_connection' ||
             key === 'likes' ||
             key === 'liked' ||
             key === 'password' ||

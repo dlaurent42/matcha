@@ -108,9 +108,8 @@ export default {
       this.authLogic()
         .then(() => this.getID())
         .then(uid => {
-          if (!_.isEmpty(uid)) {
-            console.log(uid)
-            Api().post('/auth/credentials/', { id: uid })
+          if (!_.isEmpty({ uid })) {
+            return Api().post('/credentials/', { 'user_id': uid })
           }
         })
         .then(success => resolve(success.data))
@@ -121,7 +120,7 @@ export default {
     return new Promise((resolve, reject) => (
       this.authLogic()
         .then(() => this.getID())
-        .then(uid => Api().get(`/auth/credentials/${uid}`))
+        .then(uid => Api().get(`/credentials/${uid}`))
         .then(data => resolve(data))
         .catch(err => reject(err.response.data.err))
     ))
