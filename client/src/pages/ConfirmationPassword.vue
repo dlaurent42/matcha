@@ -2,25 +2,40 @@
   <b-container fluid class="h-100">
     <b-row class="justify-content-md-center">
       <b-col col md="6" lg="6">
-        <b-card title="Waiting confirmation of your token" sub-title="" class="bg-dark-transparent">
-          <p
-            class="card-text"
-            v-if="confirmed === false"
-          >
-            <font-awesome-icon icon="spinner" size="1x" pulse/> Updating...
-          </p>
-          <template v-else-if="confirmed === 'error'">
-            <p class="card-text text-danger" >
-              {{ errorMessage }} Please contact an admin
-            </p>
-          </template>
-          <template v-else>
-            <p class="card-text" >
-              Your password is now reset !
-              Redirection in <span id="displayCount"></span>...
-            </p>
-            <router-link to="/login" class="nav-link">Or click here to log in</router-link>
-          </template>
+        <b-card title="Enter a new password" class="bg-dark-transparent">
+          <div class="card-text" >
+            <b-form-group
+              id="exampleInputGroup2"
+              label-for="exampleInput2"
+            >
+              <b-form-input
+                id="exampleInput2"
+                type="password"
+                :state="verifyPassword"
+                v-model="input.password"
+                required
+                placeholder="Enter password"
+              ></b-form-input>
+            </b-form-group>
+            <b-form-group
+              id="exampleInputGroup3"
+              label-for="exampleInput3"
+            >
+              <b-form-input
+                id="exampleInput3"
+                type="password"
+                :state="verifycPassword"
+                v-model="input.cpassword"
+                required
+                placeholder="Re-enter password"
+              ></b-form-input>
+            </b-form-group>
+            <v-load
+              v-if="verifycPassword && verifyPassword"
+              v-bind:loadingState="loadingPassword"
+              v-on:update="confirmPassword"
+            />
+          </div>
         </b-card>
       </b-col>
     </b-row>
@@ -29,42 +44,43 @@
 
 <script>
 import User from '@/services/User'
+import buttonLoading from '@/components/buttonLoading'
+import isPassword from '@/utils/user/isPassword'
 import _ from 'lodash'
 import router from '@/router'
 export default {
   data () {
     return {
+      loadingPassword: 'false',
       confirmed: false,
-      errorMessage: ''
+      errorMessage: '',
+      input: {
+        password: '',
+        cpassword: ''
+      }
     }
   },
-  mounted () {
-    const query = this.$router.history.current.query
-    const token = _.isEmpty(query) ? null : query.token
-    console.log(token)
-    User.confirmPassword(token)
-      .then(success => {
-        console.dir(success)
-        this.confirmed = true
-        this.countDown(() => { router.push('login') })
-      })
-      .catch((err) => {
-        console.dir(err)
-        this.confirmed = 'error'
-        this.errorMessage = err.response.data.err
-      })
+  components: {
+    'v-load': buttonLoading
   },
   methods: {
-    countDown (callback) {
-      let i = 5
-      let myinterval = setInterval(() => {
-        document.getElementById('displayCount').innerHTML = i
-        if (i === 0) {
-          clearInterval(myinterval)
-          callback()
-        } else i--
-      }, 1000)
+    confirmPassword () {
+      const query = this.$router.history.current.query
+      const token = _.isEmpty(query) ? null : query.token
+      User.confirmPassword(token, this.input.password, this.input.cpassword)
+        .then(success => {
+          this.confirmed = true
+          router.push('/login')
+        })
+        .catch((err) => {
+          this.confirmed = 'error'
+          this.errorMessage = err.response.data.err
+        })
     }
+  },
+  computed: {
+    verifyPassword () { return this.input.password === '' ? null : isPassword(this.input.password) },
+    verifycPassword () { return this.input.password === '' ? null : this.input.cpassword === this.input.password }
   }
 }
 </script>

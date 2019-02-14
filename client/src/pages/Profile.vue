@@ -118,6 +118,39 @@
               </b-form-checkbox-group>
             </b-form-group>
             <b-form-group
+              id="geolocatisationGroup"
+              label="Localisation active:"
+              label-for="localCheckbox"
+            >
+                <b-form-checkbox id="localCheckbox"
+                     v-model="input.isGeolocationActive"
+                     value="1"
+                     @change="showLatLong = !showLatLong"
+                     unchecked-value="0">
+                  Active geolocation
+                </b-form-checkbox>
+            </b-form-group>
+            <b-form-row>
+              <b-form-group
+                class="col-md-6 mx-0"
+                v-show="showLatLong"
+                id="latitudeGroup"
+                label="Latitude"
+                label-for="latitudeInput"
+              >
+                  <b-form-input id="latitudeInput" v-model="input.latitude" placeholder="Latitude"/>
+              </b-form-group>
+              <b-form-group
+                class="col-md-6 mx-0"
+                v-show="showLatLong"
+                id="longitudeGroup"
+                label="Longitude"
+                label-for="longitudeInput"
+              >
+                  <b-form-input id="longitudeInput" v-model="input.longitude" placeholder="Longitude"/>
+              </b-form-group>
+            </b-form-row>
+            <b-form-group
               id="biographyGroup"
               label="Biography:"
               label-for="biographyInput"
@@ -188,7 +221,10 @@
                   <p>Preview :</p>
                   <img :src="url" class="w-100"/>
                 </div>
-                <b-button variant="outline-info" v-on:click="addPicture">Add</b-button>
+                <b-button
+                  variant="outline-info"
+                  v-on:click="addPicture"
+                >Add</b-button>
                 <b-button variant="outline-danger" v-on:click="resetPicture">Cancel</b-button>
               </template>
             </b-card>
@@ -234,6 +270,8 @@ import Carousel from '@/components/Carousel'
 import buttonLoading from '@/components/buttonLoading'
 import router from '@/router'
 import _ from 'lodash' //eslint-disable-line
+// import userIsLongitude from '@/utils/user/userIsLongitude'
+// import userIsLatitude from '@/utils/user/userIsLatitude'
 
 export default {
   name: 'Profile',
@@ -267,9 +305,13 @@ export default {
         gender: '',
         biography: '',
         interest: '',
+        latitude: 0,
+        longitude: 0,
+        isGeolocationActive: 0,
         isProfileComplete: true
       },
-      show: true
+      show: true,
+      showLatLong: false
     }
   },
   beforeMount () {
@@ -278,6 +320,8 @@ export default {
       .then(success => {
         this.$emit('authenticated', success)
         this.input = success.data.user
+        this.input.isGeolocationActive = success.data.user.isGeolocalised
+        this.showLatLong = !this.input.isGeolocationActive
         this.input.birthday = _.isEmpty(this.input.birthday) ? '' : this.input.birthday.replace(/\//gi, '-')
         this.interest = _.isEmpty(success.data.user.interests) ? [] : success.data.user.interests
         this.orientation = _.isEmpty(success.data.user.orientation) ? [] : success.data.user.orientation
@@ -297,15 +341,17 @@ export default {
     addPicture () {
       User.addPicture(this.file)
         .then(success => {
-          this.resetPicture()
-          this.input = success.data.user
+          if (_.isEmpty(success.data.err)) {
+            this.resetPicture()
+            this.input = success.data.user
+          }
         })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     deletePicture () {
       User.get()
         .then(success => { this.input = success.data.user })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     resetPicture () {
       this.$refs.fileinput.reset()
@@ -329,6 +375,7 @@ export default {
         .finally(setTimeout(() => { this.loadingInformation = 'false' }, 3000))
     },
     updatePassword () {
+      if (_.isEmpty(this.input.oldPassword) || _.isEmpty(this.input.password) || _.isEmpty(this.input.cpassword)) return null
       this.loadingPassword = 'true'
       User.updatePassword({
         data: {
@@ -357,7 +404,7 @@ export default {
         .then(success => {
           this.apikeys = success.data.credentials
         })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     postApikey () {
       User.postApikey()
@@ -380,7 +427,8 @@ export default {
             key === 'id' ||
             key === 'oldPassword' ||
             key === 'isProfileComplete' ||
-            key === 'last_connection' ||
+            key === 'lastConnection' ||
+            key === 'isGeolocationActive' ||
             key === 'likes' ||
             key === 'liked' ||
             key === 'password' ||
@@ -397,6 +445,16 @@ export default {
           )
         }
       ))
+      data.is_geolocation_allowed = (parseInt(this.input.isGeolocationActive) === 1)
+      if (!data.is_geolocation_allowed) {
+        if (_.isEmpty(this.input.longitude) || _.isEmpty(this.input.latitude)) {
+          setTimeout(() => { this.loadingProfile = 'error' }, 1500)
+          setTimeout(() => { this.loadingProfile = 'false' }, 3000)
+          return null
+        }
+        data.latitude = parseFloat(this.input.latitude)
+        data.longitude = parseFloat(this.input.longitude)
+      }
       if (!_.isEmpty(this.interest)) Object.assign(data, { interest: this.interest })
       if (!_.isEmpty(this.orientation)) Object.assign(data, { sexualOrientation: this.orientation })
       User.update({ fields: data })

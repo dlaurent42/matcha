@@ -12,6 +12,7 @@ import Services from '@/pages/Services'
 // import Contact from '@/pages/Contact'
 import Profile from '@/pages/Profile'
 import Liked from '@/pages/Liked.vue'
+import History from '@/pages/History'
 import Match from '@/pages/Match'
 import MatchQuick from '@/pages/MatchQuick'
 import Messages from '@/pages/Messages'
@@ -25,66 +26,102 @@ const router = new Router({
     {
       path: '/',
       name: 'Home',
-      component: Home
+      component: Home,
+      meta: {
+        title: 'Matcha'
+      }
     },
     {
       path: '/liked',
       name: 'Liked',
       component: Liked,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        title: 'Matcha'
+      }
+    },
+    {
+      path: '/History',
+      name: 'History',
+      component: History,
+      meta: {
+        requiresAuth: true,
+        title: 'Matcha'
       }
     },
     {
       path: '/confirm-account',
       name: 'Confirm',
-      component: Confirmation
+      component: Confirmation,
+      meta: {
+        title: 'Matcha'
+      }
     },
     {
       path: '/recover-password',
       name: 'Reset password',
-      component: ConfirmationPassword
+      component: ConfirmationPassword,
+      meta: {
+        title: 'Matcha'
+      }
     },
     {
       path: '/match',
       name: 'Match',
       component: Match,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        title: 'Matcha'
       }
     },
     {
       path: '/messages',
       name: 'Messages',
-      component: Messages
+      component: Messages,
+      meta: {
+        title: 'Matcha'
+      }
     },
     {
       path: '/matchquick',
       name: 'MatchQuick',
       component: MatchQuick,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        title: 'Matcha'
       }
     },
     {
       path: '/login',
       name: 'Login',
-      component: Login
+      component: Login,
+      meta: {
+        title: 'Matcha'
+      }
     },
     {
       path: '/register',
       name: 'Register',
-      component: Register
+      component: Register,
+      meta: {
+        title: 'Matcha'
+      }
     },
     {
       path: '/about',
       name: 'About',
-      component: About
+      component: About,
+      meta: {
+        title: 'Matcha'
+      }
     },
     {
       path: '/services',
       name: 'Services',
-      component: Services
+      component: Services,
+      meta: {
+        title: 'Matcha'
+      }
     },
     // {
     //   path: '/contact',
@@ -96,7 +133,8 @@ const router = new Router({
       name: 'Profile',
       component: Profile,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        title: 'Matcha'
       }
     },
     {
@@ -104,13 +142,15 @@ const router = new Router({
       name: 'UserProfile',
       component: UserProfile,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        title: 'Matcha'
       }
     }
 
   ]
 })
 router.beforeEach((to, from, next) => {
+  document.title = to.meta.title
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (localStorage.getItem('usr') === null ||
     localStorage.getItem('usr') === undefined) {

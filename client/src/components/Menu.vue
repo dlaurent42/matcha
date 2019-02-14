@@ -20,6 +20,7 @@
         <b-dropdown-item><router-link to="/MatchQuick" class="nav-link text-dark">Quick Match</router-link></b-dropdown-item>
         <b-dropdown-item><router-link to="/Match" class="nav-link text-dark">Match</router-link></b-dropdown-item>
         <b-dropdown-item><router-link to="/Liked" class="nav-link text-dark">Liked</router-link></b-dropdown-item>
+        <b-dropdown-item><router-link to="/History" class="nav-link text-dark">History</router-link></b-dropdown-item>
         <b-dropdown-divider></b-dropdown-divider>
         <b-dropdown-item-button class="no-focus" v-on:click="logout">Logout</b-dropdown-item-button>
       </b-dropdown>

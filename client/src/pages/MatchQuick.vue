@@ -55,7 +55,7 @@ export default {
           this.remove(id)
           this.add()
         })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     block (id) {
       const userID = localStorage.getItem('userID')
@@ -64,7 +64,7 @@ export default {
           this.remove(id)
           this.add()
         })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     }
   },
   beforeMount () {
@@ -77,7 +77,7 @@ export default {
           this.getInitialUsers()
         }
       })
-      .catch(err => console.dir(err))
+      .catch(() => {})
   }
 }
 </script>

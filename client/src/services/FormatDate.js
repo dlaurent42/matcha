@@ -9,5 +9,11 @@ export default {
     const ntime = newDate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
     const nday = newDate.toLocaleString('en-US', { month: 'long', day: 'numeric' })
     return ntime + ' | ' + nday
+  },
+  historyDate (newDate) {
+    newDate = new Date(newDate)
+    const ntime = newDate.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })
+    const nday = newDate.toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    return ntime + ' | ' + nday
   }
 }

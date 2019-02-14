@@ -178,10 +178,9 @@ export default {
             setTimeout(() => { this.loadingRegister = 'false' }, 3000)
           } else this.registered = true
         })
-        .catch((err) => {
+        .catch(() => {
           this.loadingRegister = 'error'
           setTimeout(() => { this.loadingRegister = 'false' }, 3000)
-          console.dir(err)
         })
     }
   },

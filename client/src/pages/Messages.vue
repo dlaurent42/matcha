@@ -79,7 +79,6 @@ export default {
                   success.data.conversations.forEach(a => map.set(a.id, a))
                 }
                 this.users = [...map.values()].reverse()
-                console.log(this.users)
                 if (this.users[0] !== undefined) resolve(this.users[0])
                 else reject(Error('no conversation'))
               })
@@ -92,37 +91,34 @@ export default {
       const receiver = _.get(this.currentUser, 'id')
       if (!_.isEmpty(message) && receiver) {
         User.sendMessage(receiver, message)
-          .then(success => {
-            this.socket.emit('message', { content: message, emitter: User.getID(), 'receiver': receiver })
+          .then(() => User.getID())
+          .then((id) => {
+            this.socket.emit('message', { content: message, emitter: id, 'receiver': receiver })
             document.getElementById('sendMessage').value = ''
             this.getMessages(this.currentUser.id)
           })
-          .catch(err => { console.dir(err) })
+          .catch(() => {})
       }
     },
     getMatched () {
       return new Promise((resolve, reject) => {
         User.getAll({ filters: { is_match: 1 } })
-          .then(success => {
-            resolve(success)
-          })
+          .then(success => { resolve(success) })
           .catch(err => reject(err))
       })
     },
     async getMessages (receiver) {
       try {
         await User.getMessages(receiver)
-          .then(success => {
-            this.messages = success.data.messages.reverse()
-          })
+          .then(success => { this.messages = success.data.messages.reverse() })
       } // eslint-disable-line
-      catch (e) { console.dir(e) }
+      catch (e) {}
     },
     refresh (userId) {
       this.getMessages(userId)
       User.getUser(userId)
         .then(success => { this.currentUser = success.data.user })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     }
   },
   computed: {
@@ -145,7 +141,11 @@ export default {
         }
       })
     this.socket.on('message', data => {
-      if (parseInt(data.data.emitter) === this.currentUser.id) this.getMessages(this.currentUser.id)
+      if (parseInt(data.data.emitter) === this.currentUser.id) {
+        setTimeout(() => {
+          this.getMessages(this.currentUser.id)
+        }, 300)
+      }
     })
   }
 }

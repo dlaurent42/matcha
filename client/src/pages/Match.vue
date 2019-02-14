@@ -39,7 +39,7 @@
                 <b-row>
                   <template v-for="(value, key, index) in filters">
                     <b-form-group
-                      class="col-md-3 text-white"
+                      class="col-md-2 text-white"
                       :key="key"
                       :id="'fieldset' + index"
                       :label="'Enter ' + key.split('_').reverse().join(' ')"
@@ -108,6 +108,8 @@ export default {
       filters: {
         age_min: 18,
         age_max: 99,
+        popularity_min: 0,
+        popularity_max: 5000,
         distance_min: '',
         distance_max: ''
       },
@@ -153,7 +155,7 @@ export default {
           this.remove(id)
           this.add(1)
         })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     setActive (option) {
       if (this.getSort() !== option.name) {
@@ -168,7 +170,7 @@ export default {
           this.remove(id)
           this.add(1)
         })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     getHeight () {
       let e = document.documentElement
@@ -179,8 +181,18 @@ export default {
       return sort === undefined ? '' : sort
     },
     scroll () { window.onscroll = () => { if (this.getHeight()) { this.add(2) } } },
-    getMin (key) { return (key === 'age_min' || key === 'age_max') ? 18 : 0 },
-    getMax (key) { return (key === 'age_min' || key === 'age_max') ? 99 : 10000 }
+    getMin (key) {
+      if (key === 'age_min' || key === 'age_max') return 18
+      if (key === 'popularity_min' || key === 'popularity_max') return 0
+      // if (key === distance*)
+      return 0
+    },
+    getMax (key) {
+      if (key === 'age_min' || key === 'age_max') return 99
+      if (key === 'popularity_min' || key === 'popularity_max') return 5000
+      // if (key === distance*)
+      return 10000
+    }
   },
   beforeMount () {
     if (this.authenticated === false) router.push('/')
@@ -193,10 +205,10 @@ export default {
           this.img = 'http://getwallpapers.com/wallpaper/full/f/c/3/43246.jpg'
         }
       })
-      .catch(err => console.dir(err))
+      .catch(() => {})
   },
   mounted () {
-    this.scroll(this.person)
+    this.scroll(this.persons)
     this.socket.on('isOnline', data => {
       if (!_.isEmpty(data.onlineUsers)) {
         data.onlineUsers.forEach(user => {

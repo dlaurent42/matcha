@@ -471,6 +471,7 @@ class User {
           this.user.latitude = rows[0].latitude
           this.user.longitude = rows[0].longitude
           this.user.registrationToken = rows[0].token
+          this.user.lastConnection = rows[0].last_connection
           this.user.isGeolocalised = rows[0].is_geolocation_allowed
           this.user.isProfileComplete = rows[0].is_profile_complete
           this.user.isAccountConfirmed = rows[0].is_account_confirmed

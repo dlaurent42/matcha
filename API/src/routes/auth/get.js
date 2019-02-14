@@ -23,7 +23,11 @@ router.get('/', (req, res) => {
       }
       return new JsonWebToken().create({ data: credentials })
     })
-    .then(token => res.json({ token, createdAt: Date.now(), expireAt: Date.now() + JWT.DURATION * 1000 }))
+    .then(token => res.json({
+      token,
+      createdAt: Date.now(),
+      expireAt: Date.now() + JWT.DURATION * 1000,
+    }))
     .catch(err => res.json({ err: err.message }))
 })
 

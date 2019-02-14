@@ -4,6 +4,7 @@ const { isEmpty, userIsPassword } = require('../../utils')
 const { ERRORS } = require('../../config/constants').RESPONSES
 
 router.put('/recover-password', (req, res) => {
+  console.log(req.body)
   // Check if token is defined
   if (isEmpty(req.body.token)
   || isEmpty(req.body.new_password)

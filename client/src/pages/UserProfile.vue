@@ -14,11 +14,15 @@
         <p class="card-text">
             {{ user.biography }}
         </p>
-        <p class="card-text">
-          <b-badge v-if="user.isOnline === true" variant="success">Online</b-badge>
-          <b-badge v-else >{{ user.last_connection }}</b-badge>
+        <div class="card-text">
+          <template v-if="isOnline === true">
+            <b-badge variant="success">Online</b-badge>
+          </template>
+          <template v-else>
+            <p>Last connection: {{ getDate }}</p>
+          </template>
           Popularity: {{ user.popularity }}
-        </p>
+        </div>
         <p class="card-text profile-tags">
           <b-badge
             class="ml-3"
@@ -72,6 +76,7 @@ import User from '@/services/User'
 import _ from 'lodash'
 import Carousel from '@/components/Carousel'
 import router from '@/router'
+import myDate from '@/services/FormatDate'
 import MatchButton from '@/components/MatchButton'
 import loadingButton from '@/components/buttonLoading'
 
@@ -85,9 +90,9 @@ export default {
   props: ['socket', 'authenticated', 'profileComplete'],
   data () {
     return {
+      isOnline: false,
       user: {
         id: this.$route.params.id,
-        isOnline: '',
         pictures: []
       },
       loadingReport: 'false',
@@ -116,21 +121,23 @@ export default {
           this.setButton()
         }
       })
-      .catch(err => console.dir(err))
+      .catch(() => {})
   },
   mounted () {
     this.socket.on('isOnline', data => {
       if (!_.isEmpty(data.data.onlineUsers)) {
         data.data.onlineUsers.forEach(user => {
-          if (parseInt(user.id, 10) === parseInt(this.user.id, 10) &&
-          user.isOnline === true) this.user.isOnline = true
+          if (parseInt(user.id, 10) === parseInt(this.user.id, 10)) {
+            this.isOnline = user.isOnline
+          }
         })
       }
     })
     this.socket.emit('isOnline', [parseInt(this.user.id)])
   },
   computed: {
-    getTitle () { return this.user.fullname + ', ' + this.user.age }
+    getTitle () { return this.user.fullname + ', ' + this.user.age },
+    getDate () { return myDate.messageDate(this.user.lastConnection) }
   },
   watch: {
     '$route' (to, from) { this.updateUser() }
@@ -145,12 +152,12 @@ export default {
             this.profileSeen()
           } else router.push('/home')
         })
-        .catch((err) => console.dir(err))
+        .catch(() => {})
     },
     getProfilePic () {
       User.getProfilePic(this.user.id)
         .then(success => { this.image = success })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     report () {
       this.loadingReport = 'true'
@@ -166,8 +173,10 @@ export default {
     unlike (id) {
       const userID = localStorage.getItem('userID')
       User.unlike(userID, id)
-        .then(success => { this.liked = false })
-        .catch(err => console.dir(err))
+        .then(success => {
+          this.liked = false
+        })
+        .catch(() => {})
     },
     like (id) {
       const userID = localStorage.getItem('userID')
@@ -176,7 +185,7 @@ export default {
           this.liked = true
           if (this.blocked === true) this.unblock(id)
         })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     block (id) {
       const userID = localStorage.getItem('userID')
@@ -185,21 +194,25 @@ export default {
           this.blocked = true
           if (this.liked === true) this.unlike(id)
         })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     unblock (id) {
       const userID = localStorage.getItem('userID')
       User.unblock(userID, id)
         .then(success => { this.blocked = false })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     profileSeen () {
       const receiver = this.$route.params.id
-      if (parseInt(receiver, 10) !== parseInt(User.getID(), 10)) {
-        User.profileSeen(receiver)
-        const notification = { 'receiver': receiver, emitter: User.getID(), type: 'profile' }
-        this.socket.emit('notification', notification)
-      }
+      User.getID()
+        .then(success => {
+          if (parseInt(receiver, 10) !== parseInt(success, 10)) {
+            const notification = { 'receiver': parseInt(receiver), emitter: success, type: 'profile' }
+            this.socket.emit('notification', notification)
+            User.profileSeen(receiver)
+          }
+        })
+        .catch(() => router.push('/'))
     },
     setButton () {
       User.get().then(success => {

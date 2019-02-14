@@ -207,6 +207,7 @@ const QUERIES = {
         DATE_FORMAT(users.birthday, "%Y/%m/%d") AS birthday, \
         users.popularity, \
         users.biography, \
+        users.last_connection, \
         users.is_account_confirmed, \
         users.is_profile_complete, \
         users.is_geolocation_allowed, \

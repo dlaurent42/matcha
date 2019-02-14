@@ -32,7 +32,7 @@ export default {
       if (this.user.id !== undefined) {
         User.getProfilePic(this.user.id)
           .then(success => { this.image = success })
-          .catch(err => console.dir(err))
+          .catch(() => {})
       }
     },
     refresh () {

@@ -45,24 +45,12 @@ export default {
     User.confirmAccount({ 'token': token })
       .then(success => {
         this.confirmed = true
-        this.countDown(() => { router.push('login') })
+        router.push('/login')
       })
       .catch((err) => {
         this.confirmed = 'error'
         this.errorMessage = err.response.data.err
       })
-  },
-  methods: {
-    countDown (callback) {
-      let i = 5
-      let myinterval = setInterval(() => {
-        document.getElementById('displayCount').innerHTML = i
-        if (i === 0) {
-          clearInterval(myinterval)
-          callback()
-        } else i--
-      }, 1000)
-    }
   }
 }
 </script>

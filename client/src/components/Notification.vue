@@ -1,5 +1,5 @@
 <template>
-  <b-dropdown-item class="custom-hover" disabled>
+  <b-dropdown-item class="custom-hover">
     <img v-bind:src="current.path" alt>
     <router-link
       :to="getPath"
@@ -27,6 +27,7 @@ export default {
         ['like', 'likes your profile'],
         ['message', 'sent you a message'],
         ['view', 'has seen your profile'],
+        ['match', 'has matched with you'],
         ['profile', 'has seen your profile'],
         ['unlike', 'no longer likes your profile']
       ])

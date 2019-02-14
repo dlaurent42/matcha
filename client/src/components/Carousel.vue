@@ -50,7 +50,7 @@ export default {
     deletePicture (pic) {
       User.deletePicture({ 'filename': pic })
         .then(success => { this.$emit('deletePicture') })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     getPath (path) { return 'http://localhost:8081/assets/' + path }
   }

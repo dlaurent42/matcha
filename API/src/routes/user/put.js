@@ -22,12 +22,13 @@ const verifyInput = (fields) => {
     'email',
     'birthday',
     'biography',
-    'allowLocation',
+    'is_geolocation_allowed',
     'latitude',
     'longitude',
     'gender',
     'sexualOrientation',
     'connect',
+    'last_connection',
     'disconnect',
     'interest',
   ]
@@ -38,7 +39,7 @@ const verifyInput = (fields) => {
     if (key === 'email' && !userIsEmail(fields[key])) err = true
     if (key === 'birthday' && !userIsBirthdate(fields[key])) err = true
     if (key === 'biography' && isEmpty(fields[key])) err = true
-    if (key === 'allowLocation' && fields[key] !== true && fields[key] !== false) err = true
+    if (key === 'is_geolocation_allowed' && fields[key] !== true && fields[key] !== false) err = true
     if (key === 'latitude' && !userIsLatitude(fields[key])) err = true
     if (key === 'longitude' && !userIsLongitude(fields[key])) err = true
     if (key === 'gender' && isEmpty(fields[key])) err = true

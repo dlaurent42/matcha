@@ -49,7 +49,6 @@ const filterUsers = (users, params) => {
   if (isEmpty(users) || isEmpty(params)) return users
   const filters = JSON.parse(params)
   return users.filter((user) => {
-    if (user.id === 24) console.log(user)
     if (!isEmpty(filters.age_min) && (isEmpty(user.age) || user.age < filters.age_min)) return false
     if (!isEmpty(filters.age_max) && (isEmpty(user.age) || user.age > filters.age_max)) return false
     if (!isEmpty(filters.distance_min) && (isEmpty(user.distance) || user.distance < filters.distance_min)) return false // eslint-disable-line max-len

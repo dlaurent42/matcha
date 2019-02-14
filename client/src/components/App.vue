@@ -7,7 +7,7 @@
       class="fixed-value"
       v-bind:socket="socket"
     />
-    <b-container v-bind:class="classBase" v-bind:style="{
+    <b-container v-bind:class="this.classBase" v-bind:style="{
       'background-image': 'url(' + image + ')',
       'background-repeat': 'no-repeat',
       'background-attachment': 'fixed',
@@ -93,8 +93,8 @@ export default {
       this.user = response.data.user
       this.profileComplete = response.data.user.isProfileComplete !== 0
       localStorage.setItem('userLogged', true)
-      localStorage.setItem('userID', JSON.stringify(response.data.user.id))
-      this.setSockets()
+      localStorage.setItem('userID', response.data.user.id)
+      this.setSockets(parseInt(response.data.user.id))
     },
     logout () {
       if (!_.isEmpty(this.socket)) {
@@ -105,10 +105,10 @@ export default {
       this.setNull()
       router.push('/')
     },
-    setSockets () {
+    setSockets (id) {
       if (_.isEmpty(this.socket)) {
         this.socket = io('http://localhost:8082')
-        this.socket.emit('loginUser', User.getID())
+        this.socket.emit('loginUser', id)
         this.socket.on('logout', () => {
           this.setNull()
           if (!_.isEmpty(this.socket)) {
@@ -124,27 +124,35 @@ export default {
         .then(success => {
           this.user = success.data.user
           this.profileComplete = (success.data.user.isProfileComplete === 1)
-          this.setSockets()
+          this.setSockets(success.data.user.id)
         })
-        .catch(err => {
-          console.dir(err)
-          this.setNull()
-        })
+        .catch(() => { this.setNull() })
     }
   },
   mounted () {
     if (this.$router.history.current.name === 'Liked' ||
-        this.$router.history.current.name === 'Match'
-    ) this.classBase = 'fill-space-horizontal'
+    this.$router.history.current.name === 'Match') this.classBase = 'fill-space-horizontal'
     else this.classBase = 'fill-space'
   },
   beforeRouteEnter (to, from, next) {
+    if (next.name === 'Liked' || next.name === 'Match') this.classBase = 'fill-space-horizontal'
+    else this.classBase = 'fill-space'
     next(this.getUser())
+  },
+  beforeRouteLeave (to, from, next) {
+    if (next.name === 'Liked' || next.name === 'Match') this.classBase = 'fill-space-horizontal'
+    else this.classBase = 'fill-space'
+    next()
   },
   beforeMount () {
     this.authenticated = this.verifyValues()
-    if (this.authenticated) this.setSockets()
+    if (this.authenticated) this.setSockets(localStorage.getItem('userID'))
     if (this.authenticated) this.getUser()
+  },
+  computed: {
+    getClass () {
+      return this.classBase
+    }
   }
 }
 </script>

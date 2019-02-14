@@ -2,28 +2,29 @@
   <b-container fluid class="h-100 mt-5">
     <b-row class="justify-content-md-center">
       <b-col
-        md="4"
+        md="6"
+        lg="4"
         v-for="person in userLiked"
         v-bind:key="person.id"
       >
         <b-card class="bg-dark-transparent">
           <b-row>
-            <b-col md="4">
+            <b-col md="6" lg="4">
               <b-img v-bind:src="profilePicture(person.profilePic)" fluid alt="Fluid image" />
             </b-col>
-            <b-col md="8">
+            <b-col lg="8" md="12">
               <b-row>
                 <b-col md="12">
                   <h4>
                     {{ person.username }}
                   </h4>
                 </b-col>
-                <b-col md="6" class="card-text text-left">
+                <b-col ld="6" md="12" class="card-text text-left mb-3">
                   <b-button v-bind:href="profilePath(person.id)">
                     View profile
                   </b-button>
                 </b-col>
-                <b-col md="6" class="card-text mb-2">
+                <b-col md="12" class="card-text mb-2">
                   <v-button
                     v-bind:liked="true"
                     v-bind:blocked="false"
@@ -58,13 +59,13 @@ export default {
       const userID = localStorage.getItem('userID')
       User.unlike(userID, id)
         .then(success => { this.getUsersLiked() })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     block (id) {
       const userID = localStorage.getItem('userID')
       User.block(userID, id)
         .then(success => { this.unlike(id) })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     getUsersLiked () {
       User.get()
@@ -76,7 +77,7 @@ export default {
           Promise.all(promises)
             .then(success => { this.userLiked = _.map(success, array => { return array.data.user }) })
         })
-        .catch(err => console.dir(err))
+        .catch(() => {})
     },
     profilePicture (path) {
       return 'http://localhost:8081/assets/' + path
@@ -98,7 +99,7 @@ export default {
         if (success.data.user.isProfileComplete === 0) router.push('/Profile')
         else this.getUsersLiked()
       })
-      .catch(err => console.dir(err))
+      .catch(() => {})
   }
 }
 </script>

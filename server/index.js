@@ -24,39 +24,33 @@ class Server {
     this.io = require('socket.io')(this.http, { pingTimeout: 60000 }) // eslint-disable-line
     this.correlationTable = {}
     this.io.sockets.on('connection', (socket) => {
-      console.log(`New connection: ${socket.id}`)
       // Add correlation UserId - SocketId when login event is triggered
       socket.on('loginUser', (uid) => {
         if (!_.isEmpty(uid)) {
-          if (this.correlationTable[uid] === undefined) {
-            Object.assign(this.correlationTable, { [uid]: [socket.id] })
-          } else this.correlationTable[uid].push(socket.id)
+          const id = parseInt(uid, 10)
+          if (_.isEmpty(this.correlationTable[id])) {
+            Object.assign(this.correlationTable, { [id]: [socket.id] })
+          } else this.correlationTable[id].push(socket.id)
         }
-        console.log(this.correlationTable)
       })
 
       // Remove all sockets Id when user logs out
       socket.on('logoutUser', (uid) => {
-        console.log('delog user', uid)
-        if (!_.isEmpty(this.correlationTable[uid])) {
-          this.correlationTable[uid].forEach((socketId) => {
-            console.log('Emit to', socketId, 'disconnect message')
+        if (!_.isEmpty(this.correlationTable[parseInt(uid, 10)])) {
+          this.correlationTable[parseInt(uid, 10)].forEach((socketId) => {
             this.io.to(`${socketId}`).emit('logout')
           })
-          console.log(this.correlationTable)
         }
       })
 
       // Handle notifications
       socket.on('notification', (notification) => {
-        console.log(`Notification asked: (${notification}).`)
         if (notification.type && NOTIFICATION_TYPES.indexOf(notification.type) > -1
         && notification.emitter && notification.receiver) {
-          console.log('Notification is valid.')
-          if (this.correlationTable[notification.receiver] !== undefined
-          && this.correlationTable[notification.receiver].length) {
-            this.correlationTable[notification.receiver].forEach((socketId) => {
-              console.log('Notification receiver is online.')
+          const receiver = parseInt(notification.receiver, 10)
+          if (this.correlationTable[receiver] !== undefined
+          && this.correlationTable[receiver].length) {
+            this.correlationTable[receiver].forEach((socketId) => {
               this.io.to(`${socketId}`).emit('notification', {
                 data: {
                   type: notification.type,
@@ -64,10 +58,22 @@ class Server {
                 },
               })
             })
-          } else {
-            console.log('Notification receiver is offline.')
           }
-        } else console.log('Notification is invalid.')
+          const emitter = parseInt(notification.emitter, 10)
+          if (notification.type === 'like') {
+            if (this.correlationTable[emitter] !== undefined
+            && this.correlationTable[emitter].length) {
+              this.correlationTable[emitter].forEach((socketId) => {
+                this.io.to(`${socketId}`).emit('notification', {
+                  data: {
+                    type: notification.type,
+                    emitter: notification.receiver,
+                  },
+                })
+              })
+            }
+          }
+        }
       })
 
       // Handle if a given user is connected or not
@@ -85,13 +91,11 @@ class Server {
 
       // Handle chat messages
       socket.on('message', (message) => {
-        console.log(`Message received: (${message}).`)
         if (message.emitter && message.receiver && message.content) {
-          console.log('Message well formatted.')
-          if (this.correlationTable[message.receiver]
-          && this.correlationTable[message.receiver].length) {
-            console.log('Message receiver is online.')
-            this.correlationTable[message.receiver].forEach((socketId) => {
+          const receiver = parseInt(message.receiver, 10)
+          if (this.correlationTable[receiver]
+          && this.correlationTable[receiver].length) {
+            this.correlationTable[receiver].forEach((socketId) => {
               this.io.to(`${socketId}`).emit('message', {
                 data: {
                   content: message.content,
@@ -100,15 +104,12 @@ class Server {
                 },
               })
             })
-          } else console.log('Message receiver is offline.')
-        } else {
-          console.log('Message not well formatted.')
+          }
         }
       })
 
       // [PRESET EVENT] remove socket Id from correlationTable
       socket.on('disconnect', () => {
-        console.log(`Disconnect triggered for user ${socket.id}`)
         const key = _.findKey(this.correlationTable, socketIds => (
           socketIds.indexOf(socket.id) > -1
         ))

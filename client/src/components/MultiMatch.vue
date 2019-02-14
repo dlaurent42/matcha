@@ -2,7 +2,7 @@
     <b-card
       class="size-max-md"
       v-bind:title="person.fullname"
-      v-bind:subTitle="person.age.toString()"
+      v-bind:subTitle="'Age: ' + person.age.toString()"
       v-bind:img-src="profilePic"
       img-fluid
       img-alt="image"
@@ -11,7 +11,10 @@
       <p class="card-text" >
         <b-button v-bind:href="profilePath">View profile</b-button>
         <b-badge v-if="person.isOnline === true" variant="success">Online</b-badge>
-        <b-badge v-else >{{ person.last_connection }}</b-badge>
+        <b-badge v-else >{{ person.lastConnection }}</b-badge>
+      </p>
+      <p class="card-text">
+        Popularity: {{ person.popularity }}
       </p>
       <div class="d-flex justify-content-around flex-wrap mb-2">
         <b-badge

@@ -39,7 +39,7 @@ export default {
         if (isEmpty(data.data) || isEmpty(data.data.uid)) throw new Error('Invalid data.')
         return data.data.uid
       })
-      .catch(err => console.dir(err))
+      .catch(() => {})
   },
   get () {
     return this.authLogic()
@@ -80,10 +80,7 @@ export default {
           return Api().get('/user/all/', { params })
         })
         .then(data => resolve(data))
-        .catch(err => {
-          console.dir(err)
-          reject(err.response.data.err)
-        })
+        .catch(err => { reject(err.response.data.err) })
     ))
   },
   getMatched () {
@@ -97,10 +94,7 @@ export default {
           }
         }}))
         .then(data => resolve(data))
-        .catch(err => {
-          console.dir(err)
-          return reject(err.response.data.err)
-        })
+        .catch(err => reject(err.response.data.err))
     ))
   },
   postApikey () {
@@ -131,10 +125,7 @@ export default {
         .then(() => this.getID())
         .then(uid => Api().get('/chat/conversation', { params: { user_id: uid } }))
         .then(data => resolve(data))
-        .catch(err => {
-          console.dir(err)
-          reject(err.response.data.err)
-        })
+        .catch(err => reject(err.response.data.err))
     ))
   },
   getMessages (receiver) {
@@ -143,10 +134,7 @@ export default {
         .then(() => this.getID())
         .then(uid => Api().get('/chat/message', { params: { emitter: uid, receiver } }))
         .then(data => resolve(data))
-        .catch(err => {
-          console.dir(err)
-          reject(err.response.data.err)
-        })
+        .catch(err => reject(err.response.data.err))
     ))
   },
   login (user) {
@@ -167,15 +155,19 @@ export default {
           return Api().post('/token', { data: { uid } })
         })
         .then((data) => {
-          console.log(data)
           localStorage.setItem('usr', data.data.token)
-          return resolve(dataToBeReturned)
+          return Api().put(`/user/${dataToBeReturned.data.user.id}`, { fields: { disconnect: true } })
         })
-        .catch(err => reject(Error(_.get(err, err.data.err, 'An error occured.'))))
+        .then(() => {
+          this.getLocalisation()
+            .then(() => resolve(dataToBeReturned))
+            .catch(() => {})
+        })
+        .catch(err => reject(Error(_.get(err, 'err.data.err', 'An error occured.'))))
         /* Add localisation here
         this.getLocalisation()
         .then(success => console.dir(success))
-        .catch(err => console.dir(err))
+        .catch(() => {})
         */
     })
   },
@@ -210,13 +202,13 @@ export default {
         .catch(err => reject(err))
     })
   },
-  confirmPassword (token) {
+  confirmPassword (token, password, confirmPassword) {
     return new Promise((resolve, reject) => {
-      try {
-        Api().get('/user/recover-password?token=' + token)
-          .then(success => { resolve(success) })
-          .catch(err => reject(err))
-      } catch (err) { reject(err) }
+      const body = {token, new_password: password, confirmed_new_password: confirmPassword}
+      this.authLogic()
+        .then(success => Api().put('/user/recover-password', body))
+        .then(success => { resolve(success) })
+        .catch(err => reject(err))
     })
   },
   getLocalisation () {
@@ -249,7 +241,7 @@ export default {
         return response
       })
       .catch(err => {
-        console.dir(err)
+        return (err)
       })
   },
   updatePassword (data) {
@@ -258,9 +250,7 @@ export default {
       .then((response) => {
         return response
       })
-      .catch(err => {
-        console.dir(err)
-      })
+      .catch(err => { return (err) })
   },
   addPicture (file) {
     return this.getID()
@@ -272,9 +262,7 @@ export default {
         return Api().post('/picture/', formData, config)
       })
       .then(response => response)
-      .catch(err => {
-        console.dir(err)
-      })
+      .catch(err => { return (err) })
   },
   logout () {
     // const token = localStorage.getItem('authClient')
@@ -282,19 +270,14 @@ export default {
     localStorage.removeItem('usr')
     localStorage.removeItem('authClient')
     // Api().delete('/token/', { token })
-    //  .catch(err => console.dir(err))
+    //  .catch(() => {})
   },
   getGender () {
     return new Promise((resolve, reject) => {
       this.authLogic().then(success => {
         Api().get('/user/genders')
-          .then(data => {
-            resolve(data)
-          })
-          .catch(err => {
-            console.dir(err)
-            reject(err.response.data.err)
-          })
+          .then(data => { resolve(data) })
+          .catch(err => reject(err.response.data.err))
       })
     })
   },
@@ -344,10 +327,7 @@ export default {
       this.getID()
         .then(uid => Api().post('/notification/profile', { emitter: uid, receiver }))
         .then(response => resolve(response))
-        .catch((err) => {
-          console.dir(err)
-          reject(err)
-        })
+        .catch((err) => reject(err))
     ))
   },
   sendMessage (receiver, message) {
@@ -355,10 +335,7 @@ export default {
       this.getID()
         .then(uid => Api().post('/chat/message', { emitter: uid, receiver, message }))
         .then(response => resolve(response))
-        .catch((err) => {
-          console.dir(err)
-          reject(err)
-        })
+        .catch((err) => reject(err))
     ))
   },
   getNotifications () {
@@ -366,10 +343,7 @@ export default {
       this.getID()
         .then(uid => Api().get(`/notification/?user_id=${uid}`))
         .then(response => resolve(response))
-        .catch((err) => {
-          console.dir(err)
-          reject(err)
-        })
+        .catch((err) => reject(err))
     ))
   },
   deletePicture (body) {
@@ -379,10 +353,7 @@ export default {
           Object.assign(body, { 'user_id': uid })
           return Api().delete('/picture/', { data: body })
         })
-        .catch((err) => {
-          console.dir(err)
-          reject(err)
-        })
+        .catch((err) => reject(err))
     ))
   },
   suppressNotification (id) {

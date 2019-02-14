@@ -22,6 +22,7 @@
 import User from '@/services/User'
 import _ from 'lodash'
 import Notif from '@/components/Notification'
+import router from '@/router' //eslint-disable-line
 
 export default {
   name: 'Notifications',
@@ -37,9 +38,17 @@ export default {
   mounted () {
     this.getNotifications()
     this.socket.on('message', data => {
-      if (this.$route.name !== 'Messages') { this.getNotifications() }
+      if (this.$route.name !== 'Messages') {
+        setTimeout(() => {
+          this.getNotifications().then(() => {})
+        }, 1000)
+      }
     })
-    this.socket.on('notification', data => { this.getNotifications() })
+    this.socket.on('notification', data => {
+      setTimeout(() => {
+        this.getNotifications().then(() => {})
+      }, 1000)
+    })
   },
   methods: {
     suppress (notification) {
@@ -58,16 +67,13 @@ export default {
       return new Promise((resolve, reject) => {
         User.getNotifications()
           .then(success => {
-            this.notifications = success.data.notifications.map(function (elem) {
-              const notification = {
-                'username': elem.emitter_username,
-                'path': 'http://placehold.it/45x45',
-                'id': elem.emitter_id,
-                'notifid': elem.notification_id,
-                'type': elem.type
-              }
-              return notification
-            })
+            this.notifications = success.data.notifications.map(el => ({
+              'username': el.emitter_username,
+              'path': 'http://placehold.it/45x45',
+              'id': el.emitter_id,
+              'notifid': el.notification_id,
+              'type': el.type
+            }))
             this.notifications = _.groupBy(this.notifications, 'id')
             this.notifications = _.mapValues(this.notifications, (value, key) => {
               return _.groupBy(value, 'type')

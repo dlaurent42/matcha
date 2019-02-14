@@ -4,7 +4,7 @@
       <b-button v-if="!liked" class="rounded-circle" variant="outline-danger" v-on:click="like">
         <font-awesome-icon :icon="['far', 'heart']"/>
       </b-button>
-      <b-button v-else class="rounded-circle" variant="danger" v-on:click="unlike">
+      <b-button v-else class="rounded-circle unlikebaby" variant="danger" v-on:click="unlike">
         <font-awesome-icon :icon="['far', 'heart']"/>
       </b-button>
     </b-col>
@@ -40,13 +40,25 @@ export default {
   },
   methods: {
     like () {
-      const notification = { receiver: this.id, emitter: User.getID(), type: 'like' }
-      this.socket.emit('notification', notification)
-      this.$emit('like', this.id)
+      User.getID()
+        .then(success => {
+          const notification = { receiver: parseInt(this.id), emitter: success, type: 'like' }
+          this.socket.emit('notification', notification)
+          this.$emit('like', this.id)
+        })
+        .catch(() => {})
     },
     block () { this.$emit('block', this.id) },
     unblock () { this.$emit('unblock', this.id) },
-    unlike () { this.$emit('unlike', this.id) }
+    unlike () {
+      User.getID()
+        .then(success => {
+          const notification = { receiver: parseInt(this.id), emitter: success, type: 'unlike' }
+          this.socket.emit('notification', notification)
+          this.$emit('unlike', this.id)
+        })
+        .catch(() => {})
+    }
   }
 }
 </script>
