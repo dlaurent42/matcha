@@ -4,7 +4,7 @@
 
 ## Introduction by 42 School
 
-This second web project aims to teach how to create websites using micro-framework. The website is a tinder-like permitting users to match each other. In contains a matching system, a profile interface and a messaging system.
+This second web project aims to teach how to create websites using a micro-framework. The website is a tinder-like application permitting users to match with each other. In contains a matching system, a profile interface and a messaging system.
 
 ## Objectives
 
